@@ -55,7 +55,7 @@ export default function Navbar() {
           />
         </Flex>
         <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
-          <Button as={'a'} href={''} variant={'ghost'} size={'sm'} _hover={{bg: '00'}}>
+          <Button as={'a'} href={'/'} variant={'ghost'} size={'sm'} _hover={{bg: '00'}}>
             <Image 
                 src={MazeBankLogo}
                 alt="Maze Bank Logo"
@@ -85,7 +85,7 @@ export default function Navbar() {
             fontWeight={600}
             color={'white'}
             bg={'#E1090A'}
-            href={'#'}
+            href={'/enroll'}
             _hover={{
               bg: '#88090A',
             }}>
