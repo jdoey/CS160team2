@@ -3,9 +3,11 @@ from dotenv import load_dotenv
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_login import LoginManager
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = "my secret key"
 
 load_dotenv()
 
@@ -36,5 +38,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 conn = mysql.connector.connect(**config)
+
+# LoginManager is needed for our application 
+# to be able to log in and out users
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+bcrypt = Bcrypt(app)
+
 
 from authentication import route

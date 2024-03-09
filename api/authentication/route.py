@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify
-from authentication.setting import db, app
+from flask import Flask, request, session
+from authentication.setting import db, app, login_manager, bcrypt
+from flask_login import login_user, logout_user, login_required, current_user
 # from authentication.setting import conn, app
 from datetime import datetime
 from authentication.model import User, Person, Address, Customer, Account
@@ -17,6 +18,12 @@ def hello_world():
     return result[1].account[0].__str__()
 
 
+
+# Creates a user loader callback that returns the user object given an id
+@login_manager.user_loader
+def loader_user(user_id):
+    return User.query.get(user_id)
+
 @app.route("/api/customer/register", methods = ['POST'])
 def customerRegister():
     # cur = conn.cursor()
@@ -29,7 +36,7 @@ def customerRegister():
         email = request.form.get('email')
 
         newUser.username = username
-        newUser.password = password
+        newUser.password = hashPassword(password)
         newUser.email = email
 
         db.session.add(newUser)
@@ -90,11 +97,45 @@ def customerRegister():
         db.session.add(newAccount)
         db.session.commit()
 
-        return f'{newUser.userId}'
+        return {'message' : "Sucessfully creating account", 'isSuccess' : True}
         
 
 
+    return {'message' : "Fail to create account", 'isSuccess' : False}
 
-    # cur.close()
 
-    return request.method
+@app.route("/api/customer/login", methods = ['POST'])
+def loginCustomer():
+
+    if request.method == "POST":
+        user = User.query.filter_by(username=request.form.get("username")).first()
+
+        if user and authenticate(user.password, request.form.get("password")):
+           
+            login_user(user, remember=True)
+            return {'message' : "Login sucessfully", 'isSuccess' : True}
+   
+    return {'message' : "Login fail", 'isSuccess' : False}
+
+@app.route("/api/customer/logout", methods = ['POST'])
+def logoutCustomer():
+    if current_user and current_user.is_authenticated:
+        logout_user()
+        return {'message' : "Logout sucessfully", 'isSuccess' : True}
+    
+    return {'message' : "User is not login", 'isSuccess' : False}
+
+
+def hashPassword(password):
+    
+    return bcrypt.generate_password_hash(password).decode('utf-8') 
+
+def authenticate(hashed_password, password):
+    return bcrypt.check_password_hash(hashed_password, password) 
+
+
+@app.route("/api/customer/login/after", methods = ['GET'])
+@login_required
+def testLogin():
+    
+    return f"{current_user.is_authenticated}"
