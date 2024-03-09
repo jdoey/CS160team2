@@ -24,7 +24,7 @@ export default function Map() {
 
         const initMap = async () => {
             const loader = new Loader({
-            apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string, //api key in env file
+            apiKey: "AIzaSyC389-6xiJWmhLW7sMVfi-5qIEHBUxdBX0", //
             version: "weekly",
             });
             // Create the map
@@ -43,11 +43,15 @@ export default function Map() {
             const map = new Map(mapRef.current as HTMLDivElement, mapOptions);
     
 
-         }   
+         } 
+        initMap();  
     }, []);
-    return <div id="map" style={{ height: "400px" }}></div>;
+    
+    return <div id="Map" style={{ height: "400px" }}></div>;
 
     
  } 
+
+
 
 

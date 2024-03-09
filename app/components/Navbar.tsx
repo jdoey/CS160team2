@@ -231,7 +231,7 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
           borderColor={useColorModeValue('gray.200', 'gray.700')}
           align={'start'}>
           {children &&
-            children.map((child) => (
+            children.map((child) => ( 
               <Box as="a" key={child.label} py={2} href={child.href}>
                 {child.label}
               </Box>
@@ -252,6 +252,6 @@ interface NavItem {
 const NAV_ITEMS: Array<NavItem> = [
   {
     label: 'ATM Locations',
-    href: '#',
+    href: '/ATM',
   },
 ]

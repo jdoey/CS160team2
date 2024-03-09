@@ -1,4 +1,4 @@
-import { Providers } from './providers'
+import { Providers } from '../ATM/providers'
 
 export default function RootLayout({
   children,
@@ -6,10 +6,8 @@ export default function RootLayout({
   children: React.ReactNode,
 }) {
   return (
-    <html lang='en'>
-      <body>
+    
         <Providers>{children}</Providers>
-      </body>
-    </html>
+     
   )
 }
