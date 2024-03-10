@@ -21,9 +21,9 @@ export default function AtmLoc() {
       <>
       <Flex
         w={'full'}
-        h={'20vh'} 
         backgroundSize={'cover'}
-        backgroundPosition={'center'}>
+        backgroundPosition={'center'}
+        bg={'D3D3D3'}>
         <Stack
           as={Box}
           w={'full'}
