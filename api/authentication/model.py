@@ -65,7 +65,7 @@ class Account(db.Model):
     balance = db.Column(db.Float, nullable=False)
     dateOpen = db.Column(db.DateTime, default=datetime.utcnow)
     dateClose = db.Column(db.DateTime)
-    accountStatus = db.Column(db.String(20), nullable=False)
+    accountStatus = db.Column(db.String(20), default="Active",nullable=False)
     customerId = db.Column(db.Integer, db.ForeignKey('customer.customerId'))
 
     def __str__(self):
