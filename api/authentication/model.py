@@ -62,7 +62,7 @@ class Account(db.Model):
 
     accountNumber = db.Column(db.Integer, primary_key=True)
     accountType = db.Column(db.String(20), nullable=False)
-    balance = db.Column(db.Float, nullable=False)
+    balance = db.Column(db.Float, default=0.0, nullable=False)
     dateOpen = db.Column(db.DateTime, default=datetime.utcnow)
     dateClose = db.Column(db.DateTime)
     accountStatus = db.Column(db.String(20), default="Active",nullable=False)

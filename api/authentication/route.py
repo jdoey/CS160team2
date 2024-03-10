@@ -140,34 +140,32 @@ def authenticate(hashed_password, password):
     return bcrypt.check_password_hash(hashed_password, password) 
 
 
-@app.route("/api/customer/login/after", methods = ['GET'])
-@login_required
-def testLogin():
-    
-    return f"{current_user.is_authenticated}"
-
-
 
 
 @app.route("/api/customer/account", methods = ['POST'])
 @login_required
 def createAccount():
 
-    newAccount = Account()
-    accountType = request.form.get('accountType')
+    
+    accountType = request.form.get('accountType').lower()
     balance = request.form.get('balance')
     accountStatus = request.form.get('accountStatus')
 
-    newAccount.accountType = accountType
-    newAccount.balance = float(balance)
-    newAccount.accountStatus = accountStatus
-    newAccount.customerId = current_user.customer.customerId
+    account = Account.query.filter_by(accountType=accountType, customerId=current_user.customer.customerId).first()
+    if account is None:
+        newAccount = Account()
+        newAccount.accountType = accountType
+        newAccount.balance = float(balance)
+        newAccount.accountStatus = accountStatus
+        newAccount.customerId = current_user.customer.customerId
 
-    db.session.add(newAccount)
-    db.session.commit()
+        db.session.add(newAccount)
+        db.session.commit()
 
     
-    return {'message' : "Sucessfully creating account", 'isSuccess' : True}
+        return {'message' : "Sucessfully creating account", 'isSuccess' : True}
+    
+    return {'message' : "This account is existed", 'isSuccess' : False}
 
 
 @app.route("/api/customer/balance", methods = ['GET'])
@@ -178,6 +176,21 @@ def accountBalance():
     accounts = Account.query.filter_by(customerId=id)
 
     for account in accounts:
-        res.append({"type": account.accountType, 'balance' : account.accountNumber, "status": account.accountStatus})
+        res.append({"accountNumber" : account.accountNumber, "type": account.accountType, 'balance' : account.accountNumber, "status": account.accountStatus})
     
     return {"accounts": res, 'isSuccess' : True}
+
+@app.route("/api/customer/updateAccount", methods = ['Post'])
+@login_required
+def updateAccount():
+    accountNumber = request.form.get('accountNumber')
+    accountStatus = request.form.get('accountStatus')
+    
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+
+    if account:
+        account.accountStatus = accountStatus
+        db.session.commit()
+        return {"message" : "Update successfully", "isSuccess" : True}
+    
+    return {"message" : "Fail to update", "isSuccess" : False}
