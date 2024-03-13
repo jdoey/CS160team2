@@ -9,7 +9,7 @@ const Map: React.FC = () => {
 
     useEffect(() => {
         const loader = new Loader({
-            apiKey: "AIzaSyAl5axv6eM_kcusJvNzSxcThuXXoFsJvyQ",
+            apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
             version: "weekly",
             libraries: ["places"]
         });
