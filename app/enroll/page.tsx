@@ -5,7 +5,6 @@ export default function EnrollPage() {
     return (
         <>
           <Header/>
-          <div style={{padding:"10px"}}></div>
           <EnrollForm/>
         </>
     )
