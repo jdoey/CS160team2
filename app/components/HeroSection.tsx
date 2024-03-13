@@ -4,14 +4,10 @@ import Head from 'next/head'
 import {
   Box,
   Heading,
-  Container,
   Text,
   Button,
   Stack,
   Flex,
-  Icon,
-  useColorModeValue,
-  createIcon,
 } from '@chakra-ui/react'
 
 export default function HeroSection() {

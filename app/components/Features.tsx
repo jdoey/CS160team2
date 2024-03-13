@@ -35,11 +35,11 @@ const Feature = ({ title, icon }: FeatureProps) => {
 export default function Features() {
   return (
     <Center bg={useColorModeValue('white.100', 'gray.700')}>
-    <Box p={8} bg={useColorModeValue('white.100', 'gray.700')} w={'50%'}>
+    <Box p={8} bg={useColorModeValue('white.100', 'gray.700')} maxW={'100%'}>
         <Heading fontSize={{ base: '2xl', sm: '4xl' }} fontWeight={'bold'} textAlign={'center'} paddingBottom={6}>
             Choose what's right for you
         </Heading>
-        <SimpleGrid textAlign={'center'} alignContent={'center'} columns={{ base: 1, md: 2 }} spacing={10}>
+        <SimpleGrid textAlign={'center'} alignContent={'center'} columns={{ base: 2, md: 2 }} spacing={10}>
             <Feature
             icon={<Icon as={FaMoneyCheck} w={10} h={10} color={'white'}/>}
             title={'Checking'}
