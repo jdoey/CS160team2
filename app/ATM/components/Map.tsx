@@ -2,32 +2,44 @@
 import React, { useEffect, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
-const Map: React.FC = () => {
+
+
+function Map() {
     const [city, setCity] = useState('');
     const [map, setMap] = useState<google.maps.Map | null>(null);
     const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
+    const mapRef = React.useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const loader = new Loader({
-            apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
-            version: "weekly",
-            libraries: ["places"]
-        });
-
-        loader.load().then(() => {
-            const mapDiv = document.getElementById("map") as HTMLElement;
-            const gMap = new google.maps.Map(mapDiv, {
-                center: { lat: 37.334665328, lng: -121.875329832 },
-                zoom: 13,
+        const initMap = async () => {
+            const loader = new Loader({
+                apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+                version: "weekly",
+                libraries: ["places"]
             });
 
-            const gInfoWindow = new google.maps.InfoWindow({ content: '' });
-            setMap(gMap);
+            const { Map, InfoWindow} = await loader.importLibrary('maps');
+
+            const position = {
+                lat: 37.334665328,
+                lng: -121.875329832
+            }
+            const mapOptions: google.maps.MapOptions = {
+                center: position,
+                zoom: 10,
+                mapId: 'SCHOOL_TEST_MAP'
+            };
+
+            const map = new Map(mapRef.current as HTMLDivElement, mapOptions);
+            const gInfoWindow = new InfoWindow({ content: '' });
+
+            setMap(map);
             setInfoWindow(gInfoWindow);
-        });
+        }
+        initMap();
     }, []);
 
-    const handleLocationSearch = (e:React.MouseEvent<HTMLButtonElement>) => {
+    const handleLocationSearch = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (!map || !city) return;
 
@@ -36,12 +48,12 @@ const Map: React.FC = () => {
             if (status === 'OK' && results && results[0]) {
                 const cityLocation = results[0].geometry.location;
                 map.setCenter(cityLocation);
-                map.setZoom(13); 
+                map.setZoom(13);
 
                 const service = new google.maps.places.PlacesService(map);
                 service.textSearch({
                     location: cityLocation,
-                    radius: 10000, 
+                    radius: 10000,
                     query: 'Chase ATM',
                 }, (results, status) => {
                     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
@@ -83,12 +95,14 @@ const Map: React.FC = () => {
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                     />
-                    <button style={{ backgroundColor: '#E1090A', border: 'none', color: 'white', padding: '10px 20px',
-                    borderRadius: '20px', cursor: 'pointer' }} 
-                    type="submit" onClick={(e) => handleLocationSearch(e)}>Search</button>
+                    <button style={{
+                        backgroundColor: '#E1090A', border: 'none', color: 'white', padding: '10px 20px',
+                        borderRadius: '20px', cursor: 'pointer'
+                    }}
+                        type="submit" onClick={(e) => handleLocationSearch(e)}>Search</button>
                 </div>
             </form>
-            <div id="map" style={{ height: "400px", width: "100%" }}></div>
+            <div className='h-[50vh]' ref={mapRef} style={{ height: "400px" }}></div>
         </div>
     );
 }
