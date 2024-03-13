@@ -38,3 +38,5 @@ __pycache__
 #virtual environment
 /venv
 .env
+
+/venv
