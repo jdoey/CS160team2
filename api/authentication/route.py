@@ -45,11 +45,11 @@ def customerRegister():
         newPerson = Person()
         firstname = request.form.get('firstname')
         lastname = request.form.get('lastname')
-        # dob = request.form.get('dob')
+        dob = request.form.get('dob').strip()
         
         newPerson.firstname = firstname
         newPerson.lastname = lastname
-        # newPerson.dob = dob
+        newPerson.dob = datetime.strptime(dob, '%m/%d/%Y')
         db.session.add(newPerson)
         db.session.commit()
 
@@ -173,6 +173,7 @@ def updateAccount():
 
     if account:
         account.accountStatus = accountStatus
+        account.dateClose = datetime.now()
         db.session.commit()
         return {"message" : "Update successfully", "isSuccess" : True}
     

@@ -22,7 +22,7 @@ class Person(db.Model):
     personId = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(255), nullable=False)
     lastname = db.Column(db.String(255), nullable=False)
-    DOB = db.Column(db.DateTime, default=datetime.utcnow)
+    dob = db.Column(db.DateTime, default=datetime.now())
     address = db.relationship('Address', backref='person', uselist=False)
     customer = db.relationship('Customer', backref='person', uselist=False)
 
