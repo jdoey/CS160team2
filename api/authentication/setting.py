@@ -37,7 +37,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-conn = mysql.connector.connect(**config)
+# conn = mysql.connector.connect(**config)
 
 # LoginManager is needed for our application 
 # to be able to log in and out users
