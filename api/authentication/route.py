@@ -8,14 +8,10 @@ import json
 
 @app.route("/api/python")
 def hello_world():
-    # cur = conn.cursor()
-    # cur.execute("SELECT * FROM user")
-    # result = cur.fetchall()
-    # cur.close()
 
     result = Customer.query.all()
     
-    return result[1].account[0].__str__()
+    return "Hello world"
 
 
 
@@ -26,7 +22,7 @@ def loader_user(user_id):
 
 @app.route("/api/customer/register", methods = ['POST'])
 def customerRegister():
-    # cur = conn.cursor()
+
     
     if request.method == 'POST':
         user = User.query.filter_by(username=request.form.get('username')).first()
@@ -86,19 +82,6 @@ def customerRegister():
         db.session.add(newCustomer)
         db.session.commit()
 
-        #Account
-        # newAccount = Account()
-        # accountType = request.form.get('accountType')
-        # balance = request.form.get('balance')
-        # accountStatus = request.form.get('accountStatus')
-
-        # newAccount.accountType = accountType
-        # newAccount.balance = float(balance)
-        # newAccount.accountStatus = accountStatus
-        # newAccount.customerId = newCustomer.customerId
-
-        # db.session.add(newAccount)
-        # db.session.commit()
 
         return {'message' : "Sucessfully creating user", 'isSuccess' : True}
         
