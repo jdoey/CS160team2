@@ -66,12 +66,12 @@ def customerRegister():
         country = request.form.get('country')
         zipcode = request.form.get('zipcode')
 
-        newAdress.streetNum = int(streetNum)
+        newAdress.streetNum = streetNum
         newAdress.street = street
         newAdress.city = city
         newAdress.state = state
         newAdress.country = country
-        newAdress.zipcode = int(zipcode)
+        newAdress.zipcode = zipcode
         newAdress.personId = newPerson.personId
 
         db.session.add(newAdress)

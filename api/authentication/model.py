@@ -33,12 +33,12 @@ class Address(db.Model):
     __tablename__ = "address"
 
     addressId = db.Column(db.Integer, primary_key=True)
-    streetNum = db.Column(db.Integer, nullable=False)
+    streetNum = db.Column(db.String, nullable=False)
     street = db.Column(db.String(50), nullable=False)
     city = db.Column(db.String(200), nullable=False)
     state = db.Column(db.String(200), nullable=False)
     country = db.Column(db.String(200), nullable=False)
-    zipcode = db.Column(db.Integer, nullable=False)
+    zipcode = db.Column(db.String, nullable=False)
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
 
     def __str__(self):
