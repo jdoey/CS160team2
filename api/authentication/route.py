@@ -184,3 +184,4 @@ def updateAccount():
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return {'message' : "User is not login", 'isSuccess' : False}
+
