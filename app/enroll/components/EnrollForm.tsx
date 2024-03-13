@@ -18,6 +18,7 @@ import {
   Select,
   InputGroup,
   InputRightElement,
+  useColorModeValue,
   FormErrorMessage,
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
@@ -460,14 +461,21 @@ export default function Multistep() {
   return (
     <>
       <Box
-        borderWidth="1px"
-        rounded="lg"
-        shadow="1px 1px 3px rgba(0,0,0,0.3)"
-        maxWidth={500}
-        p={6}
-        m="10px auto">
-        <Progress hasStripe value={progress} colorScheme='red' mb="5%" mx="5%" isAnimated></Progress>
-        {steps[step]}
+        bg={useColorModeValue('gray.50', 'gray.800')}
+        pt={'10px'}
+        minH={'100vh'}
+        >
+        <Box
+          bg={"#FFFFFF"}
+          borderWidth="1px"
+          rounded="lg"
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+          maxWidth={500}
+          p={6}
+          m="10px auto">
+          <Progress hasStripe value={progress} colorScheme='red' mb="5%" mx="5%" isAnimated></Progress>
+          {steps[step]}
+        </Box>
       </Box>
     </>
   )
