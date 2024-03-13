@@ -9,7 +9,7 @@ const Map: React.FC = () => {
 
     useEffect(() => {
         const loader = new Loader({
-            apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '', // Ensure your API key is correctly referenced here
+            apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
             version: "weekly",
             libraries: ["places"]
         });
@@ -35,12 +35,12 @@ const Map: React.FC = () => {
             if (status === 'OK' && results && results[0]) {
                 const cityLocation = results[0].geometry.location;
                 map.setCenter(cityLocation);
-                map.setZoom(13); // Adjust zoom level for city view
+                map.setZoom(13); 
 
                 const service = new google.maps.places.PlacesService(map);
                 service.textSearch({
                     location: cityLocation,
-                    radius: 5000, // Search within 5km radius
+                    radius: 10000,  // search 10km radius
                     query: 'Chase ATM',
                 }, (results, status) => {
                     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
@@ -69,7 +69,7 @@ const Map: React.FC = () => {
 
     return (
         <div>
-            <div>
+            <div style={{textAlign: "center"}}>
                 <input
                     type="text"
                     placeholder="Enter city"
