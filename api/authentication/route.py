@@ -55,8 +55,7 @@ def customerRegister():
 
         #Address
         newAdress = Address()
-        streetNum = request.form.get('streetNum')
-        street = request.form.get('street')
+        streetNum, street = request.form.get('street').split(" ")
         city = request.form.get('city')
         state = request.form.get('state')
         country = request.form.get('country')
@@ -159,7 +158,7 @@ def accountBalance():
     accounts = Account.query.filter_by(customerId=id)
 
     for account in accounts:
-        res.append({"accountNumber" : account.accountNumber, "type": account.accountType, 'balance' : account.accountNumber, "status": account.accountStatus})
+        res.append({"accountNumber" : account.accountNumber, "type": account.accountType, 'balance' : account.balance, "status": account.accountStatus})
     
     return {"accounts": res, 'isSuccess' : True}
 
@@ -184,4 +183,3 @@ def updateAccount():
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return {'message' : "User is not login", 'isSuccess' : False}
-

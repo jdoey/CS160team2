@@ -49,5 +49,3 @@ bcrypt = Bcrypt(app)
 
 from authentication import route
 
-
-
