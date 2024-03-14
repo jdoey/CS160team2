@@ -47,5 +47,5 @@ login_manager.init_app(app)
 bcrypt = Bcrypt(app)
 
 
-from authentication import route
+from api import route
 

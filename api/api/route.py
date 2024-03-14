@@ -1,9 +1,9 @@
 from flask import Flask, request, session
-from authentication.setting import db, app, login_manager, bcrypt
+from api.setting import db, app, login_manager, bcrypt
 from flask_login import login_user, logout_user, login_required, current_user
 # from authentication.setting import conn, app
 from datetime import datetime
-from authentication.model import User, Person, Address, Customer, Account
+from api.model import User, Person, Address, Customer, Account
 import json
 
 @app.route("/api/python")
