@@ -4,14 +4,10 @@ import Head from 'next/head'
 import {
   Box,
   Heading,
-  Container,
   Text,
   Button,
   Stack,
   Flex,
-  Icon,
-  useColorModeValue,
-  createIcon,
 } from '@chakra-ui/react'
 
 export default function HeroSection() {
@@ -19,7 +15,7 @@ export default function HeroSection() {
     <>
       <Flex
         w={'full'}
-        h={'60vh'} 
+        h={'55vh'} 
         backgroundImage={'url(https://media-rockstargames-com.akamaized.net/tina-uploads/posts/ak73k92o47ko75/5de9d8bc4ffeabb209ec67ab3721ea281da5cd05.jpg)'}
         backgroundSize={'cover'}
         backgroundPosition={'center'}>
@@ -57,7 +53,7 @@ export default function HeroSection() {
               bg={'#E1090A'}
               rounded={'full'}
               px={6}
-              href={'#'}
+              href={'/enroll'}
               _hover={{
                 bg: '#88090A',
               }}>
