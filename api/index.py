@@ -1,4 +1,4 @@
-from authentication.setting import app
+from api.setting import app
 
 if __name__ == '__main__':
     app.run()
