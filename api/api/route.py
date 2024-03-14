@@ -172,7 +172,10 @@ def updateAccount():
 
     if account:
         account.accountStatus = accountStatus
-        account.dateClose = datetime.now()
+        if accountStatus == "active":
+            account.dateClose = None
+        else:
+            account.dateClose = datetime.now()
         db.session.commit()
         return {"message" : "Update successfully", "isSuccess" : True}
     
