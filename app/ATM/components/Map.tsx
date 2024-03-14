@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
+//add search by location with geolocation
+//add background image of chase atm
+//add "partnered with chase bank" text
 
 
 function Map() {
@@ -9,6 +12,7 @@ function Map() {
     const [map, setMap] = useState<google.maps.Map | null>(null);
     const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
     const mapRef = React.useRef<HTMLDivElement>(null);
+   
 
     useEffect(() => {
         const initMap = async () => {

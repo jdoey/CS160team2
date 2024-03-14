@@ -1,5 +1,3 @@
-'use client'
-
 import Head from 'next/head'
 import React, { useEffect } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
