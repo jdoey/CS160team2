@@ -26,7 +26,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons'
 
-import MazeBankLogo from '../../public/redmazebank.png';
+import MazeBankLogo from '../../../public/redmazebank.png';
 
 export default function Navbar() {
   const { isOpen, onToggle } = useDisclosure()
@@ -75,7 +75,7 @@ export default function Navbar() {
           justify={'flex-end'}
           direction={'row'}
           spacing={1}>
-          <Button as={'a'} fontSize={'sm'} fontWeight={400} variant={'ghost'} href={'/signin'}>
+          <Button as={'a'} fontSize={'sm'} fontWeight={400} variant={'ghost'} href={'#'}>
             Sign In
           </Button>
           <Button
