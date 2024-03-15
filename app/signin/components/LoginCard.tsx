@@ -16,21 +16,23 @@ import {
 
 export default function SimpleCard() {
   return (
+    
     <Flex
       minH={'100vh'}
       justify={'center'}
       bg={useColorModeValue('gray.50', 'gray.800')}>
-      <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
+      <Stack spacing={8} mx={'auto'} maxW={'lg'} py={10} px={6}>
         <Stack align={'center'}>
-          <Heading fontSize={'4xl'}>Sign in to your account</Heading>
-          <Text fontSize={'lg'} color={'gray.600'}></Text>
+          {/* <Heading fontSize={'4xl'}>Sign in to your account</Heading> */}
+          {/* <Text fontSize={'lg'} color={'gray.600'}></Text> */}
         </Stack>
         <Box
           rounded={'lg'}
           bg={useColorModeValue('white', 'gray.700')}
           boxShadow={'lg'}
           p={8}>
-          <Stack spacing={4}>
+          <Stack spacing={5}>
+          <Heading fontSize={'4xl'} mb={"5%"}>Sign in to your account</Heading>
             <FormControl id="username">
               <FormLabel>Username</FormLabel>
               <Input type="username" />

@@ -65,7 +65,7 @@ const Form1 = (props : any) => {
 
   return (
     <>
-      <Heading w="100%" textAlign={'center'} fontWeight="normal" mb="2%">
+      <Heading w="100%" textAlign={'center'} mb="2%">
         User Registration
       </Heading>
       <Formik
