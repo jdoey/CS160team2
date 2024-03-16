@@ -1,17 +1,11 @@
 import Head from 'next/head'
-import React, { useEffect } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
+import React from 'react';
 import {
   Box,
   Heading,
-  Container,
   Text,
-  Button,
   Stack,
   Flex,
-  Icon,
-  useColorModeValue,
-  createIcon,
 } from '@chakra-ui/react'
 
 export default function AtmLoc() {
@@ -19,9 +13,12 @@ export default function AtmLoc() {
       <>
       <Flex
         w={'full'}
+        h={'65vh'} 
         backgroundSize={'cover'}
+        backgroundRepeat={'no-repeat'}
         backgroundPosition={'center'}
-        bg={'D3D3D3'}>
+        backgroundImage={'url(https://www.hustlermoneyblog.com/wp-content/uploads/2019/05/Chase-ATMs.jpg)'}
+        >
         <Stack
           as={Box}
           w={'full'}
@@ -33,8 +30,12 @@ export default function AtmLoc() {
             fontWeight={600}
             color={'#E1090A'}
             fontSize={{ base: '2xl', sm: '4xl', md: '6xl' }}
-            lineHeight={'110%'}>
-            Atm Locations
+            lineHeight={'90%'}>
+            Atm Locations <br />
+            <Text as={'span'} color={'#E1090A'} fontSize={{base: '2xs', sm: 'sm', md: 'xl'}}>
+              Partnered with chase
+            </Text>
+            
           </Heading>
         </Stack>
       </Flex>
