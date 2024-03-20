@@ -9,17 +9,12 @@ import {
   Heading,
   Flex,
   FormControl,
-  GridItem,
   FormLabel,
   Input,
-  Select,
-  SimpleGrid,
-  InputLeftAddon,
-  InputGroup,
-  Textarea,
   FormHelperText,
-  InputRightElement,
-  Menu, MenuButton, MenuList, MenuItem, MenuGroup, MenuDivider
+  Spinner,
+  Stack,
+  Divider
 } from '@chakra-ui/react'
 
 import { useToast } from '@chakra-ui/react'
@@ -28,23 +23,13 @@ const Form1 = () => {
   return (
     <>
       <Heading w="100%" textAlign={'center'} fontWeight="normal" mb="2%" padding={10}>
-        Transfer to an External Account
+        Adding an External Account
       </Heading>
-      <Flex>
-        <FormControl mr="5%">
-          <FormLabel htmlFor="account-name" fontWeight={'normal'}>
-            Recipient Account Name
-          </FormLabel>
-          <Input id="account-name" placeholder="Account Name" />
-        </FormControl>
-
-        <FormControl>
-          <FormLabel htmlFor="account-number" fontWeight={'normal'}>
-            Recipient Account Number
-          </FormLabel>
-          <Input id="account-number" placeholder="Account Number" />
-        </FormControl>
-      </Flex>
+      <FormControl>
+        <FormLabel>Choose Financial Institution</FormLabel>
+        <Input type='bank'/>
+        <FormHelperText>Sign into the financial institution you would like to link to your MazeBank Account.</FormHelperText>
+      </FormControl>
     </>
   )
 }
@@ -52,33 +37,18 @@ const Form1 = () => {
 const Form2 = () => {
   return (
     <>
+    <Stack>
       <Heading w="100%" textAlign={'center'} fontWeight="normal" mb="2%" padding={10}>
-        Recipient Information
-      </Heading>
-      <Flex>
-        <FormControl mr="5%">
-          {/* <FormLabel htmlFor="first-name" fontWeight={'normal'}>
-            
-          </FormLabel>
-          <Input id="first-name" placeholder="First name" /> */}
-        <Menu>
-        <MenuButton as={Button} colorScheme='red.500' color='black'>
-    Choose Account
-  </MenuButton>
-  <MenuList>
-      <MenuItem>Checking Account</MenuItem>
-      <MenuItem>Savings Account</MenuItem>
-  </MenuList>
-        </Menu>
-        </FormControl>
-
-        <FormControl>
-          <FormLabel htmlFor="transfer-amount" fontWeight={'normal'}>
-            Transfer amount
-          </FormLabel>
-          <Input id="transfer-amount" placeholder="0.00" />
-        </FormControl>
-      </Flex>
+          Connecting you to your External Financial Institution
+        </Heading>
+        <Spinner
+          thickness='4px'
+          speed='0.65s'
+          emptyColor='gray.200'
+          color='red.500'
+          size='xl'
+        />
+    </Stack>
     </>
   )
 }
@@ -87,28 +57,17 @@ const Form3 = () => {
     const [show, setShow] = useState(false)
   const handleClick = () => setShow(!show)
   return (
-    <><Heading w="100%" textAlign={'center'} fontWeight="normal" mb="2%" padding={10}>
-    Confirm your password
-  </Heading>
-  <Flex>
-  <FormControl>
-        <FormLabel htmlFor="password" fontWeight={'normal'} mt="2%">
-          Password
-        </FormLabel>
-        <InputGroup size="md">
-          <Input
-            pr="4.5rem"
-            type={show ? 'text' : 'password'}
-            placeholder="Enter password"
-          />
-          <InputRightElement width="4.5rem">
-            <Button h="1.75rem" size="sm" onClick={handleClick}>
-              {show ? 'Hide' : 'Show'}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
-  </Flex></>
+    <>
+      <Heading w="100%" textAlign={'center'} fontWeight="normal" mb="2%" padding={10}>
+        Confirmation
+      </Heading>
+      <Stack>
+      <a>Your accounts:</a>
+      <Divider/>
+      <a> Savings Account (...1827)</a>
+      <a> Checking Account (...9382)</a>
+      </Stack>
+    </>
   )
 }
 
@@ -168,13 +127,13 @@ export default function Multistep() {
                 onClick={() => {
                   toast({
                     title: 'Success',
-                    description: "Your payment has been transferred.",
+                    description: "Your external accounts have been added.",
                     status: 'success',
                     duration: 3000,
                     isClosable: true,
                   })
                 }}>
-                Submit
+                Connect
               </Button>
             ) : null}
           </Flex>
