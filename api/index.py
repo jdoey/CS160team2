@@ -307,6 +307,20 @@ def updateAccount():
     return {"message" : "Fail to update", "isSuccess" : False}
 
 
+
+@app.route("/api/customer/balance/histTrans", methods = ['GET'])
+@login_required
+def getTransaction():
+    data = request.json
+    accountId = data.get('accountNumber')
+    transactions = Transactions.query.filter(Account.accountNumber==accountId).all()
+    res = []
+    for trans in transactions:
+        res.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
+        
+    return res
+
+
 @app.route("/api/employee/customerAccount", methods = ['POST'])
 @login_required
 def customerAccount():
