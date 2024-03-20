@@ -1,27 +1,41 @@
 'use client'
 import {
-    Box,
-    Flex,
+    Box, 
+    Flex, 
     Button,
-    Menu, 
-    MenuButton, 
-    MenuItem,
-    MenuList,
     Tab, 
-    TabIndicator,
+    TabIndicator, 
     TabList,
-    Tabs,
-    TabPanels,
+    Tabs, 
+    TabPanels, 
     TabPanel,
     Select,
-    FormControl,
-    FormLabel,
+    FormControl, 
+    FormLabel, 
     Input,
     useToast,
+    Table, 
+    TableContainer, 
+    Tr, Th, Td, 
+    Thead, 
+    Tbody,
     Stack
   } from '@chakra-ui/react'
 
-import EmployeeSidebar from '../components/EmployeeSidebar'
+import {
+    Drawer,
+    DrawerBody,
+    DrawerFooter,
+    DrawerHeader,
+    DrawerOverlay,
+    DrawerContent,
+    DrawerCloseButton,
+    useDisclosure
+  } from '@chakra-ui/react'
+
+import React from 'react'
+
+import Sidebar from '../components/Sidebar'
 import ExternalTransferForm from '../components/ExternalTransferForm'
 
 
@@ -29,13 +43,12 @@ export default function Page() {
   const toast = useToast()
   return (
     <>
-      <EmployeeSidebar/>
+      <Sidebar/>
       <Box ml={{ base: 0, md: 60 }} paddingTop={0} paddingLeft={4}>
         <Tabs position="relative" variant="unstyled">
           <TabList>
-            <Tab>Internal</Tab>
-            <Tab>External</Tab>
-            <Tab>Recipients</Tab>
+            <Tab>Payments</Tab>
+            <Tab>Transfer Money</Tab>
           </TabList>
           <TabIndicator
             mt="-1.5px"
@@ -46,122 +59,120 @@ export default function Page() {
           <TabPanels>
 
             <TabPanel>
-              <Flex>
-                <Select placeholder='Transfer from:' padding='1'>
-                  <option value='option1'>Option 1</option>
-                  <option value='option2'>Option 2</option>
-                  <option value='option3'>Option 3</option>
-                </Select>
-                <Select placeholder='Transfer to:'padding='1'>
-                  <option value='option1'>Option 1</option>
-                  <option value='option2'>Option 2</option>
-                  <option value='option3'>Option 3</option>
-                </Select>
-              </Flex>
+              <Tabs variant='enclosed' colorScheme='red'>
+                <TabList>
+                  <Tab>Pay</Tab>
+                  <Tab>Payment History</Tab>
+                </TabList>
+                <TabPanels>
 
-              <FormControl isRequired padding='1' paddingTop='5'>
-                <FormLabel>Amount</FormLabel>
-                <Input placeholder='$0.00' />
-              </FormControl>
+                  <TabPanel>
+                    <FormControl>
+                      <FormLabel>Search for a recipient</FormLabel>
+                      <Input type='Recipient'/>
+                    </FormControl>
 
-              <Button background='red.500' color='white'
-                onClick={() => {
-                toast({
-                  title: 'Success',
-                  description: "Your payment has been transferred.",
-                  status: 'success',
-                  duration: 3000,
-                  isClosable: true,
-                })
-              }}>Transfer</Button>
+                  </TabPanel>
+
+                  <TabPanel>
+                    <TableContainer>
+                      <Table size='sm'>
+                        <Thead>
+                          <Tr>
+                            <Th>From</Th>
+                            <Th>Recipient</Th>
+                            <Th>Date</Th>
+                            <Th isNumeric>Amount</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          <Tr>
+                            <Td>Checking Account</Td>
+                            <Td>Bank</Td>
+                            <Td>March 12, 2024</Td>
+                            <Td isNumeric>$25.46</Td>
+                          </Tr>
+                          <Tr>
+                            <Td>Savings Account</Td>
+                            <Td>External Bank Account</Td>
+                            <Td>March 8, 2024</Td>
+                            <Td isNumeric>$90.00</Td>
+                          </Tr>
+                          <Tr>
+                            <Td>Checking Account</Td>
+                            <Td>Bank</Td>
+                            <Td>February 28, 2024</Td>
+                            <Td isNumeric>$167.12</Td>
+                          </Tr>
+                          <Tr>
+                            <Td>Checking Account</Td>
+                            <Td>Bank</Td>
+                            <Td>February 19, 2024</Td>
+                            <Td isNumeric>$58.91</Td>
+                          </Tr>
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  </TabPanel>
+
+                </TabPanels>
+              </Tabs>
               
             </TabPanel>
 
             <TabPanel>
-              <ExternalTransferForm/>
+              <Tabs variant='enclosed' colorScheme='red'>
+                <TabList>
+                  <Tab>Transfer</Tab>
+                  <Tab>Add External Account</Tab>
+                </TabList>
+                  
+                <TabPanels>
+                  <TabPanel>
+                    <Stack>
+                      <Flex>
+                        <Select placeholder='Transfer from:' padding='1' paddingTop='5'>
+                          <option value='option1'>Option 1</option>
+                          <option value='option2'>Option 2</option>
+                          <option value='option3'>Option 3</option>
+                        </Select>
+                        <Select placeholder='Transfer to:'padding='1' paddingTop='5'>
+                          <option value='option1'>Option 1</option>
+                          <option value='option2'>Option 2</option>
+                          <option value='option3'>Option 3</option>
+                        </Select>
+                      </Flex>
+
+                      <FormControl isRequired padding='1' paddingTop='5' paddingBottom={5}>
+                        <FormLabel>Amount</FormLabel>
+                        <Input placeholder='$0.00' />
+                      </FormControl>
+
+                      <Button background='red.500' color='white'
+                        onClick={() => {
+                        toast({
+                          title: 'Success',
+                          description: "Your payment has been transferred.",
+                          status: 'success',
+                          duration: 3000,
+                          isClosable: true,
+                        })
+                      }}>Transfer</Button>
+                    </Stack>
+                  </TabPanel>
+
+                  <TabPanel>
+                    <ExternalTransferForm/>
+                  </TabPanel>
+
+
+                </TabPanels>
+              </Tabs>
             </TabPanel>
 
-            <TabPanel>
-              
-              <Flex>
-                <Select placeholder='Transfer from:' padding='1'>
-                  <option value='option1'>Option 1</option>
-                  <option value='option2'>Option 2</option>
-                  <option value='option3'>Option 3</option>
-                </Select>
-              </Flex>
-
-              <Stack padding='1'>
-                <Select variant='filled' placeholder='Choose recipient:'>
-                  <option value='option1'>Option 1</option>
-                  <option value='option2'>Option 2</option>
-                  <option value='option3'>Option 3</option>
-                  <option value='option1'>Option 4</option>
-                  <option value='option2'>Option 5</option>
-                  <option value='option3'>Option 6</option>
-                  <option value='option1'>Option 7</option>
-                  <option value='option2'>Option 8</option>
-                  <option value='option3'>Option 9</option>
-                  <option value='option3'>Option 10</option>
-                </Select>
-              </Stack>
-
-              <Button background='red.500' color='white'
-                onClick={() => {
-                toast({
-                  title: 'Success',
-                  description: "Your payment has been transferred.",
-                  status: 'success',
-                  duration: 3000,
-                  isClosable: true,
-                })
-              }}>Transfer</Button>
-              
-            </TabPanel>
           </TabPanels>
       </Tabs>
       </Box>
-      
-      {/* <Box ml={{ base: 0, md: 60 }} p="4">
-        <Flex>
-          <Flex flexDirection={'column'}>
-            
-            <Menu>
-              <MenuButton minH='5' minW='10' as={Button} background='red.400' color='white'>
-                To:
-              </MenuButton>
-              <MenuList>
-                <MenuItem>Checking Account</MenuItem>
-                <MenuItem>Savings Account</MenuItem>
-                <MenuItem>Account 1</MenuItem>
-                <MenuItem>Account 2</MenuItem>
-              </MenuList>
-            </Menu>
-            
-            <Menu>
-              <MenuButton as={Button} background='red.400' color='white'>
-                From:
-              </MenuButton>
-              <MenuList>
-                  <MenuItem>Checking Account</MenuItem>
-                  <MenuItem>Savings Account</MenuItem>
-                  <MenuItem>Account 1</MenuItem>
-                  <MenuItem>Account 2</MenuItem>
-              </MenuList>
-            </Menu>
-
-
-
-          </Flex>
-        
-          <Flex flexDirection={'column'}>
-            <Flex paddingTop={4} paddingLeft={6}>
-                <ExternalTransferForm/>
-            </Flex>
-          </Flex>
-
-        </Flex>
-      </Box> */}
     </>
   )
 }
