@@ -12,6 +12,8 @@ from datetime import datetime
 load_dotenv()
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = "my secret key"
+
 app.config["DEBUG"] = True
 app.config['SECRET_KEY'] = "my secret key"
 
@@ -39,6 +41,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password
  
 # Disable modification tracking
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_pre_ping': True}
 
 db = SQLAlchemy(app)
 
@@ -151,7 +155,7 @@ def customerRegister():
 
         user = User.query.filter_by(username=data.get('username', '')).first()
         if user:
-            return {'message' : "There is another with this username", 'isSuccess' : False}
+            return {'message' : "A user with that username already exists!", 'isSuccess' : False}
         #user
         newUser = User()
         username = data.get('username', '')
@@ -206,19 +210,16 @@ def customerRegister():
         db.session.commit()
 
 
-        return {'message' : "Sucessfully creating user", 'isSuccess' : True}
-        
-        
+        return {'message' : "User account created successfully!", 'isSuccess' : True}
 
-
-    return {'message' : "Fail to create user", 'isSuccess' : False}
+    return {'message' : "User account creation failed!", 'isSuccess' : False}
 
 
 @app.route("/api/customer/login", methods = ['POST'])
 def loginCustomer():
     
     if current_user.is_authenticated:
-        return {'message' : "You are already login", 'isSuccess' : False}
+        return {'message' : "You are already logged in", 'isSuccess' : False}
     
     if request.method == "POST":
         data = request.json
@@ -227,19 +228,18 @@ def loginCustomer():
         user = User.query.filter_by(username=username).first()
 
         if user and authenticate(user.password, password):
-           
             login_user(user, remember=True)
-            return {'message' : "Login sucessfully", 'isSuccess' : True}
+            return {'message' : "Login successful", 'isSuccess' : True}
    
-    return {'message' : "Login fail", 'isSuccess' : False}
+    return {'message' : "Incorrect username or password", 'isSuccess' : False}
 
 @app.route("/api/customer/logout", methods = ['POST'])
 def logoutCustomer():
     if current_user and current_user.is_authenticated:
         logout_user()
-        return {'message' : "Logout sucessfully", 'isSuccess' : True}
+        return {'message' : "Logout successful", 'isSuccess' : True}
     
-    return {'message' : "User is not login", 'isSuccess' : False}
+    return {'message' : "User is not logged in", 'isSuccess' : False}
 
 
 def hashPassword(password):
