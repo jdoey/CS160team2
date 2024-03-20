@@ -13,6 +13,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
+app.config['SECRET_KEY'] = "my secret key"
 
 db_host = os.environ.get("DB_HOST")
 db_port = os.environ.get("DB_PORT")
@@ -205,13 +206,17 @@ def customerRegister():
 
 @app.route("/api/customer/login", methods = ['POST'])
 def loginCustomer():
+    
     if current_user.is_authenticated:
         return {'message' : "You are already login", 'isSuccess' : False}
     
     if request.method == "POST":
-        user = User.query.filter_by(username=request.form.get("username")).first()
+        data = request.json
+        username = data.get("username", '')
+        password = data.get("password", '')
+        user = User.query.filter_by(username=username).first()
 
-        if user and authenticate(user.password, request.form.get("password")):
+        if user and authenticate(user.password, password):
            
             login_user(user, remember=True)
             return {'message' : "Login sucessfully", 'isSuccess' : True}
@@ -239,16 +244,16 @@ def authenticate(hashed_password, password):
 @login_required
 def createAccount():
 
-    
-    accountType = request.form.get('accountType').lower()
-    balance = request.form.get('balance')
-    accountStatus = request.form.get('accountStatus')
+    data = request.json
+    accountType = data.get('accountType').lower()
+    balance = data.get('balance')
+    accountStatus = data.get('accountStatus')
 
     account = Account.query.filter_by(accountType=accountType, customerId=current_user.customer.customerId).first()
     if account is None:
         newAccount = Account()
         newAccount.accountType = accountType
-        newAccount.balance = float(balance)
+        newAccount.balance = balance
         newAccount.accountStatus = accountStatus
         newAccount.customerId = current_user.customer.customerId
 
@@ -276,14 +281,18 @@ def accountBalance():
 @app.route("/api/customer/updateAccount", methods = ['Post'])
 @login_required
 def updateAccount():
-    accountNumber = request.form.get('accountNumber')
-    accountStatus = request.form.get('accountStatus')
+    data = request.json
+    accountNumber = data.get('accountNumber')
+    accountStatus = data.get('accountStatus')
     
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
     if account:
         account.accountStatus = accountStatus
-        account.dateClose = datetime.now()
+        if accountStatus == "Active":
+            account.dateClose = None
+        else:
+            account.dateClose = datetime.now()
         db.session.commit()
         return {"message" : "Update successfully", "isSuccess" : True}
     
