@@ -117,6 +117,7 @@ class Account(db.Model):
     dateClose = db.Column(db.DateTime)
     accountStatus = db.Column(db.String(20), default="Active",nullable=False)
     customerId = db.Column(db.Integer, db.ForeignKey('customer.customerId'))
+    transaction = db.relationship('Transactions', backref='account')
 
     def __str__(self):
         return f"{self.accountNumber}"
@@ -292,8 +293,9 @@ def updateAccount():
     data = request.json
     accountNumber = data.get('accountNumber')
     accountStatus = data.get('accountStatus')
-    
-    account = Account.query.filter_by(accountNumber=accountNumber).first()
+    customerId = current_user.customer.customerId
+
+    account = Account.query.filter_by(customerId=customerId, accountNumber=accountNumber).first()
 
     if account:
         account.accountStatus = accountStatus
@@ -308,17 +310,25 @@ def updateAccount():
 
 
 
-@app.route("/api/customer/balance/histTrans", methods = ['GET'])
+@app.route("/api/customer/balance/<accountNumber>/histTrans", methods = ['GET'])
 @login_required
-def getTransaction():
-    data = request.json
-    accountId = data.get('accountNumber')
-    transactions = Transactions.query.filter(Account.accountNumber==accountId).all()
-    res = []
-    for trans in transactions:
-        res.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
-        
-    return res
+def getTransaction(accountNumber):
+    if accountNumber.isdigit(): 
+        accountId = int(accountNumber)
+        accounts = current_user.customer.account
+        for account in accounts:
+
+            if accountId == account.accountNumber:
+
+                transactions = Transactions.query.filter(Transactions.accountNumber==accountId).all()
+                
+                res = []
+                for trans in transactions:
+                    res.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
+                
+                return res
+
+    return {"message" : "Invalid ID", "isSuccess" : False}
 
 
 @app.route("/api/employee/customerAccount", methods = ['POST'])
@@ -328,8 +338,8 @@ def customerAccount():
     accountNumber = data.get('accountNumber')
     account = Account.query.filter_by(accountNumber=accountNumber).first()
     if account == None:
-        return {"message" : "Account could not be found", "isSuccess" : False}
-    transactions = Transactions.query.filter(Account.accountNumber==account.accountNumber).all()
+        return {"message" : "Account can not be found", "isSuccess" : False}
+    transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
     customer = Customer.query.get(account.customerId)
     person = Person.query.get(customer.personId)
     address = person.address
