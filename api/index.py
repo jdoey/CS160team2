@@ -131,19 +131,21 @@ def hello_world():
 def loader_user(user_id):
     return User.query.get(user_id)
 
-@app.route("/api/customer/register", methods = ['POST'])
+@app.route("/api/customer/register", methods = ['GET', 'POST'])
 def customerRegister():
 
-    
+    print(request.json)
     if request.method == 'POST':
-        user = User.query.filter_by(username=request.form.get('username')).first()
+        data = request.json
+
+        user = User.query.filter_by(username=data.get('username', '')).first()
         if user:
             return {'message' : "There is another with this username", 'isSuccess' : False}
         #user
         newUser = User()
-        username = request.form.get('username')
-        password = request.form.get('password')
-        email = request.form.get('email')
+        username = data.get('username', '')
+        password = data.get('password', '')
+        email = data.get('email', '')
 
         newUser.username = username
         newUser.password = hashPassword(password)
@@ -154,9 +156,9 @@ def customerRegister():
 
         #Person
         newPerson = Person()
-        firstname = request.form.get('firstname')
-        lastname = request.form.get('lastname')
-        dob = request.form.get('dob').strip()
+        firstname = data.get('firstName', '')
+        lastname = data.get('lastName', '')
+        dob = data.get('dob', '').strip()
         
         newPerson.firstname = firstname
         newPerson.lastname = lastname
@@ -166,11 +168,11 @@ def customerRegister():
 
         #Address
         newAdress = Address()
-        streetNum, street = request.form.get('street').split(" ")
-        city = request.form.get('city')
-        state = request.form.get('state')
-        country = request.form.get('country')
-        zipcode = request.form.get('zipcode')
+        streetNum, street = data.get('street', '').split(" ", 1)
+        city = data.get('city', '')
+        state = data.get('state', '')
+        country = data.get('country', '')
+        zipcode = data.get('zip', '')
 
         newAdress.streetNum = streetNum
         newAdress.street = street

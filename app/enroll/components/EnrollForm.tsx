@@ -213,6 +213,7 @@ const Form3 = (props : any) => {
     setLoading(true);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
     setLoading(false);
   }
 
@@ -399,33 +400,65 @@ export default function Multistep() {
   const [progress, setProgress] = useState(33.33)
   
   const [data, setData] = useState({
-    email: '',
+    email: 'email@email.com',
     username: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    dob: '',
-    country: '',
-    street: '',
-    city: '',
-    state: '',
-    zip: '',
+    password: '123456',
+    firstName: 'firstname',
+    lastName: 'lastname',
+    dob: '02/02/2002',
+    country: 'United States',
+    street: '1000 Ok Drive',
+    city: 'San Jose',
+    state: 'California',
+    zip: '95035',
   })
 
-  const makeRequest = (formData : any) => {
+  const makeRequest = async (formData : any) => {
     console.log("Form submitted", formData)
 
-    toast({
-      title: 'User account created successfully!',
-      description: "Please sign in.",
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
-    })
+    try {
+      const response = await fetch('/api/customer/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      
+      if (data.isSuccess == true) {
+        toast({
+          title: 'User account created successfully!',
+          description: "Please sign in.",
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        })
+      } else {
+        toast({
+          title: 'User account created unsuccessfully!',
+          description: "Please try again.",
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+        })
+      }
 
-    setTimeout(() => {
-      router.push('/');
-    }, 2000);
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+
+    } catch (error) {
+      console.error('Error creating account:', error);
+
+      toast({
+        title: 'User account creation failed!',
+        description: "Please try again later.",
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      })
+    }
   }
 
   const handleNextStep = (newData : any, final = false) => {
