@@ -122,6 +122,7 @@ class Account(db.Model):
     def __str__(self):
         return f"{self.accountNumber}"
 
+
 class Transactions(db.Model):
     __tablename__ = "transactions"
     
