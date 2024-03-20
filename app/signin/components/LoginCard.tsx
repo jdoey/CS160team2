@@ -29,6 +29,8 @@ export default function SimpleCard() {
         <Box
           rounded={'lg'}
           bg={useColorModeValue('white', 'gray.700')}
+          borderWidth="1px"
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
           boxShadow={'lg'}
           p={8}>
           <Stack spacing={5}>
