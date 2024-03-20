@@ -310,59 +310,6 @@ def updateAccount():
 
 
 
-@app.route("/api/customer/balance/<accountNumber>/histTrans", methods = ['GET'])
-@login_required
-def getTransaction(accountNumber):
-    if accountNumber.isdigit(): 
-        accountId = int(accountNumber)
-        accounts = current_user.customer.account
-        for account in accounts:
-
-            if accountId == account.accountNumber:
-
-                transactions = Transactions.query.filter(Transactions.accountNumber==accountId).all()
-                
-                res = []
-                for trans in transactions:
-                    res.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
-                
-                return res
-
-    return {"message" : "Invalid ID", "isSuccess" : False}
-
-
-@app.route("/api/employee/customerAccount", methods = ['POST'])
-@login_required
-def customerAccount():
-    data = request.json
-    accountNumber = data.get('accountNumber')
-    account = Account.query.filter_by(accountNumber=accountNumber).first()
-    if account == None:
-        return {"message" : "Account can not be found", "isSuccess" : False}
-    transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
-    customer = Customer.query.get(account.customerId)
-    person = Person.query.get(customer.personId)
-    address = person.address
-
-
-    transDict = []
-    for trans in transactions:
-        transDict.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
-
-    addr = {
-        "streetNum" : address.streetNum,
-        "street" : address.street,
-        "city"  : address.city,
-        "state" : address.state,
-        "country" : address.country,
-        "zipcode" : address.zipcode
-    }
-
-
-        
-    return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
-
-
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return {'message' : "User is not login", 'isSuccess' : False}
