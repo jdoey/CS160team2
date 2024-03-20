@@ -120,7 +120,15 @@ class Account(db.Model):
 
     def __str__(self):
         return f"{self.accountNumber}"
+
+class Transactions(db.Model):
+    __tablename__ = "transactions"
     
+    transactionId = db.Column(db.Integer, primary_key=True)
+    transactionType = db.Column(db.String(20), nullable=False)
+    amount = db.Column(db.Integer, nullable=False)
+    date = db.Column(db.DateTime, default=datetime.now())
+    accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
 
 @app.route("/api/python")
@@ -297,6 +305,39 @@ def updateAccount():
         return {"message" : "Update successfully", "isSuccess" : True}
     
     return {"message" : "Fail to update", "isSuccess" : False}
+
+
+@app.route("/api/employee/customerAccount", methods = ['POST'])
+@login_required
+def customerAccount():
+    data = request.json
+    accountNumber = data.get('accountNumber')
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+    if account == None:
+        return {"message" : "Account could not be found", "isSuccess" : False}
+    transactions = Transactions.query.filter(Account.accountNumber==account.accountNumber).all()
+    customer = Customer.query.get(account.customerId)
+    person = Person.query.get(customer.personId)
+    address = person.address
+
+
+    transDict = []
+    for trans in transactions:
+        transDict.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
+
+    addr = {
+        "streetNum" : address.streetNum,
+        "street" : address.street,
+        "city"  : address.city,
+        "state" : address.state,
+        "country" : address.country,
+        "zipcode" : address.zipcode
+    }
+
+
+        
+    return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
+
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
