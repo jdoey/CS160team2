@@ -12,8 +12,6 @@ from datetime import datetime
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "my secret key"
-
 app.config["DEBUG"] = True
 app.config['SECRET_KEY'] = "my secret key"
 
@@ -308,6 +306,56 @@ def updateAccount():
         return {"message" : "Update successfully", "isSuccess" : True}
     
     return {"message" : "Fail to update", "isSuccess" : False}
+
+#-----------TRANSACTION SERVICE------------------------------------
+
+def logTransaction(accountNumber, transactionType, amount, date):
+    transaction = Transactions()
+    transaction.accountNumber = accountNumber
+    transaction.transactionType = transactionType
+    transaction.amount = amount
+    transaction.date = date
+
+    db.session.add(transaction)
+    db.session.commit()
+
+@app.route("/api/transaction/deposit", methods = ['POST'])
+@login_required
+def deposit():
+    data = request.json
+    accountNumber = data.get('accountNumber', '')
+    accountStatus = data.get('accountStatus', '')
+    amount = data.get('amount', '')
+
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+
+    if account and accountStatus == "Active":
+        account.balance += amount
+        db.session.commit()
+        logTransaction(accountNumber, "deposit", float(amount), datetime.now())
+
+        return {"message" : "Deposit successful", "isSuccess" : True}
+    
+    return {"message" : "Deposit failed", "isSuccess" : False}
+
+@app.route("/api/transaction/withdraw", methods = ['POST'])
+@login_required
+def withdraw():
+    data = request.json
+    accountNumber = data.get('accountNumber', '')
+    accountStatus = data.get('accountStatus', '')
+    amount = data.get('amount', '')
+
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+
+    if account and accountStatus == "Active":
+        account.balance -= amount
+        db.session.commit()
+        logTransaction(accountNumber, "withdraw", float(amount), datetime.now())
+
+        return {"message" : "Withdraw successful", "isSuccess" : True}
+    
+    return {"message" : "Withdraw failed", "isSuccess" : False}
 
 
 
