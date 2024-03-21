@@ -20,7 +20,7 @@ db_port = os.environ.get("DB_PORT")
 db_user = os.environ.get("DB_USERNAME")
 db_password = os.environ.get("DB_PASSWORD")
 db_database = os.environ.get("DB_DATABASE")
-ssl_ca = "/etc/ssl/cert.pem"
+ssl_ca = os.environ.get("SSL_CA")
 
 # configuration used to connect to TiDB Cloud
 config = {
