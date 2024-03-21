@@ -20,7 +20,7 @@ db_port = os.environ.get("DB_PORT")
 db_user = os.environ.get("DB_USERNAME")
 db_password = os.environ.get("DB_PASSWORD")
 db_database = os.environ.get("DB_DATABASE")
-ssl_ca = os.environ.get("SSL_CA")
+ssl_ca = "/etc/ssl/cert.pem"
 
 # configuration used to connect to TiDB Cloud
 config = {
@@ -231,7 +231,7 @@ def loginCustomer():
    
     return {'message' : "Incorrect username or password", 'isSuccess' : False}
 
-@app.route("/api/customer/logout", methods = ['POST'])
+@app.route("/api/customer/logout", methods = ['GET'])
 def logoutCustomer():
     if current_user and current_user.is_authenticated:
         logout_user()
@@ -349,8 +349,13 @@ def withdraw():
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
     if account and accountStatus == "Active":
-        account.balance -= amount
-        db.session.commit()
+        if amount <= account.balance:
+            account.balance -= amount
+            db.session.commit()
+
+        else:
+            return {"message" : "Withdraw failed: Not enough funds in account", "isSuccess" : False}
+
         logTransaction(accountNumber, "withdraw", float(amount), datetime.now())
 
         return {"message" : "Withdraw successful", "isSuccess" : True}
