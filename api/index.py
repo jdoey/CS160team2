@@ -223,11 +223,11 @@ def loginCustomer():
         data = request.json
         username = data.get("username", '')
         password = data.get("password", '')
-        # user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=username).first()
 
-        # if user and authenticate(user.password, password):
-        #     login_user(user, remember=True)
-        #     return {'message' : "Login successful", 'isSuccess' : True}
+        if user and authenticate(user.password, password):
+            login_user(user, remember=True)
+            return {'message' : "Login successful", 'isSuccess' : True}
    
     return {'message' : "Incorrect username or password", 'isSuccess' : False}
 
