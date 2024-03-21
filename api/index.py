@@ -20,7 +20,7 @@ db_port = os.environ.get("DB_PORT")
 db_user = os.environ.get("DB_USERNAME")
 db_password = os.environ.get("DB_PASSWORD")
 db_database = os.environ.get("DB_DATABASE")
-ssl_ca = "/etc/ssl/certs/ca-certificates.crt"
+ssl_ca = "/etc/ssl/cert.pem"
 
 # configuration used to connect to TiDB Cloud
 config = {
@@ -35,7 +35,7 @@ config = {
 }
 
 # Configuring database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca={ssl_ca}"
+app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
  
 # Disable modification tracking
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
