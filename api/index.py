@@ -213,7 +213,7 @@ def customerRegister():
     return {'message' : "User account creation failed!", 'isSuccess' : False}
 
 
-@app.route("/api/customer/login", methods = ['POST'])
+@app.route("/api/customer/login", methods = ['GET', 'POST'])
 def loginCustomer():
     
     if current_user.is_authenticated:
