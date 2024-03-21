@@ -15,11 +15,11 @@ app = Flask(__name__)
 app.config["DEBUG"] = True
 app.config['SECRET_KEY'] = "my secret key"
 
-db_host = os.environ.get("DB_HOST")
-db_port = os.environ.get("DB_PORT")
-db_user = os.environ.get("DB_USERNAME")
-db_password = os.environ.get("DB_PASSWORD")
-db_database = os.environ.get("DB_DATABASE")
+db_host = os.environ.get("TIDB_HOST")
+db_port = os.environ.get("TIDB_PORT")
+db_user = os.environ.get("TIDB_USER")
+db_password = os.environ.get("TIDB_PASSWORD")
+db_database = os.environ.get("TIDB_DATABASE")
 ssl_ca = "/etc/ssl/cert.pem"
 
 # configuration used to connect to TiDB Cloud
