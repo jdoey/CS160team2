@@ -109,6 +109,7 @@ class Account(db.Model):
     accountStatus = db.Column(db.String(20), default="Active",nullable=False)
     customerId = db.Column(db.Integer, db.ForeignKey('customer.customerId'))
     transaction = db.relationship('Transactions', backref='account')
+    autoTransactions = db.relationship('AutomatedTransactions', backref='account')
 
     def __str__(self):
         return f"{self.accountNumber}"
@@ -123,10 +124,19 @@ class Transactions(db.Model):
     date = db.Column(db.DateTime, default=datetime.now())
     accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
+class AutomatedTransactions(db.Model):
+        __tablename__ = "automatedtransactions"
+
+        autoId = db.Column(db.Integer, primary_key=True)
+        transactionType = db.Column(db.String(20), nullable=False)
+        amount = db.Column(db.Integer, nullable=False)
+        paymentDate = db.Column(db.DateTime, default=datetime.now())
+        frequency = db.Column(db.String(20), nullable=False)
+        accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
 @app.route("/api/python")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return "Hello World"
 
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
