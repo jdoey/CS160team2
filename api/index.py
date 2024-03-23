@@ -20,9 +20,11 @@ db_port = os.environ.get("TIDB_PORT")
 db_user = os.environ.get("TIDB_USER")
 db_password = os.environ.get("TIDB_PASSWORD")
 db_database = os.environ.get("TIDB_DATABASE")
+#ssl_ca = os.environ.get("SSL_CA")
 
 # Configuring database URI
 app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
+# app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca={ssl_ca}"
  
 # Disable modification tracking
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -107,6 +109,7 @@ class Account(db.Model):
     accountStatus = db.Column(db.String(20), default="Active",nullable=False)
     customerId = db.Column(db.Integer, db.ForeignKey('customer.customerId'))
     transaction = db.relationship('Transactions', backref='account')
+    autoTransactions = db.relationship('AutomatedTransactions', backref='account')
 
     def __str__(self):
         return f"{self.accountNumber}"
@@ -121,10 +124,19 @@ class Transactions(db.Model):
     date = db.Column(db.DateTime, default=datetime.now())
     accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
+class AutomatedTransactions(db.Model):
+        __tablename__ = "automatedtransactions"
+
+        autoId = db.Column(db.Integer, primary_key=True)
+        transactionType = db.Column(db.String(20), nullable=False)
+        amount = db.Column(db.Integer, nullable=False)
+        paymentDate = db.Column(db.DateTime, default=datetime.now())
+        frequency = db.Column(db.String(20), nullable=False)
+        accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
 @app.route("/api/python")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return "Hello World"
 
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
@@ -350,6 +362,57 @@ def withdraw():
     return {"message" : "Withdraw failed", "isSuccess" : False}
 
 
+@app.route("/api/customer/balance/<accountNumber>/histTrans", methods = ['GET'])
+@login_required
+def getTransaction(accountNumber):
+    if accountNumber.isdigit(): 
+        accountId = int(accountNumber)
+        accounts = current_user.customer.account
+        for account in accounts:
+
+            if accountId == account.accountNumber:
+
+                transactions = Transactions.query.filter(Transactions.accountNumber==accountId).all()
+                
+                res = []
+                for trans in transactions:
+                    res.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
+                
+                return res
+
+    return {"message" : "Invalid ID", "isSuccess" : False}
+
+
+@app.route("/api/employee/customerAccount", methods = ['POST'])
+@login_required
+def getCustomerAccount():
+    data = request.json
+    accountNumber = data.get('accountNumber')
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+    if account == None:
+        return {"message" : "Account can not be found", "isSuccess" : False}
+    transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
+    customer = Customer.query.get(account.customerId)
+    person = Person.query.get(customer.personId)
+    address = person.address
+
+
+    transDict = []
+    for trans in transactions:
+        transDict.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
+
+    addr = {
+        "streetNum" : address.streetNum,
+        "street" : address.street,
+        "city"  : address.city,
+        "state" : address.state,
+        "country" : address.country,
+        "zipcode" : address.zipcode
+    }
+
+
+        
+    return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
