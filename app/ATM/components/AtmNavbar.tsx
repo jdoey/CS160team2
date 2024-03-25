@@ -26,7 +26,7 @@ import {
   ChevronRightIcon,
 } from '@chakra-ui/icons'
 
-import MazeBankLogo from '../../public/redmazebank.png';
+import MazeBankLogo from '../../../public/redmazebank.png';
 
 export default function Navbar() {
   const { isOpen, onToggle } = useDisclosure()
@@ -55,6 +55,7 @@ export default function Navbar() {
           />
         </Flex>
         <Flex flex={{ base: 1 }} justify={{ base: 'center', md: 'start' }}>
+         
           <Button as={'a'} href={'/'} variant={'ghost'} size={'sm'} _hover={{bg: '00'}}>
             <Image 
                 src={MazeBankLogo}
@@ -64,6 +65,7 @@ export default function Navbar() {
             />
             MAZE BANK
           </Button>
+          
 
           <Flex display={{ base: 'none', md: 'flex' }} ml={10}>
             <DesktopNav />
@@ -231,7 +233,7 @@ const MobileNavItem = ({ label, children, href }: NavItem) => {
           borderColor={useColorModeValue('gray.200', 'gray.700')}
           align={'start'}>
           {children &&
-            children.map((child) => ( 
+            children.map((child) => (
               <Box as="a" key={child.label} py={2} href={child.href}>
                 {child.label}
               </Box>
@@ -251,7 +253,7 @@ interface NavItem {
 
 const NAV_ITEMS: Array<NavItem> = [
   {
-    label: 'ATM Locations',
-    href: '/ATM',
+    label: '',
+    href: '#',
   },
 ]
