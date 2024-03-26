@@ -312,14 +312,14 @@ def deposit():
     data = request.json
     accountNumber = data.get('accountNumber', '')
     accountStatus = data.get('accountStatus', '')
-    amount = data.get('amount', '')
+    amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
     if account and accountStatus == "Active":
         account.balance += amount
         db.session.commit()
-        logTransaction(accountNumber, "deposit", float(amount), datetime.now())
+        logTransaction(accountNumber, "deposit", amount, datetime.now())
 
         return {"message" : "Deposit successful", "isSuccess" : True}
     
@@ -331,7 +331,7 @@ def withdraw():
     data = request.json
     accountNumber = data.get('accountNumber', '')
     accountStatus = data.get('accountStatus', '')
-    amount = data.get('amount', '')
+    amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
@@ -341,14 +341,64 @@ def withdraw():
             db.session.commit()
 
         else:
-            return {"message" : "Withdraw failed: Not enough funds in account", "isSuccess" : False}
+            return {"message" : "Withdrawal failed: Not enough funds in account", "isSuccess" : False}
 
-        logTransaction(accountNumber, "withdraw", float(amount), datetime.now())
+        logTransaction(accountNumber, "withdrawal", amount, datetime.now())
 
-        return {"message" : "Withdraw successful", "isSuccess" : True}
+        return {"message" : "Withdrawal successful", "isSuccess" : True}
     
-    return {"message" : "Withdraw failed", "isSuccess" : False}
+    return {"message" : "Withdrawal failed", "isSuccess" : False}
 
+@app.route("/api/transaction/payment", methods = ['POST'])
+@login_required
+def payment():
+    data = request.json
+    accountNumber = data.get('accountNumber', '')
+    accountStatus = data.get('accountStatus', '')
+    amount = float(data.get('amount', ''))
+
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+
+    if account and accountStatus == "Active":
+        if amount <= account.balance:
+            account.balance -= amount
+            db.session.commit()
+
+        else:
+            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}
+
+        logTransaction(accountNumber, "payment", amount, datetime.now())
+
+        return {"message" : "Payment successful", "isSuccess" : True}
+    
+    return {"message" : "Payment failed", "isSuccess" : False}
+
+@app.route("/api/transaction/transfer", methods = ['POST'])
+@login_required
+def transfer():
+    data = request.json
+    fromAccountNumber = data.get('fromAccountNumber', '')
+    toAccountNumber = data.get('toAccountNumber', '')
+    amount = float(data.get('amount', ''))
+
+    fromAccount = Account.query.filter_by(accountNumber=fromAccountNumber).first()
+    toAccount = Account.query.filter_by(accountNumber=toAccountNumber).first()
+
+    if fromAccount and fromAccount.accountStatus == "Active":
+        if amount <= fromAccount.balance:
+            fromAccount.balance -= amount
+            if toAccount and toAccount.accountStatus == "Active":
+                toAccount.balance += amount
+            db.session.commit()
+        else:
+            return {"message" : "Transfer failed: Insufficient funds", "isSuccess" : False}
+
+        logTransaction(fromAccount, "transfer-", amount, datetime.now())
+        if toAccount:
+            logTransaction(toAccount, "transfer+", amount, datetime.now())
+        return {"message" : "Transfer successful", "isSuccess" : True}
+    
+    return {"message" : "Transfer failed", "isSuccess" : False}
 
 
 @login_manager.unauthorized_handler
