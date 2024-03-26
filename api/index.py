@@ -51,6 +51,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
     customer = db.relationship('Customer', backref='user', uselist=False)
+    employee = db.relationship('Employee', backref='user', uselist=False)
 
     def get_id(self):
            return (self.userId)
@@ -66,6 +67,7 @@ class Person(db.Model):
     dob = db.Column(db.DateTime, default=datetime.now())
     address = db.relationship('Address', backref='person', uselist=False)
     customer = db.relationship('Customer', backref='person', uselist=False)
+    employee = db.relationship('Employee', backref='person', uselist=False)
 
     def __str__(self):
         return self.firstname
@@ -134,9 +136,22 @@ class AutomatedTransactions(db.Model):
         frequency = db.Column(db.String(20), nullable=False)
         accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
+class Employee(db.Model):
+    __tablename__ = "employee"
+
+    employeeId = db.Column(db.Integer, primary_key=True)
+    position = db.Column(db.String(20), nullable=False)
+    userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
+    personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
+
 @app.route("/api/python")
 def hello_world():
-    return "Hello World"
+    user = User.query.filter_by(username='danh31').first()
+    person = Person.query.filter_by(personId=1).first()
+    emp = user.employee
+
+    return f"{emp}"
+
 
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
@@ -212,8 +227,8 @@ def customerRegister():
     return {'message' : "User account creation failed!", 'isSuccess' : False}
 
 
-@app.route("/api/customer/login", methods = ['GET', 'POST'])
-def loginCustomer():
+@app.route("/api/user/login", methods = ['GET', 'POST'])
+def login():
     
     if current_user.is_authenticated:
         return {'message' : "You are already logged in", 'isSuccess' : False}
@@ -222,7 +237,12 @@ def loginCustomer():
         data = request.json
         username = data.get("username", '')
         password = data.get("password", '')
+        isEmp = data.get("isEmp")
+
         user = User.query.filter_by(username=username).first()
+
+        if user and isEmp and user.employee == None:
+            return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
         if user and authenticate(user.password, password):
             login_user(user, remember=True)
@@ -386,33 +406,36 @@ def getTransaction(accountNumber):
 @app.route("/api/employee/customerAccount", methods = ['POST'])
 @login_required
 def getCustomerAccount():
-    data = request.json
-    accountNumber = data.get('accountNumber')
-    account = Account.query.filter_by(accountNumber=accountNumber).first()
-    if account == None:
-        return {"message" : "Account can not be found", "isSuccess" : False}
-    transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
-    customer = Customer.query.get(account.customerId)
-    person = Person.query.get(customer.personId)
-    address = person.address
+    if current_user.employee:
+        data = request.json
+        accountNumber = data.get('accountNumber')
+        account = Account.query.filter_by(accountNumber=accountNumber).first()
+        if account == None:
+            return {"message" : "Account can not be found", "isSuccess" : False}
+        transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
+        customer = Customer.query.get(account.customerId)
+        person = Person.query.get(customer.personId)
+        address = person.address
 
 
-    transDict = []
-    for trans in transactions:
-        transDict.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
+        transDict = []
+        for trans in transactions:
+            transDict.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
 
-    addr = {
-        "streetNum" : address.streetNum,
-        "street" : address.street,
-        "city"  : address.city,
-        "state" : address.state,
-        "country" : address.country,
-        "zipcode" : address.zipcode
-    }
+        addr = {
+            "streetNum" : address.streetNum,
+            "street" : address.street,
+            "city"  : address.city,
+            "state" : address.state,
+            "country" : address.country,
+            "zipcode" : address.zipcode
+        }
 
 
-        
-    return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
+            
+        return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
+    
+    return {"message" : "Account is not authorized", "isSuccess" : False}
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
