@@ -160,7 +160,10 @@ def loader_user(user_id):
 
 @app.route("/api/customer/register", methods = ['GET', 'POST'])
 def customerRegister():
-
+    
+    if current_user.is_authenticated:
+        return {'message' : "You are already logged in", 'isSuccess' : False}
+    
     print(request.json)
     if request.method == 'POST':
         data = request.json
@@ -227,8 +230,8 @@ def customerRegister():
     return {'message' : "User account creation failed!", 'isSuccess' : False}
 
 
-@app.route("/api/user/login", methods = ['GET', 'POST'])
-def login():
+@app.route("/api/customer/login", methods = ['GET', 'POST'])
+def customerLogin():
     
     if current_user.is_authenticated:
         return {'message' : "You are already logged in", 'isSuccess' : False}
@@ -237,11 +240,32 @@ def login():
         data = request.json
         username = data.get("username", '')
         password = data.get("password", '')
-        isEmp = data.get("isEmp")
 
         user = User.query.filter_by(username=username).first()
 
-        if user and isEmp and user.employee == None:
+        if user and user.employee:
+            return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
+
+        if user and authenticate(user.password, password):
+            login_user(user, remember=True)
+            return {'message' : "Login successful", 'isSuccess' : True}
+   
+    return {'message' : "Incorrect username or password", 'isSuccess' : False}
+
+@app.route("/api/employee/login", methods = ['GET', 'POST'])
+def employeeLogin():
+    
+    if current_user.is_authenticated:
+        return {'message' : "You are already logged in", 'isSuccess' : False}
+    
+    if request.method == "POST":
+        data = request.json
+        username = data.get("username", '')
+        password = data.get("password", '')
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.employee == None:
             return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
         if user and authenticate(user.password, password):
