@@ -21,8 +21,7 @@ import {
   MenuDivider,
   MenuItem,
   MenuList,
-  Heading,
-  Button
+  Button,
 } from '@chakra-ui/react'
 import {
   FiMenu,
@@ -39,11 +38,12 @@ import {
 } from 'react-icons/ci'
 
 import { IconType } from 'react-icons'
+import NextLink from 'next/link'
 
 interface LinkItemProps {
   name: string
   icon: IconType
-  href?: string
+  pagelink: string
 }
 
 interface NavItemProps extends FlexProps {
@@ -60,11 +60,11 @@ interface SidebarProps extends BoxProps {
 }
 
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Home', icon: CiBank, href:'/user'},
-  { name: 'Pay/Transer', icon: CiDollar, href:'/payandtransfer' },
-  { name: 'Deposit', icon: CiMoneyCheck1, href:'/deposit' },
-  { name: 'ATM Locations', icon: CiMap, href:'/#' },
-  { name: 'Settings', icon: CiSettings, href:'/#' },
+  { name: 'Home', icon: CiBank, pagelink: '/user'},
+  { name: 'Pay/Transer', icon: CiDollar, pagelink: '/payandtransfer'},
+  { name: 'Deposit', icon: CiMoneyCheck1, pagelink: '/deposit'},
+  { name: 'ATM Locations', icon: CiMap, pagelink: '/ATM'},
+  { name: 'Settings', icon: CiSettings, pagelink: '/#'},
 ]
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
@@ -78,7 +78,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       pos="fixed"
       h="full"
       {...rest}>
-      <Flex h="20" alignItems="center" mx="8" justifyContent="space-between">
+      <Flex paddingTop={5} paddingLeft={7} paddingBottom={2}>
         <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
           Menu
         </Text>
@@ -86,7 +86,9 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       </Flex>
       {LinkItems.map((link) => (
         <NavItem key={link.name} icon={link.icon}>
-          {link.name}
+          <NextLink href={link.pagelink} passHref>
+            <Button bg={'white'} _hover={{bg:'red.500', color:'white'}}>{link.name}</Button>
+          </NextLink>
         </NavItem>
       ))}
     </Box>
@@ -97,7 +99,7 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
   return (
     <Box
       as="a"
-      href="#"
+      href=""
       style={{ textDecoration: 'none' }}
       _focus={{ boxShadow: 'none' }}>
       <Flex
@@ -107,18 +109,11 @@ const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
         borderRadius="lg"
         role="group"
         cursor="pointer"
-        _hover={{
-          bg: 'red.400',
-          color: 'white',
-        }}
         {...rest}>
         {icon && (
           <Icon
             mr="4"
             fontSize="16"
-            _groupHover={{
-              color: 'white',
-            }}
             as={icon}
           />
         )}
