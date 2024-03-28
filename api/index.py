@@ -243,6 +243,9 @@ def customerLogin():
 
         user = User.query.filter_by(username=username).first()
 
+        if user and user.employee:
+            return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
+
         if user and authenticate(user.password, password):
             login_user(user, remember=True)
             return {'message' : "Login successful", 'isSuccess' : True}
