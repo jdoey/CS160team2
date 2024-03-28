@@ -77,7 +77,7 @@ export default function Navbar() {
           justify={'flex-end'}
           direction={'row'}
           spacing={1}>
-          <Button as={'a'} fontSize={'sm'} fontWeight={400} variant={'ghost'} href={'#'}>
+          <Button as={'a'} fontSize={'sm'} fontWeight={400} variant={'ghost'} href={'/signin'}>
             Sign In
           </Button>
           <Button
@@ -87,7 +87,7 @@ export default function Navbar() {
             fontWeight={600}
             color={'white'}
             bg={'#E1090A'}
-            href={'#'}
+            href={'/enroll'}
             _hover={{
               bg: '#88090A',
             }}>
