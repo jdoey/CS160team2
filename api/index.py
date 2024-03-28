@@ -51,6 +51,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(50), nullable=False, unique=True)
     customer = db.relationship('Customer', backref='user', uselist=False)
+    employee = db.relationship('Employee', backref='user', uselist=False)
 
     def get_id(self):
            return (self.userId)
@@ -66,6 +67,7 @@ class Person(db.Model):
     dob = db.Column(db.DateTime, default=datetime.now())
     address = db.relationship('Address', backref='person', uselist=False)
     customer = db.relationship('Customer', backref='person', uselist=False)
+    employee = db.relationship('Employee', backref='person', uselist=False)
 
     def __str__(self):
         return self.firstname
@@ -134,9 +136,22 @@ class AutomatedTransactions(db.Model):
         frequency = db.Column(db.String(20), nullable=False)
         accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
+class Employee(db.Model):
+    __tablename__ = "employee"
+
+    employeeId = db.Column(db.Integer, primary_key=True)
+    position = db.Column(db.String(20), nullable=False)
+    userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
+    personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
+
 @app.route("/api/python")
 def hello_world():
-    return "Hello World"
+    user = User.query.filter_by(username='danh31').first()
+    person = Person.query.filter_by(personId=1).first()
+    emp = user.employee
+
+    return f"{emp}"
+
 
 # Creates a user loader callback that returns the user object given an id
 @login_manager.user_loader
@@ -145,7 +160,10 @@ def loader_user(user_id):
 
 @app.route("/api/customer/register", methods = ['GET', 'POST'])
 def customerRegister():
-
+    
+    if current_user.is_authenticated:
+        return {'message' : "You are already logged in", 'isSuccess' : False}
+    
     print(request.json)
     if request.method == 'POST':
         data = request.json
@@ -213,7 +231,7 @@ def customerRegister():
 
 
 @app.route("/api/customer/login", methods = ['GET', 'POST'])
-def loginCustomer():
+def customerLogin():
     
     if current_user.is_authenticated:
         return {'message' : "You are already logged in", 'isSuccess' : False}
@@ -222,7 +240,33 @@ def loginCustomer():
         data = request.json
         username = data.get("username", '')
         password = data.get("password", '')
+
         user = User.query.filter_by(username=username).first()
+
+        if user and user.employee:
+            return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
+
+        if user and authenticate(user.password, password):
+            login_user(user, remember=True)
+            return {'message' : "Login successful", 'isSuccess' : True}
+   
+    return {'message' : "Incorrect username or password", 'isSuccess' : False}
+
+@app.route("/api/employee/login", methods = ['GET', 'POST'])
+def employeeLogin():
+    
+    if current_user.is_authenticated:
+        return {'message' : "You are already logged in", 'isSuccess' : False}
+    
+    if request.method == "POST":
+        data = request.json
+        username = data.get("username", '')
+        password = data.get("password", '')
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.employee == None:
+            return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
         if user and authenticate(user.password, password):
             login_user(user, remember=True)
@@ -324,14 +368,14 @@ def deposit():
     data = request.json
     accountNumber = data.get('accountNumber', '')
     accountStatus = data.get('accountStatus', '')
-    amount = data.get('amount', '')
+    amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
     if account and accountStatus == "Active":
         account.balance += amount
         db.session.commit()
-        logTransaction(accountNumber, "deposit", float(amount), datetime.now())
+        logTransaction(accountNumber, "deposit", amount, datetime.now())
 
         return {"message" : "Deposit successful", "isSuccess" : True}
     
@@ -343,7 +387,7 @@ def withdraw():
     data = request.json
     accountNumber = data.get('accountNumber', '')
     accountStatus = data.get('accountStatus', '')
-    amount = data.get('amount', '')
+    amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
@@ -353,14 +397,64 @@ def withdraw():
             db.session.commit()
 
         else:
-            return {"message" : "Withdraw failed: Not enough funds in account", "isSuccess" : False}
+            return {"message" : "Withdrawal failed: Not enough funds in account", "isSuccess" : False}
 
-        logTransaction(accountNumber, "withdraw", float(amount), datetime.now())
+        logTransaction(accountNumber, "withdrawal", amount, datetime.now())
 
-        return {"message" : "Withdraw successful", "isSuccess" : True}
+        return {"message" : "Withdrawal successful", "isSuccess" : True}
     
-    return {"message" : "Withdraw failed", "isSuccess" : False}
+    return {"message" : "Withdrawal failed", "isSuccess" : False}
 
+@app.route("/api/transaction/payment", methods = ['POST'])
+@login_required
+def payment():
+    data = request.json
+    accountNumber = data.get('accountNumber', '')
+    accountStatus = data.get('accountStatus', '')
+    amount = float(data.get('amount', ''))
+
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+
+    if account and accountStatus == "Active":
+        if amount <= account.balance:
+            account.balance -= amount
+            db.session.commit()
+
+        else:
+            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}
+
+        logTransaction(accountNumber, "payment", amount, datetime.now())
+
+        return {"message" : "Payment successful", "isSuccess" : True}
+    
+    return {"message" : "Payment failed", "isSuccess" : False}
+
+@app.route("/api/transaction/transfer", methods = ['POST'])
+@login_required
+def transfer():
+    data = request.json
+    fromAccountNumber = data.get('fromAccountNumber', '')
+    toAccountNumber = data.get('toAccountNumber', '')
+    amount = float(data.get('amount', ''))
+
+    fromAccount = Account.query.filter_by(accountNumber=fromAccountNumber).first()
+    toAccount = Account.query.filter_by(accountNumber=toAccountNumber).first()
+
+    if fromAccount and fromAccount.accountStatus == "Active":
+        if amount <= fromAccount.balance:
+            fromAccount.balance -= amount
+            if toAccount and toAccount.accountStatus == "Active":
+                toAccount.balance += amount
+            db.session.commit()
+        else:
+            return {"message" : "Transfer failed: Insufficient funds", "isSuccess" : False}
+
+        logTransaction(fromAccount, "transfer-", amount, datetime.now())
+        if toAccount:
+            logTransaction(toAccount, "transfer+", amount, datetime.now())
+        return {"message" : "Transfer successful", "isSuccess" : True}
+    
+    return {"message" : "Transfer failed", "isSuccess" : False}
 
 @app.route("/api/customer/balance/<accountNumber>/histTrans", methods = ['GET'])
 @login_required
@@ -386,33 +480,36 @@ def getTransaction(accountNumber):
 @app.route("/api/employee/customerAccount", methods = ['POST'])
 @login_required
 def getCustomerAccount():
-    data = request.json
-    accountNumber = data.get('accountNumber')
-    account = Account.query.filter_by(accountNumber=accountNumber).first()
-    if account == None:
-        return {"message" : "Account can not be found", "isSuccess" : False}
-    transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
-    customer = Customer.query.get(account.customerId)
-    person = Person.query.get(customer.personId)
-    address = person.address
+    if current_user.employee:
+        data = request.json
+        accountNumber = data.get('accountNumber')
+        account = Account.query.filter_by(accountNumber=accountNumber).first()
+        if account == None:
+            return {"message" : "Account can not be found", "isSuccess" : False}
+        transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
+        customer = Customer.query.get(account.customerId)
+        person = Person.query.get(customer.personId)
+        address = person.address
 
 
-    transDict = []
-    for trans in transactions:
-        transDict.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
+        transDict = []
+        for trans in transactions:
+            transDict.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
 
-    addr = {
-        "streetNum" : address.streetNum,
-        "street" : address.street,
-        "city"  : address.city,
-        "state" : address.state,
-        "country" : address.country,
-        "zipcode" : address.zipcode
-    }
+        addr = {
+            "streetNum" : address.streetNum,
+            "street" : address.street,
+            "city"  : address.city,
+            "state" : address.state,
+            "country" : address.country,
+            "zipcode" : address.zipcode
+        }
 
 
-        
-    return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
+            
+        return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
+    
+    return {"message" : "Account is not authorized", "isSuccess" : False}
 
 @login_manager.unauthorized_handler
 def unauthorized_callback():
