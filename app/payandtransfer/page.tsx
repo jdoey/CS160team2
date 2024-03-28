@@ -35,16 +35,18 @@ import {
 
 import React from 'react'
 
+import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
-import ExternalTransferForm from '../components/ExternalTransferForm'
+import ExternalTransferForm from './components/ExternalTransferForm'
 
 
 export default function Page() {
   const toast = useToast()
   return (
     <>
+      <Navbar/>
       <Sidebar/>
-      <Box ml={{ base: 0, md: 60 }} paddingTop={0} paddingLeft={4}>
+      <Box ml={{ base: 0, md: 60 }} paddingTop={0} paddingLeft={8}>
         <Tabs position="relative" variant="unstyled">
           <TabList>
             <Tab>Payments</Tab>
@@ -176,3 +178,4 @@ export default function Page() {
     </>
   )
 }
+
