@@ -11,11 +11,18 @@ import {
   IconProps,
 } from '@chakra-ui/react'
 
+import Sidebar from '../components/Sidebar'
+import Navbar from '../components/Navbar'
+
 
 export default function CallToActionWithIllustration() {
   return (
-    <Container maxW={'5xl'}>
+    <>
+    <Navbar/>
+    <Sidebar/>
+    <Container maxW={'6xl'}>
       <Stack
+        paddingLeft={225}
         textAlign={'center'}
         align={'center'}
         spacing={{ base: 8, md: 10 }}
@@ -26,7 +33,7 @@ export default function CallToActionWithIllustration() {
           lineHeight={'110%'}>
           Depositing checks{' '}
           <Text as={'span'} color={'red.400'}>
-            made easy
+          made easy
           </Text>
         </Heading>
         <Text color={'gray.500'} maxW={'3xl'}>
@@ -47,5 +54,6 @@ export default function CallToActionWithIllustration() {
         </Stack>
       </Stack>
     </Container>
+    </>
   )
 }
