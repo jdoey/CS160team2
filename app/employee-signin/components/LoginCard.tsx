@@ -66,10 +66,8 @@ export default function LoginCard() {
         minH={'100vh'}
         justify={'center'}
         bg={useColorModeValue('gray.50', 'gray.800')}>
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={6} px={6}>
+        <Stack spacing={8} mx={'auto'} maxW={'xl'} py={6} px={6}>
           <Stack align={'center'}>
-            {/* <Heading fontSize={'4xl'}>Sign in to your account</Heading> */}
-            {/* <Text fontSize={'lg'} color={'gray.600'}></Text> */}
           </Stack>
           <Box
             rounded={'lg'}
@@ -81,8 +79,8 @@ export default function LoginCard() {
             >
             <Stack spacing={5}>
             <Stack align={'center'} mb={"5%"}>
-              <Heading >Sign in to your profile</Heading>
-              <Text fontSize={'lg'} color={'gray.600'}>to manage your accounts</Text>
+              <Heading >Employee Portal Sign-in</Heading>
+              <Text fontSize={'lg'} color={'gray.600'}>for employees of Maze Bank only</Text>
             </Stack>
               <FormControl id="username" isInvalid={incorrectCreds}>
                 <FormLabel>Username</FormLabel>
@@ -111,14 +109,6 @@ export default function LoginCard() {
                       bg: '#88090A',
                       }}>
                       Sign in
-                  </Button>
-                  <Button
-                      as={'a'}
-                      variant={'ghost'}
-                      fontWeight={400}
-                      href={'/enroll'}
-                      >
-                      Enroll
                   </Button>
                 </Stack>
               </Stack>

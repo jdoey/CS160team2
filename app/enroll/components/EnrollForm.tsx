@@ -20,10 +20,9 @@ import {
   InputRightElement,
   useColorModeValue,
   FormErrorMessage,
+  useToast
 } from '@chakra-ui/react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
-
-import { useToast } from '@chakra-ui/react'
 
 const form1ValidationSchema = Yup.object({
   email: Yup.string().email('Invalid email').required('Required'),
@@ -65,8 +64,8 @@ const Form1 = (props : any) => {
 
   return (
     <>
-      <Heading w="100%" textAlign={'center'} fontWeight="normal" mb="2%">
-        User Registration
+      <Heading w="100%" textAlign={'center'} mb="5%" fontSize={"3xl"}>
+        Let's set up your online access
       </Heading>
       <Formik
         initialValues={{
@@ -146,8 +145,8 @@ const Form2 = (props : any) => {
 
   return (
     <>
-      <Heading w="100%" textAlign={'center'} fontWeight="normal" mb="4%">
-        User Details
+      <Heading w="100%" textAlign={'center'} fontWeight="normal" fontSize={"3xl"} mb="5%">
+        Personal Information
       </Heading>
 
     <Formik
@@ -206,20 +205,14 @@ const Form2 = (props : any) => {
 }
 
 const Form3 = (props : any) => {
-  const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (values : any) => {
     props.next(values, true)
-    setLoading(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
   }
 
   return (
     <>
-      <Heading w="100%" textAlign={'center'} fontWeight="normal" mb="2%">
-        User Details
+      <Heading w="100%" textAlign={'center'} fontWeight="normal" fontSize={"3xl"} mb="5%">
+        Address
       </Heading>
       <Formik
         initialValues={props.data}
@@ -378,8 +371,7 @@ const Form3 = (props : any) => {
                   w="7rem"
                   colorScheme="red"
                   variant="solid"
-                  isLoading={loading} 
-                  // loadingText="Submitting"
+                  isLoading={props.loading}
                 >
                   Submit
                 </Button>
@@ -397,35 +389,73 @@ export default function Multistep() {
   const toast = useToast()
   const [step, setStep] = useState(0)
   const [progress, setProgress] = useState(33.33)
+  const [loading, setLoading] = useState(false);
   
   const [data, setData] = useState({
-    email: '',
+    email: 'email@email.com',
     username: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    dob: '',
-    country: '',
-    street: '',
-    city: '',
-    state: '',
-    zip: '',
+    password: '123456',
+    firstName: 'firstname',
+    lastName: 'lastname',
+    dob: '02/02/2002',
+    country: 'United States',
+    street: '1000 Ok Drive',
+    city: 'San Jose',
+    state: 'California',
+    zip: '95035',
   })
 
-  const makeRequest = (formData : any) => {
-    console.log("Form submitted", formData)
+  const makeRequest = async (formData : any) => {
+    setLoading(true);
+    // console.log("Form submitted", formData)
 
-    toast({
-      title: 'User account created successfully!',
-      description: "Please sign in.",
-      status: 'success',
-      duration: 2000,
-      isClosable: true,
-    })
+    try {
+      const response = await fetch('/api/customer/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      
+      if (data.isSuccess == true) {
+        setLoading(false);
+        toast({
+          title: data.message,
+          description: "Please sign in.",
+          status: 'success',
+          duration: 2000,
+          isClosable: true,
+        })
+        
+        setTimeout(() => {
+          router.push('/');
+        }, 500);
 
-    setTimeout(() => {
-      router.push('/');
-    }, 2000);
+      } else {
+        setLoading(false);
+        toast({
+          title: data.message,
+          description: "Please try again.",
+          status: 'error',
+          duration: 2000,
+          isClosable: true,
+        })
+      }
+
+    } catch (error) {
+      setLoading(false);
+      console.error('Error creating account:', error);
+
+      toast({
+        title: 'User account creation failed!',
+        description: "Please try again later.",
+        status: 'error',
+        duration: 2000,
+        isClosable: true,
+      })
+    }
   }
 
   const handleNextStep = (newData : any, final = false) => {
@@ -453,7 +483,7 @@ export default function Multistep() {
   const steps = [
     <Form1 next={handleNextStep} data={data}/>,
     <Form2 next={handleNextStep} prev={handlePrevStep} data={data}/>,
-    <Form3 prev={handlePrevStep} next={handleNextStep} data={data}/>
+    <Form3 prev={handlePrevStep} next={handleNextStep} data={data} loading={loading}/>
   ]
 
   console.log("data", data);
@@ -462,7 +492,7 @@ export default function Multistep() {
     <>
       <Box
         bg={useColorModeValue('gray.50', 'gray.800')}
-        pt={'10px'}
+        py={10}
         minH={'100vh'}
         >
         <Box
