@@ -54,7 +54,8 @@ export default function LoginCard() {
     <Formik
       initialValues={{
         username: '',
-        password: ''
+        password: '',
+        isEmp: true
       }}
       onSubmit={handleSubmit}
       validateOnChange={false}

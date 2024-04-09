@@ -18,7 +18,6 @@ import Navbar from '../components/Navbar'
 export default function CallToActionWithIllustration() {
   return (
     <>
-    <Navbar/>
     <Sidebar/>
     <Container maxW={'6xl'}>
       <Stack
