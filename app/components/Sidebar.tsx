@@ -22,6 +22,7 @@ import {
   MenuItem,
   MenuList,
   Button,
+  Center,
 } from '@chakra-ui/react'
 import {
   FiMenu,
@@ -39,6 +40,9 @@ import {
 
 import { IconType } from 'react-icons'
 import NextLink from 'next/link'
+import MazeBankLogo from '../../public/redmazebank.png';
+import Image from 'next/image'
+
 
 interface LinkItemProps {
   name: string
@@ -61,7 +65,7 @@ interface SidebarProps extends BoxProps {
 
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Home', icon: CiBank, pagelink: '/user'},
-  { name: 'Pay/Transer', icon: CiDollar, pagelink: '/payandtransfer'},
+  { name: 'Pay/Transfer', icon: CiDollar, pagelink: '/payandtransfer'},
   { name: 'Deposit', icon: CiMoneyCheck1, pagelink: '/deposit'},
   { name: 'ATM Locations', icon: CiMap, pagelink: '/ATM'},
   { name: 'Settings', icon: CiSettings, pagelink: '/#'},
@@ -78,10 +82,16 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
       pos="fixed"
       h="full"
       {...rest}>
-      <Flex paddingTop={5} paddingLeft={7} paddingBottom={2}>
-        <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold">
-          Menu
-        </Text>
+      <Flex paddingTop={5} paddingBottom={2}>
+      <Button as={'a'} href={'/user'} variant={'ghost'} size={'lg'} _hover={{bg: '00'}}>
+          <Image 
+              src={MazeBankLogo}
+              alt="Maze Bank Logo"
+              width={50}
+              height={50}
+          />
+          MAZE BANK
+        </Button>
         <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
       </Flex>
       {LinkItems.map((link) => (
@@ -98,8 +108,6 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
 const NavItem = ({ icon, children, ...rest }: NavItemProps) => {
   return (
     <Box
-      as="a"
-      href=""
       style={{ textDecoration: 'none' }}
       _focus={{ boxShadow: 'none' }}>
       <Flex
@@ -135,6 +143,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
       justifyContent={{ base: 'space-between', md: 'flex-end' }}
       {...rest}>
+        
       <IconButton
         display={{ base: 'flex', md: 'none' }}
         onClick={onOpen}
@@ -150,6 +159,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
         fontWeight="bold">
         Menu
       </Text>
+
 
       <HStack spacing={{ base: '0', md: '6' }}>
         <IconButton size="lg" variant="ghost" aria-label="open menu" icon={<FiBell />} />

@@ -12,13 +12,10 @@ import {
 import Sidebar from '../components/Sidebar'
 import AccountCard from './components/AccountCard'
 import TransactionHistory from './components/TransactionHistory'
-import Navbar from '../components/Navbar'
-
 
 export default function Page() {
   return (
     <>
-      <Navbar/>
       <Sidebar/>
       <Box ml={{ base: 0, md: 60 }} p="4">
         <Flex>
