@@ -230,7 +230,7 @@ def customerRegister():
     return {'message' : "User account creation failed!", 'isSuccess' : False}
 
 
-@app.route("/api/customer/login", methods = ['GET', 'POST'])
+@app.route("/api/user/login", methods = ['GET', 'POST'])
 def customerLogin():
     
     if current_user.is_authenticated:
@@ -511,6 +511,25 @@ def getCustomerAccount():
     
     return {"message" : "Account is not authorized", "isSuccess" : False}
 
+
+@app.route("/api/customer/authorization", methods = ['GET'])
+@login_required
+def customerAuthorization():
+    if current_user.is_authenticated and current_user.employee:
+        return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
+    
+    return {'message' : "User is authorized to access this page", 'isSuccess' : True}
+
+@app.route("/api/employee/authorization", methods = ['GET'])
+@login_required
+def employeeAuthorization():
+    if current_user.is_authenticated and current_user.employee:
+        return {'message' : "User is authorized to access this page", 'isSuccess' : True}
+    
+
+    return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
+    
+    
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return {'message' : "User is not login", 'isSuccess' : False}
