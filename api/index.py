@@ -160,7 +160,10 @@ def loader_user(user_id):
 
 @app.route("/api/customer/register", methods = ['GET', 'POST'])
 def customerRegister():
-
+    
+    if current_user.is_authenticated:
+        return {'message' : "You are already logged in", 'isSuccess' : False}
+    
     print(request.json)
     if request.method == 'POST':
         data = request.json
@@ -228,7 +231,7 @@ def customerRegister():
 
 
 @app.route("/api/user/login", methods = ['GET', 'POST'])
-def login():
+def customerLogin():
     
     if current_user.is_authenticated:
         return {'message' : "You are already logged in", 'isSuccess' : False}
@@ -237,11 +240,36 @@ def login():
         data = request.json
         username = data.get("username", '')
         password = data.get("password", '')
-        isEmp = data.get("isEmp")
 
         user = User.query.filter_by(username=username).first()
 
-        if user and isEmp and user.employee == None:
+        if user and user.employee:
+            return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
+
+        if user and authenticate(user.password, password):
+            session['firstname'] = user.customer.person.firstname
+            session['lastname'] = user.customer.person.lastname
+            session['customerId'] = user.customer.customerId
+            login_user(user, remember=True)
+            return {'message' : "Login successful", 'isSuccess' : True}
+   
+    return {'message' : "Incorrect username or password", 'isSuccess' : False}
+
+
+@app.route("/api/employee/login", methods = ['GET', 'POST'])
+def employeeLogin():
+    
+    if current_user.is_authenticated:
+        return {'message' : "You are already logged in", 'isSuccess' : False}
+    
+    if request.method == "POST":
+        data = request.json
+        username = data.get("username", '')
+        password = data.get("password", '')
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.employee == None:
             return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
         if user and authenticate(user.password, password):
@@ -253,6 +281,7 @@ def login():
 @app.route("/api/customer/logout", methods = ['GET'])
 def logoutCustomer():
     if current_user and current_user.is_authenticated:
+        session.clear()
         logout_user()
         return {'message' : "Logout successful", 'isSuccess' : True}
     
@@ -272,26 +301,20 @@ def authenticate(hashed_password, password):
 def createAccount():
 
     data = request.json
-    accountType = data.get('accountType').lower()
-    balance = data.get('balance')
-    accountStatus = data.get('accountStatus')
+    accountType = data.get('accountType')
+    amount = int(data.get('initialDeposit'))
 
-    account = Account.query.filter_by(accountType=accountType, customerId=current_user.customer.customerId).first()
-    if account is None:
-        newAccount = Account()
-        newAccount.accountType = accountType
-        newAccount.balance = balance
-        newAccount.accountStatus = accountStatus
-        newAccount.customerId = current_user.customer.customerId
+    newAccount = Account()
+    newAccount.accountType = accountType
+    newAccount.balance = 0
+    newAccount.accountStatus = 'Active'
+    newAccount.customerId = current_user.customer.customerId
 
-        db.session.add(newAccount)
-        db.session.commit()
+    db.session.add(newAccount)
+    db.session.commit()
 
+    return {'message' : "Sucessfully created account", 'isSuccess' : True, 'accountProps': {"accountNumber": newAccount.accountNumber, "amount": amount, "accountStatus": newAccount.accountStatus}}
     
-        return {'message' : "Sucessfully creating account", 'isSuccess' : True}
-    
-    return {'message' : "This account is existed", 'isSuccess' : False}
-
 
 @app.route("/api/customer/balance", methods = ['GET'])
 @login_required
@@ -304,6 +327,7 @@ def accountBalance():
         res.append({"accountNumber" : account.accountNumber, "type": account.accountType, 'balance' : account.balance, "status": account.accountStatus})
     
     return {"accounts": res, 'isSuccess' : True}
+
 
 @app.route("/api/customer/updateAccount", methods = ['Post'])
 @login_required
@@ -351,7 +375,7 @@ def deposit():
     if account and accountStatus == "Active":
         account.balance += amount
         db.session.commit()
-        logTransaction(accountNumber, "deposit", amount, datetime.now())
+        logTransaction(accountNumber, "Deposit", amount, datetime.now())
 
         return {"message" : "Deposit successful", "isSuccess" : True}
     
@@ -375,7 +399,7 @@ def withdraw():
         else:
             return {"message" : "Withdrawal failed: Not enough funds in account", "isSuccess" : False}
 
-        logTransaction(accountNumber, "withdrawal", amount, datetime.now())
+        logTransaction(accountNumber, "Withdrawal", amount, datetime.now())
 
         return {"message" : "Withdrawal successful", "isSuccess" : True}
     
@@ -399,7 +423,7 @@ def payment():
         else:
             return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}
 
-        logTransaction(accountNumber, "payment", amount, datetime.now())
+        logTransaction(accountNumber, "Payment", amount, datetime.now())
 
         return {"message" : "Payment successful", "isSuccess" : True}
     
@@ -425,16 +449,16 @@ def transfer():
         else:
             return {"message" : "Transfer failed: Insufficient funds", "isSuccess" : False}
 
-        logTransaction(fromAccount, "transfer-", amount, datetime.now())
+        logTransaction(fromAccount, "Transfer-", amount, datetime.now())
         if toAccount:
-            logTransaction(toAccount, "transfer+", amount, datetime.now())
+            logTransaction(toAccount, "Transfer+", amount, datetime.now())
         return {"message" : "Transfer successful", "isSuccess" : True}
     
     return {"message" : "Transfer failed", "isSuccess" : False}
 
-@app.route("/api/customer/balance/<accountNumber>/histTrans", methods = ['GET'])
+@app.route("/api/customer/<accountNumber>/transactionHistory", methods = ['GET'])
 @login_required
-def getTransaction(accountNumber):
+def getAccountTransactions(accountNumber):
     if accountNumber.isdigit(): 
         accountId = int(accountNumber)
         accounts = current_user.customer.account
@@ -449,8 +473,26 @@ def getTransaction(accountNumber):
                     res.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
                 
                 return res
-
     return {"message" : "Invalid ID", "isSuccess" : False}
+
+@app.route("/api/customer/getAccounts", methods=['GET'])
+@login_required
+def getAccounts():
+    if current_user.customer:
+        customerId = current_user.customer.customerId
+        accounts = Account.query.filter_by(customerId=customerId).all()
+
+        accountsDict = []
+        for account in accounts:
+            accountsDict.append({"accountNumber" : account.accountNumber, "accountType" : account.accountType, "balance" : account.balance, "accountStatus" : account.accountStatus})
+
+
+        if accounts == None:
+            return {"message" : "No accounts found", "isSuccess": False}
+        else:
+            return {"message" : "Accounts successfully retrieved", "accounts": accountsDict, "isSuccess": True}
+
+    return {"message" : "Account retrieval failed", "isSuccess" : False}
 
 
 @app.route("/api/employee/customerAccount", methods = ['POST'])
@@ -487,6 +529,34 @@ def getCustomerAccount():
     
     return {"message" : "Account is not authorized", "isSuccess" : False}
 
+
+@app.route("/api/customer/authorization", methods = ['GET'])
+@login_required
+def customerAuthorization():
+    if current_user.is_authenticated and current_user.employee:
+        return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
+    
+    return {'message' : "User is authorized to access this page", 'isSuccess' : True}
+
+@app.route("/api/employee/authorization", methods = ['GET'])
+@login_required
+def employeeAuthorization():
+    if current_user.is_authenticated and current_user.employee:
+        return {'message' : "User is authorized to access this page", 'isSuccess' : True}
+    
+
+    return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
+
+
+@app.route('/api/sessionData')
+@login_required
+def getSessionData():
+    firstname = session.get('firstname', '')
+    lastname = session.get('lastname', '')
+    customerId = session.get('customerId', '')
+    return {'firstname': firstname, 'lastname': lastname, 'customerId': customerId}
+    
+    
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return {'message' : "User is not login", 'isSuccess' : False}
