@@ -1,50 +1,49 @@
-'use client'
+"use client";
 import {
-    Box, 
-    Flex, 
-    Button,
-    Tab, 
-    TabIndicator, 
-    TabList,
-    Tabs, 
-    TabPanels, 
-    TabPanel,
-    Select,
-    FormControl, 
-    FormLabel, 
-    Input,
-    useToast,
-    Table, 
-    TableContainer, 
-    Tr, Th, Td, 
-    Thead, 
-    Tbody,
-    Stack
-  } from '@chakra-ui/react'
+  Box,
+  Flex,
+  Button,
+  Tab,
+  TabIndicator,
+  TabList,
+  Tabs,
+  TabPanels,
+  TabPanel,
+  Select,
+  FormControl,
+  FormLabel,
+  Input,
+  useToast,
+  Table,
+  TableContainer,
+  Tr,
+  Th,
+  Td,
+  Thead,
+  Tbody,
+  Stack,
+} from "@chakra-ui/react";
 
 import {
-    Drawer,
-    DrawerBody,
-    DrawerFooter,
-    DrawerHeader,
-    DrawerOverlay,
-    DrawerContent,
-    DrawerCloseButton,
-    useDisclosure
-  } from '@chakra-ui/react'
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+} from "@chakra-ui/react";
 
-import React from 'react'
+import React from "react";
 
-import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
-import ExternalTransferForm from './components/ExternalTransferForm'
-
+import Sidebar from "../../components/Sidebar";
+import ExternalTransferForm from "./components/ExternalTransferForm";
 
 export default function Page() {
-  const toast = useToast()
+  const toast = useToast();
   return (
     <>
-      <Sidebar/>
       <Box ml={{ base: 0, md: 60 }} paddingTop={0} paddingLeft={8}>
         <Tabs position="relative" variant="unstyled">
           <TabList>
@@ -58,26 +57,23 @@ export default function Page() {
             borderRadius="1px"
           />
           <TabPanels>
-
             <TabPanel>
-              <Tabs variant='enclosed' colorScheme='red'>
+              <Tabs variant="enclosed" colorScheme="red">
                 <TabList>
                   <Tab>Pay</Tab>
                   <Tab>Payment History</Tab>
                 </TabList>
                 <TabPanels>
-
                   <TabPanel>
                     <FormControl>
                       <FormLabel>Search for a recipient</FormLabel>
-                      <Input type='Recipient'/>
+                      <Input type="Recipient" />
                     </FormControl>
-
                   </TabPanel>
 
                   <TabPanel>
                     <TableContainer>
-                      <Table size='sm'>
+                      <Table size="sm">
                         <Thead>
                           <Tr>
                             <Th>From</Th>
@@ -115,66 +111,78 @@ export default function Page() {
                       </Table>
                     </TableContainer>
                   </TabPanel>
-
                 </TabPanels>
               </Tabs>
-              
             </TabPanel>
 
             <TabPanel>
-              <Tabs variant='enclosed' colorScheme='red'>
+              <Tabs variant="enclosed" colorScheme="red">
                 <TabList>
                   <Tab>Transfer</Tab>
                   <Tab>Add External Account</Tab>
                 </TabList>
-                  
+
                 <TabPanels>
                   <TabPanel>
                     <Stack>
                       <Flex>
-                        <Select placeholder='Transfer from:' padding='1' paddingTop='5'>
-                          <option value='option1'>Option 1</option>
-                          <option value='option2'>Option 2</option>
-                          <option value='option3'>Option 3</option>
+                        <Select
+                          placeholder="Transfer from:"
+                          padding="1"
+                          paddingTop="5"
+                        >
+                          <option value="option1">Option 1</option>
+                          <option value="option2">Option 2</option>
+                          <option value="option3">Option 3</option>
                         </Select>
-                        <Select placeholder='Transfer to:'padding='1' paddingTop='5'>
-                          <option value='option1'>Option 1</option>
-                          <option value='option2'>Option 2</option>
-                          <option value='option3'>Option 3</option>
+                        <Select
+                          placeholder="Transfer to:"
+                          padding="1"
+                          paddingTop="5"
+                        >
+                          <option value="option1">Option 1</option>
+                          <option value="option2">Option 2</option>
+                          <option value="option3">Option 3</option>
                         </Select>
                       </Flex>
 
-                      <FormControl isRequired padding='1' paddingTop='5' paddingBottom={5}>
+                      <FormControl
+                        isRequired
+                        padding="1"
+                        paddingTop="5"
+                        paddingBottom={5}
+                      >
                         <FormLabel>Amount</FormLabel>
-                        <Input placeholder='$0.00' />
+                        <Input placeholder="$0.00" />
                       </FormControl>
 
-                      <Button background='red.500' color='white'
+                      <Button
+                        background="red.500"
+                        color="white"
                         onClick={() => {
-                        toast({
-                          title: 'Success',
-                          description: "Your payment has been transferred.",
-                          status: 'success',
-                          duration: 3000,
-                          isClosable: true,
-                        })
-                      }}>Transfer</Button>
+                          toast({
+                            title: "Success",
+                            description: "Your payment has been transferred.",
+                            status: "success",
+                            duration: 3000,
+                            isClosable: true,
+                          });
+                        }}
+                      >
+                        Transfer
+                      </Button>
                     </Stack>
                   </TabPanel>
 
                   <TabPanel>
-                    <ExternalTransferForm/>
+                    <ExternalTransferForm />
                   </TabPanel>
-
-
                 </TabPanels>
               </Tabs>
             </TabPanel>
-
           </TabPanels>
-      </Tabs>
+        </Tabs>
       </Box>
     </>
-  )
+  );
 }
-
