@@ -44,7 +44,6 @@ export default function Page() {
   const toast = useToast()
   return (
     <>
-      <Navbar/>
       <Sidebar/>
       <Box ml={{ base: 0, md: 60 }} paddingTop={0} paddingLeft={8}>
         <Tabs position="relative" variant="unstyled">
