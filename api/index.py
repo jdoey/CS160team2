@@ -281,6 +281,7 @@ def employeeLogin():
 @app.route("/api/customer/logout", methods = ['GET'])
 def logoutCustomer():
     if current_user and current_user.is_authenticated:
+        session.clear()
         logout_user()
         return {'message' : "Logout successful", 'isSuccess' : True}
     
