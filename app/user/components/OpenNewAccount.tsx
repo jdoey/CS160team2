@@ -118,14 +118,14 @@ export default function OpenNewAccount({ handleReload }: Props) {
 
   return (
     <>
-      <Button onClick={onOpen} width={["100%", "400px"]} colorScheme="red">
+      <Button onClick={onOpen} width={"100%"} colorScheme="red">
         Open New Account
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader fontSize={"2xl"} pb={0}>
-            Open a new account
+            Open a new bank account
           </ModalHeader>
           <ModalCloseButton />
           <Formik
@@ -160,7 +160,7 @@ export default function OpenNewAccount({ handleReload }: Props) {
                     {({ field, form }: any) => (
                       <FormControl isRequired id="accountType" pt={5}>
                         <FormLabel htmlFor="accountType">
-                          Account Type
+                          Select an account type
                         </FormLabel>
                         <AccountTypeRadio />
                       </FormControl>

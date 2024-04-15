@@ -1,6 +1,22 @@
 "use client";
 
-import { Box, Flex, Button, Heading, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Button,
+  Heading,
+  Stack,
+  Text,
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanel,
+  TabPanels,
+} from "@chakra-ui/react";
 
 import { useState, useEffect } from "react";
 import AccountCard from "./components/AccountCard";
@@ -8,7 +24,7 @@ import TransactionHistory from "./components/TransactionHistory";
 import OpenNewAccount from "./components/OpenNewAccount";
 
 export default function Page() {
-  const [accountsData, setAccountsData] = useState(null);
+  const [accountsData, setAccountsData] = useState([]);
   const [transactionsData, setTransactionsData] = useState(null);
   const [selectedAccount, selectAccount] = useState({ selected: 0 });
   const [reload, setReload] = useState(0);
@@ -61,40 +77,79 @@ export default function Page() {
         .catch((error) => {
           console.error("Error fetching user data:", error);
         });
+    } else {
+      setTransactionsData(null);
     }
   }, [selectedAccount.selected]);
 
   return (
     <>
       <Box ml={{ base: 0, md: 60 }} p="4" pt={0}>
-        <Flex flexDirection={{ base: "column", md: "row" }}>
-          <Flex flexDirection={"column"} paddingLeft={{ base: 0, md: 4 }}>
-            <Heading paddingBottom={5}>Bank Accounts</Heading>
+        <Flex flexDirection={{ base: "column", md: "row" }} gap={"30px"}>
+          <Flex flexDirection={"column"} paddingLeft={{ base: 0, md: 5 }}>
             <Stack>
-              <Box maxHeight="60vh" overflowY="auto" pr={"15px"}>
-                <AccountCard
-                  accounts={accountsData}
-                  selectedAccount={selectedAccount}
-                  handleAccountSelect={handleAccountSelect}
-                />
-              </Box>
-              <OpenNewAccount handleReload={handleReload} />
+              <Card bg={"gray.40"} variant={"outline"}>
+                <CardHeader>
+                  <Heading size={"lg"}>Bank Accounts</Heading>
+                </CardHeader>
+                <Tabs isFitted variant="enclosed" colorScheme="black">
+                  <TabList>
+                    <Tab>Active</Tab>
+                    <Tab>Inactive</Tab>
+                  </TabList>
+                  <TabPanels>
+                    <TabPanel>
+                      <CardBody maxHeight="54vh" overflowY="auto">
+                        <AccountCard
+                          handleReload={handleReload}
+                          accounts={(accountsData as [])?.filter(
+                            (account: any) => account.accountStatus === "Active"
+                          )}
+                          selectedAccount={selectedAccount}
+                          handleAccountSelect={handleAccountSelect}
+                        />
+                      </CardBody>
+                    </TabPanel>
+                    <TabPanel>
+                      <CardBody maxHeight="54vh" overflowY="auto">
+                        <AccountCard
+                          handleReload={handleReload}
+                          accounts={(accountsData as [])?.filter(
+                            (account: any) =>
+                              account.accountStatus === "Inactive"
+                          )}
+                          selectedAccount={selectedAccount}
+                          handleAccountSelect={handleAccountSelect}
+                        />
+                      </CardBody>
+                    </TabPanel>
+                  </TabPanels>
+                </Tabs>
+                <CardFooter>
+                  <OpenNewAccount handleReload={handleReload} />
+                </CardFooter>
+              </Card>
             </Stack>
           </Flex>
-          <Flex
-            paddingTop={{ base: 5, md: 0 }}
-            paddingLeft={{ base: 0, md: 5 }}
-            flexDirection={"column"}
-          >
-            {transactionsData ? (
-              <Heading paddingBottom={5}>Transactions</Heading>
-            ) : (
-              <Text></Text>
-            )}
-            <Flex width={"100%"}>
-              <TransactionHistory transactions={transactionsData} />
-            </Flex>
-          </Flex>
+
+          {transactionsData ? (
+            <Card width={"100%"} bg={"gray.40"} variant={"outline"}>
+              <Flex paddingTop={{ base: 0, md: 0 }} flexDirection={"column"}>
+                <CardHeader>
+                  <Heading size={"lg"}>
+                    Transactions for {selectedAccount.selected}
+                  </Heading>
+                </CardHeader>
+                <Flex width={"100%"}>
+                  <CardBody>
+                    <TransactionHistory transactions={transactionsData} />
+                  </CardBody>
+                </Flex>
+              </Flex>
+            </Card>
+          ) : (
+            <Text></Text>
+          )}
         </Flex>
       </Box>
       {/* <Box ml={{ base: 50, md: 60 }} p="4" pt={0} width={["100%"]}>

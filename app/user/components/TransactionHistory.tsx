@@ -27,7 +27,7 @@ export default function TransactionHistory({
 }: TransactionsArray) {
   return (
     <Box maxHeight="60vh" overflowY="auto">
-      <Accordion borderRadius={10} allowToggle minWidth={"100%"}>
+      <Accordion borderRadius={10} allowToggle bg={"#FFFFFF"}>
         {!transactions ? (
           <Text></Text>
         ) : (
@@ -38,7 +38,13 @@ export default function TransactionHistory({
                   _expanded={{ bg: "red.500", color: "white" }}
                   borderRadius={10}
                 >
-                  <Text as="span" flex="1" textAlign="left">
+                  <Text
+                    as="span"
+                    flex="1"
+                    textAlign="left"
+                    whiteSpace={"nowrap"}
+                    textOverflow={"ellipsis"}
+                  >
                     {(
                       item.transactionType +
                       " " +
@@ -47,7 +53,7 @@ export default function TransactionHistory({
                   </Text>
                   <Text
                     fontWeight="semibold"
-                    width={["300px", "500px"]}
+                    width={"100%"}
                     textAlign={"right"}
                     // color={item.transactionType === "Deposit" ? "green" : "black"}
                   >
