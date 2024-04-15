@@ -476,12 +476,35 @@ def getAccountTransactions(accountNumber):
                 return res
     return {"message" : "Invalid ID", "isSuccess" : False}
 
+@app.route("/api/customer/getAccountsTransactionHistory", methods = ['GET'])
+@login_required
+def getAccountsTransactionHistory():
+    if current_user.customer:
+        accounts = current_user.customer.account
+        transactionsDict = []
+        for account in accounts:
+            transactions = Transactions.query.filter_by(accountNumber=account.accountNumber).all()
+            for transaction in transactions: 
+                transactionsDict.append({
+                    "transactionId": transaction.transactionId,
+                    "transactionType": transaction.transactionType,
+                    "amount": transaction.amount,
+                    "date": transaction.date,
+                    "accountNumber": account.accountNumber
+                })
+        if transactionsDict:
+            return {"transactions": transactionsDict, "isSuccess": True}
+        else:
+            return {"message": "No transactions found for any account", "isSuccess": False}
+    return {"message": "User not authenticated or not a customer", "isSucess": False}
+        
+
 @app.route("/api/customer/getAccounts", methods=['GET'])
 @login_required
 def getAccounts():
     if current_user.customer:
         customerId = current_user.customer.customerId
-        accounts = Account.query.filter_by(customerId=customerId).all()
+        accounts = current_user.customer.account
 
         accountsDict = []
         for account in accounts:
