@@ -340,11 +340,12 @@ def updateAccount():
     account = Account.query.filter_by(customerId=customerId, accountNumber=accountNumber).first()
 
     if account:
-        account.accountStatus = accountStatus
-        if accountStatus == "Active":
-            account.dateClose = None
-        else:
+        if account.accountStatus == "Active":
+            account.accountStatus = "Inactive"
             account.dateClose = datetime.now()
+        else:
+            account.accountStatus = "Active"
+            account.dateClose = None
         db.session.commit()
         return {"message" : "Update successfully", "isSuccess" : True}
     
