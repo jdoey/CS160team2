@@ -268,7 +268,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
                     {sessionData?.firstname} {sessionData?.lastname}
                   </Text>
                   <Text fontSize="xs" color="gray.600">
-                    User
+                    Customer
                   </Text>
                 </VStack>
                 <Box display={{ base: "none", md: "flex" }}>
@@ -282,7 +282,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
             >
               <MenuItem>Profile</MenuItem>
               <MenuItem>Settings</MenuItem>
-              <MenuItem>Billing</MenuItem>
               <MenuDivider />
               <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </MenuList>
