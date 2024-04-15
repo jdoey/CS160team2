@@ -137,7 +137,7 @@ export default function Page() {
                   </Heading>
                 </CardHeader>
                 <Flex width={"100%"}>
-                  <CardBody>
+                  <CardBody maxWidth={"100%"}>
                     <TransactionHistory
                       transactions={(transactionsData as [])?.filter(
                         (transaction: any) =>
