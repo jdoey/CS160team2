@@ -25,7 +25,7 @@ import OpenNewAccount from "./components/OpenNewAccount";
 
 export default function Page() {
   const [accountsData, setAccountsData] = useState([]);
-  const [transactionsData, setTransactionsData] = useState(null);
+  const [transactionsData, setTransactionsData] = useState([]);
   const [selectedAccount, selectAccount] = useState({ selected: 0 });
   const [reload, setReload] = useState(0);
 
@@ -35,6 +35,26 @@ export default function Page() {
 
   const handleReload = () => {
     setReload((prevCount) => prevCount + 1);
+  };
+
+  const makeGetAccountsTransactionHistory = async () => {
+    try {
+      const response = await fetch(
+        "/api/customer/getAccountsTransactionHistory",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+      const data = await response.json();
+      if (data.isSuccess) {
+        setTransactionsData(data.transactions);
+      } else {
+        console.log("Failed to fetch transaction history");
+      }
+    } catch (error) {
+      console.error("Error fetching transaction history", error);
+    }
   };
 
   useEffect(() => {
@@ -51,36 +71,12 @@ export default function Page() {
       })
       .then((data) => {
         setAccountsData(data.accounts);
+        makeGetAccountsTransactionHistory();
       })
       .catch((error) => {
         console.error("Error fetching user data:", error);
       });
   }, [reload]);
-
-  useEffect(() => {
-    console.log(selectedAccount.selected);
-    const accountNumber = selectedAccount.selected;
-    if (accountNumber > 0) {
-      fetch(`/api/customer/${accountNumber}/transactionHistory`, {
-        method: "GET",
-        credentials: "include",
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Failed to fetch transaction history");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setTransactionsData(data);
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
-    } else {
-      setTransactionsData(null);
-    }
-  }, [selectedAccount.selected]);
 
   return (
     <>
@@ -132,7 +128,7 @@ export default function Page() {
             </Stack>
           </Flex>
 
-          {transactionsData ? (
+          {transactionsData.length > 0 && selectedAccount.selected > 0 ? (
             <Card width={"100%"} bg={"gray.40"} variant={"outline"}>
               <Flex paddingTop={{ base: 0, md: 0 }} flexDirection={"column"}>
                 <CardHeader>
@@ -142,7 +138,12 @@ export default function Page() {
                 </CardHeader>
                 <Flex width={"100%"}>
                   <CardBody>
-                    <TransactionHistory transactions={transactionsData} />
+                    <TransactionHistory
+                      transactions={(transactionsData as [])?.filter(
+                        (transaction: any) =>
+                          transaction.accountNumber === selectedAccount.selected
+                      )}
+                    />
                   </CardBody>
                 </Flex>
               </Flex>
