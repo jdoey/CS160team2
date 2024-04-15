@@ -56,7 +56,7 @@ export default function AccountCard({
   return (
     <Stack divider={<StackDivider />} spacing="4">
       {!accounts ? (
-        <Center pb={5} width={["100%", "400px"]}>
+        <Center pb={5} width={["100%", "30vw"]}>
           <Spinner color="red.500" size="lg" />
         </Center>
       ) : accounts.length > 0 ? (
@@ -69,7 +69,7 @@ export default function AccountCard({
             <Stat
               p="4"
               boxShadow={"lg"}
-              width={["100%", "400px"]}
+              width={["100%", "30vw"]}
               marginBottom={0}
               borderRadius={10}
               borderWidth="1px"
@@ -159,7 +159,7 @@ export default function AccountCard({
           </Box>
         ))
       ) : (
-        <Card width={["100%", "400px"]}>
+        <Card width={["100%", "30vw"]}>
           <CardBody>
             <Heading size="md" textTransform="uppercase">
               NO ACCOUNTS FOUND
