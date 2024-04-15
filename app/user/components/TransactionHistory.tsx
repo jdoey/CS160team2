@@ -1,116 +1,89 @@
 import {
-    Accordion,
-    AccordionItem,
-    AccordionButton,
-    AccordionPanel,
-    AccordionIcon,
-    Box,
-    Flex,
-    Text
-  } from '@chakra-ui/react'
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+  Box,
+  Center,
+  Spinner,
+  Flex,
+  Text,
+} from "@chakra-ui/react";
 
-export default function TransactionHistory() {
-    return (
-        <Accordion defaultIndex={[0]} borderRadius={10}>
-    <AccordionItem>
-      <h2>
-        <AccordionButton _expanded={{ bg: 'red.500', color: 'white' }} borderRadius={10}>
-          <Box as="span" flex='1' textAlign='left'>
-              Save-A-Cent
-          </Box>
-          <Text fontWeight='semibold' paddingLeft={500}>$12.36</Text>
-          <AccordionIcon />
-        </AccordionButton>
-      </h2>
-      <AccordionPanel pb={4}>
-          <Text>
-              March 13, 2024 <br></br>
-              Description: <br></br>
-              Merchant type: <br></br>
-              Method: <br></br>
-          </Text>
-      </AccordionPanel>
-    </AccordionItem>
+interface TransactionProps {
+  transactionId: number;
+  transactionType: string;
+  amount: number;
+  date: string;
+}
 
-    <AccordionItem>
-      <h2>
-        <AccordionButton _expanded={{ bg: 'red.500', color: 'white' }} borderRadius={10}>
-          <Box as="span" flex='1' textAlign='left'>
-              A&R Market
-          </Box>
-          <Text fontWeight='semibold' paddingLeft={500}>$34.17</Text>
-          <AccordionIcon />
-        </AccordionButton>
-      </h2>
-      <AccordionPanel pb={4}>
-          <Text>
-              March 4, 2024 <br></br>
-              Description: <br></br>
-              Merchant type: <br></br>
-              Method: <br></br>
-          </Text>
-      </AccordionPanel>
-    </AccordionItem>
+interface TransactionsArray {
+  transactions: TransactionProps[] | null;
+}
 
-    <AccordionItem>
-      <h2>
-        <AccordionButton _expanded={{ bg: 'red.500', color: 'white' }} borderRadius={10}>
-          <Box as="span" flex='1' textAlign='left'>
-              Bob Mulét
-          </Box>
-          <Text fontWeight='semibold' paddingLeft={500}>$18.24</Text>
-          <AccordionIcon />
-        </AccordionButton>
-      </h2>
-      <AccordionPanel pb={4}>
-          <Text>
-              February 16, 2024 <br></br>
-              Description: <br></br>
-              Merchant type: <br></br>
-              Method: <br></br>
-          </Text>
-      </AccordionPanel>
-    </AccordionItem>
-
-    <AccordionItem>
-      <h2>
-        <AccordionButton _expanded={{ bg: 'red.500', color: 'white' }} borderRadius={10}>
-          <Box as="span" flex='1' textAlign='left'>
-              Vangelico
-          </Box>
-          <Text fontWeight='semibold' paddingLeft={500}>$8.76</Text>
-          <AccordionIcon />
-        </AccordionButton>
-      </h2>
-      <AccordionPanel pb={4}>
-          <Text>
-              February 2, 2024 <br></br>
-              Description: <br></br>
-              Merchant type: <br></br>
-              Method: <br></br>
-          </Text>
-      </AccordionPanel>
-    </AccordionItem>
-
-    <AccordionItem>
-      <h2>
-        <AccordionButton _expanded={{ bg: 'red.500', color: 'white' }} borderRadius={10}>
-          <Box as="span" flex='1' textAlign='left'>
-              LTD Gasoline
-          </Box>
-          <Text as="span" flex='1' textAlign='right' fontWeight='semibold'>$65.82</Text>
-          <AccordionIcon />
-        </AccordionButton>
-      </h2>
-      <AccordionPanel pb={4}>
-          <Text>
-              January 17, 2024 <br></br>
-              Description: <br></br>
-              Merchant type: <br></br>
-              Method: <br></br>
-          </Text>
-      </AccordionPanel>
-    </AccordionItem>
-</Accordion>
-    )
-    }
+export default function TransactionHistory({
+  transactions,
+}: TransactionsArray) {
+  return (
+    <Box maxHeight="60vh" overflowY="auto">
+      <Accordion borderRadius={10} allowToggle bg={"#FFFFFF"}>
+        {!transactions ? (
+          <Text></Text>
+        ) : (
+          transactions?.map((item: TransactionProps) => (
+            <AccordionItem key={item.transactionId}>
+              <h2>
+                <AccordionButton
+                  _expanded={{ bg: "red.500", color: "white" }}
+                  borderRadius={10}
+                >
+                  <Text
+                    as="span"
+                    textAlign="left"
+                    whiteSpace={"nowrap"}
+                    overflow={"hidden"}
+                    textOverflow={"ellipsis"}
+                    width={"100%"}
+                  >
+                    {(
+                      item.transactionType +
+                      " " +
+                      " ON " +
+                      new Date(item.date).toLocaleDateString()
+                    ).toUpperCase() +
+                      " " +
+                      item.transactionId.toString().slice(3)}
+                  </Text>
+                  <Text
+                    fontWeight="semibold"
+                    textAlign={"right"}
+                    width={"100%"}
+                    // color={
+                    //   item.transactionType === "Deposit" ? "green" : "black"
+                    // }
+                  >
+                    {"$" +
+                      item.amount.toLocaleString("en-US", {
+                        minimumFractionDigits: 2,
+                      })}
+                  </Text>
+                  <AccordionIcon />
+                </AccordionButton>
+              </h2>
+              <AccordionPanel pb={4}>
+                <Text>
+                  Transaction ID: {item.transactionId} <br></br>
+                  Transaction Type: {item.transactionType}
+                  <br></br>
+                  Transaction Date: {item.date}
+                  <br></br>
+                </Text>
+              </AccordionPanel>
+            </AccordionItem>
+          ))
+        )}
+      </Accordion>
+    </Box>
+  );
+}
