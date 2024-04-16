@@ -88,7 +88,7 @@ export default function Page() {
                 <CardHeader>
                   <Heading size={"lg"}>Bank Accounts</Heading>
                 </CardHeader>
-                <Tabs isFitted variant="enclosed" colorScheme="black">
+                <Tabs isFitted variant="enclosed" colorScheme="red">
                   <TabList>
                     <Tab>Active</Tab>
                     <Tab>Inactive</Tab>
@@ -137,7 +137,7 @@ export default function Page() {
                   </Heading>
                 </CardHeader>
                 <Flex width={"100%"}>
-                  <CardBody>
+                  <CardBody maxWidth={"100%"}>
                     <TransactionHistory
                       transactions={(transactionsData as [])?.filter(
                         (transaction: any) =>

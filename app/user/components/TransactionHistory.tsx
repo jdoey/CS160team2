@@ -40,22 +40,28 @@ export default function TransactionHistory({
                 >
                   <Text
                     as="span"
-                    flex="1"
                     textAlign="left"
                     whiteSpace={"nowrap"}
+                    overflow={"hidden"}
                     textOverflow={"ellipsis"}
+                    width={"100%"}
                   >
                     {(
                       item.transactionType +
                       " " +
-                      item.transactionId.toString().slice(-4)
-                    ).toUpperCase()}
+                      " ON " +
+                      new Date(item.date).toLocaleDateString()
+                    ).toUpperCase() +
+                      " " +
+                      item.transactionId.toString().slice(3)}
                   </Text>
                   <Text
                     fontWeight="semibold"
-                    width={"100%"}
                     textAlign={"right"}
-                    // color={item.transactionType === "Deposit" ? "green" : "black"}
+                    width={"100%"}
+                    // color={
+                    //   item.transactionType === "Deposit" ? "green" : "black"
+                    // }
                   >
                     {"$" +
                       item.amount.toLocaleString("en-US", {
@@ -70,7 +76,8 @@ export default function TransactionHistory({
                   Transaction ID: {item.transactionId} <br></br>
                   Transaction Type: {item.transactionType}
                   <br></br>
-                  Transaction Date: {item.date} <br></br>
+                  Transaction Date: {item.date}
+                  <br></br>
                 </Text>
               </AccordionPanel>
             </AccordionItem>
