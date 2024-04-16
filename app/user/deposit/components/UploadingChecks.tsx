@@ -39,91 +39,87 @@ const Form1 = (props: any) => {
 
   return (
     <>
-      <Heading
-        w="100%"
-        textAlign={"center"}
-        fontWeight="semibold"
-        mb="2%"
-        padding={10}
-      >
-        Deposit a check
-      </Heading>
-      <Formik
-        initialValues={props.data}
-        validationSchema={form1ValidationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ values, errors, touched }) => (
-          <Form>
-            <FormControl isRequired id="accountNumber" pb={"20px"}>
-              <FormLabel>Deposit to</FormLabel>
-              <Field
-                as={Select}
-                id="accountNumber"
-                name="accountNumber"
-                variant="filled"
-                placeholder="Select an account to deposit to"
-                width={"100%"}
-                textAlign={"left"}
-                whiteSpace={"nowrap"}
-                overflow={"hidden"}
-                textOverflow={"ellipsis"}
-              >
-                {props.accountsData?.map((item: any) => (
-                  <option key={item.accountNumber} value={item.accountNumber}>
-                    Maze Bank {item.accountType} {item.accountNumber}
-                  </option>
-                ))}
+      <Box p={[0, 10]} pt={0}>
+        <Heading textAlign={"center"} fontWeight="semibold" mb="2%" pb={10}>
+          Deposit a check
+        </Heading>
+        <Formik
+          initialValues={props.data}
+          validationSchema={form1ValidationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values, errors, touched }) => (
+            <Form>
+              <FormControl isRequired id="accountNumber" pb={"20px"}>
+                <FormLabel>Deposit to</FormLabel>
+                <Field
+                  as={Select}
+                  id="accountNumber"
+                  name="accountNumber"
+                  variant="filled"
+                  placeholder="Select an account to deposit to"
+                  width={"100%"}
+                  textAlign={"left"}
+                  whiteSpace={"nowrap"}
+                  overflow={"hidden"}
+                  textOverflow={"ellipsis"}
+                >
+                  {props.accountsData?.map((item: any) => (
+                    <option key={item.accountNumber} value={item.accountNumber}>
+                      Maze Bank {item.accountType} {item.accountNumber}
+                    </option>
+                  ))}
+                </Field>
+              </FormControl>
+              <Field name="deposit">
+                {({ field, form }: any) => (
+                  <FormControl isRequired id="deposit" width={"100%"}>
+                    <FormLabel htmlFor="deposit">Amount</FormLabel>
+                    <NumberInput
+                      id="deposit"
+                      {...field}
+                      onChange={(valueString) =>
+                        form.setFieldValue(field.name, parse(valueString))
+                      }
+                      value={format(field.value)}
+                      min={1}
+                    >
+                      <NumberInputField />
+                      <NumberInputStepper>
+                        <NumberIncrementStepper />
+                        <NumberDecrementStepper />
+                      </NumberInputStepper>
+                    </NumberInput>
+                  </FormControl>
+                )}
               </Field>
-            </FormControl>
-            <Field name="deposit">
-              {({ field, form }: any) => (
-                <FormControl isRequired id="deposit" width={"100%"}>
-                  <FormLabel htmlFor="deposit">Amount</FormLabel>
-                  <NumberInput
-                    id="deposit"
-                    {...field}
-                    onChange={(valueString) =>
-                      form.setFieldValue(field.name, parse(valueString))
-                    }
-                    value={format(field.value)}
-                    min={1}
-                  >
-                    <NumberInputField />
-                    <NumberInputStepper>
-                      <NumberIncrementStepper />
-                      <NumberDecrementStepper />
-                    </NumberInputStepper>
-                  </NumberInput>
-                </FormControl>
-              )}
-            </Field>
-            <ButtonGroup mt="5%" w="100%">
-              <Flex w="100%" justifyContent="space-between">
-                <Flex>
-                  <Button
-                    isDisabled
-                    colorScheme="red"
-                    variant="solid"
-                    w="7rem"
-                    mr="5%"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    w="7rem"
-                    type="submit"
-                    colorScheme="red"
-                    variant="outline"
-                  >
-                    Next
-                  </Button>
+              <ButtonGroup mt="10%">
+                <Flex justifyContent="space-between">
+                  <Flex>
+                    <Button
+                      isDisabled
+                      colorScheme="red"
+                      variant="solid"
+                      w="7rem"
+                      mr="5%"
+                    >
+                      Back
+                    </Button>
+                    <Button
+                      w="7rem"
+                      type="submit"
+                      colorScheme="red"
+                      variant="outline"
+                    >
+                      Next
+                    </Button>
+                  </Flex>
                 </Flex>
-              </Flex>
-            </ButtonGroup>
-          </Form>
-        )}
-      </Formik>
+              </ButtonGroup>
+            </Form>
+          )}
+        </Formik>
+      </Box>
     </>
   );
 };
@@ -178,60 +174,54 @@ const Form2 = (props: any) => {
 
   return (
     <>
-      <Heading
-        w="100%"
-        textAlign={"center"}
-        fontWeight="semibold"
-        mb="2%"
-        padding={10}
-      >
-        Upload check photos
-      </Heading>
-      <Box flexDirection={"row"}>
-        <Box padding={"5"}>
-          <p>Front of check:</p>
-          <form action="action_page.php">
-            <input type="file" id="checkPhoto" name="checkPhotoName" />
-          </form>
+      <Box p={[0, 10]} pt={0}>
+        <Heading textAlign={"center"} fontWeight="semibold" mb="2%" pb={10}>
+          Upload check photos
+        </Heading>
+        <Box flexDirection={"row"}>
+          <Box>
+            <FormControl pb={"40px"}>
+              <FormLabel>Front of check:</FormLabel>
+              <form action="action_page.php">
+                <input type="file" id="checkPhoto" name="checkPhotoName" />
+              </form>
+            </FormControl>
+          </Box>
+          <Box>
+            <FormControl>
+              <FormLabel>Back of check:</FormLabel>
+              <form action="action_page.php">
+                <input type="file" id="checkPhoto" name="checkPhotoName" />
+              </form>
+            </FormControl>
+          </Box>
         </Box>
-        <Box padding={"5"}>
-          <p>Back of check:</p>
-          <form action="action_page.php">
-            <input type="file" id="checkPhoto" name="checkPhotoName" />
-            {/* <Button>
-              <input type="submit"/>
-            </Button> */}
-          </form>
-        </Box>
-      </Box>
-      <ButtonGroup mt="5%" w="100%">
-        <Flex w="100%" justifyContent="space-between">
-          <Flex>
+        <ButtonGroup mt="10%" w="100%">
+          <Flex w="100%" justifyContent="space-between">
+            <Flex>
+              <Button
+                onClick={() => props.prev(props.data)}
+                colorScheme="red"
+                variant="solid"
+                w="7rem"
+                mr="5%"
+              >
+                Back
+              </Button>
+            </Flex>
             <Button
-              onClick={() => props.prev(props.data)}
-              colorScheme="red"
-              variant="solid"
+              type="submit"
               w="7rem"
-              mr="5%"
+              colorScheme="red"
+              variant="outline"
+              onClick={handleSubmit}
+              isLoading={loading}
             >
-              Back
-            </Button>
-            <Button w="7rem" isDisabled colorScheme="red" variant="outline">
-              Next
+              Submit
             </Button>
           </Flex>
-          <Button
-            type="submit"
-            w="7rem"
-            colorScheme="red"
-            variant="solid"
-            onClick={handleSubmit}
-            isLoading={loading}
-          >
-            Submit
-          </Button>
-        </Flex>
-      </ButtonGroup>
+        </ButtonGroup>
+      </Box>
     </>
   );
 };
@@ -291,15 +281,17 @@ export default function Multistep() {
 
   return (
     <>
-      <Box
-        borderWidth="1px"
-        rounded="lg"
-        shadow="1px 1px 3px rgba(0,0,0,0.3)"
-        maxWidth={800}
-        p={6}
-        m="10px auto"
-      >
-        {steps[step]}
+      <Box ml={{ base: 0, md: 60 }} p="4" pt={0}>
+        <Box
+          borderWidth="1px"
+          rounded="lg"
+          shadow="1px 1px 3px rgba(0,0,0,0.3)"
+          p={6}
+          m="10px auto"
+          width={["90vw", "70vw"]}
+        >
+          {steps[step]}
+        </Box>
       </Box>
     </>
   );
