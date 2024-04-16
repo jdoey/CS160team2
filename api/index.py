@@ -1,12 +1,11 @@
 from flask import Flask, request, session
 from dotenv import load_dotenv
 import os
-import json
-import mysql.connector
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+from sqlalchemy import desc
 
 
 load_dotenv()
@@ -334,7 +333,6 @@ def accountBalance():
 def updateAccount():
     data = request.json
     accountNumber = data.get('accountNumber')
-    accountStatus = data.get('accountStatus')
     customerId = current_user.customer.customerId
 
     account = Account.query.filter_by(customerId=customerId, accountNumber=accountNumber).first()
@@ -367,13 +365,12 @@ def logTransaction(accountNumber, transactionType, amount, date):
 @login_required
 def deposit():
     data = request.json
-    accountNumber = data.get('accountNumber', '')
-    accountStatus = data.get('accountStatus', '')
+    accountNumber = int(data.get('accountNumber', ''))
     amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
-    if account and accountStatus == "Active":
+    if account and account.accountStatus == "Active":
         account.balance += amount
         db.session.commit()
         logTransaction(accountNumber, "Deposit", amount, datetime.now())
@@ -387,12 +384,11 @@ def deposit():
 def withdraw():
     data = request.json
     accountNumber = data.get('accountNumber', '')
-    accountStatus = data.get('accountStatus', '')
     amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
-    if account and accountStatus == "Active":
+    if account and account.accountStatus == "Active":
         if amount <= account.balance:
             account.balance -= amount
             db.session.commit()
@@ -467,7 +463,7 @@ def getAccountTransactions(accountNumber):
 
             if accountId == account.accountNumber:
 
-                transactions = Transactions.query.filter(Transactions.accountNumber==accountId).all()
+                transactions = Transactions.query.filter(Transactions.accountNumber==accountId).order_by(desc(Transactions.date)).all()
                 
                 res = []
                 for trans in transactions:
@@ -483,7 +479,7 @@ def getAccountsTransactionHistory():
         accounts = current_user.customer.account
         transactionsDict = []
         for account in accounts:
-            transactions = Transactions.query.filter_by(accountNumber=account.accountNumber).all()
+            transactions = Transactions.query.filter_by(accountNumber=account.accountNumber).order_by(desc(Transactions.date)).all()
             for transaction in transactions: 
                 transactionsDict.append({
                     "transactionId": transaction.transactionId,
@@ -515,6 +511,25 @@ def getAccounts():
             return {"message" : "No accounts found", "isSuccess": False}
         else:
             return {"message" : "Accounts successfully retrieved", "accounts": accountsDict, "isSuccess": True}
+
+    return {"message" : "Account retrieval failed", "isSuccess" : False}
+
+@app.route("/api/customer/getActiveAccounts", methods=['GET'])
+@login_required
+def getActiveAccounts():
+    if current_user.customer:
+        accounts = current_user.customer.account
+
+        accountsDict = []
+        for account in accounts:
+            if account.accountStatus == "Active":
+                accountsDict.append({"accountNumber" : account.accountNumber, "accountType" : account.accountType, "balance" : account.balance, "accountStatus" : account.accountStatus})
+
+
+        if accounts == None:
+            return {"message" : "No active accounts found", "isSuccess": False}
+        else:
+            return {"message" : "All Active Accounts successfully retrieved", "accounts": accountsDict, "isSuccess": True}
 
     return {"message" : "Account retrieval failed", "isSuccess" : False}
 
