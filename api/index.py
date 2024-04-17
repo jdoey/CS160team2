@@ -1,12 +1,11 @@
 from flask import Flask, request, session
 from dotenv import load_dotenv
 import os
-import json
-import mysql.connector
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+from sqlalchemy import desc
 
 
 load_dotenv()
@@ -230,7 +229,7 @@ def customerRegister():
     return {'message' : "User account creation failed!", 'isSuccess' : False}
 
 
-@app.route("/api/customer/login", methods = ['GET', 'POST'])
+@app.route("/api/user/login", methods = ['GET', 'POST'])
 def customerLogin():
     
     if current_user.is_authenticated:
@@ -247,10 +246,14 @@ def customerLogin():
             return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
         if user and authenticate(user.password, password):
+            session['firstname'] = user.customer.person.firstname
+            session['lastname'] = user.customer.person.lastname
+            session['customerId'] = user.customer.customerId
             login_user(user, remember=True)
             return {'message' : "Login successful", 'isSuccess' : True}
    
     return {'message' : "Incorrect username or password", 'isSuccess' : False}
+
 
 @app.route("/api/employee/login", methods = ['GET', 'POST'])
 def employeeLogin():
@@ -277,6 +280,7 @@ def employeeLogin():
 @app.route("/api/customer/logout", methods = ['GET'])
 def logoutCustomer():
     if current_user and current_user.is_authenticated:
+        session.clear()
         logout_user()
         return {'message' : "Logout successful", 'isSuccess' : True}
     
@@ -296,26 +300,20 @@ def authenticate(hashed_password, password):
 def createAccount():
 
     data = request.json
-    accountType = data.get('accountType').lower()
-    balance = data.get('balance')
-    accountStatus = data.get('accountStatus')
+    accountType = data.get('accountType')
+    amount = int(data.get('initialDeposit'))
 
-    account = Account.query.filter_by(accountType=accountType, customerId=current_user.customer.customerId).first()
-    if account is None:
-        newAccount = Account()
-        newAccount.accountType = accountType
-        newAccount.balance = balance
-        newAccount.accountStatus = accountStatus
-        newAccount.customerId = current_user.customer.customerId
+    newAccount = Account()
+    newAccount.accountType = accountType
+    newAccount.balance = 0
+    newAccount.accountStatus = 'Active'
+    newAccount.customerId = current_user.customer.customerId
 
-        db.session.add(newAccount)
-        db.session.commit()
+    db.session.add(newAccount)
+    db.session.commit()
 
+    return {'message' : "Sucessfully created account", 'isSuccess' : True, 'accountProps': {"accountNumber": newAccount.accountNumber, "amount": amount, "accountStatus": newAccount.accountStatus}}
     
-        return {'message' : "Sucessfully creating account", 'isSuccess' : True}
-    
-    return {'message' : "This account is existed", 'isSuccess' : False}
-
 
 @app.route("/api/customer/balance", methods = ['GET'])
 @login_required
@@ -329,22 +327,23 @@ def accountBalance():
     
     return {"accounts": res, 'isSuccess' : True}
 
+
 @app.route("/api/customer/updateAccount", methods = ['Post'])
 @login_required
 def updateAccount():
     data = request.json
     accountNumber = data.get('accountNumber')
-    accountStatus = data.get('accountStatus')
     customerId = current_user.customer.customerId
 
     account = Account.query.filter_by(customerId=customerId, accountNumber=accountNumber).first()
 
     if account:
-        account.accountStatus = accountStatus
-        if accountStatus == "Active":
-            account.dateClose = None
-        else:
+        if account.accountStatus == "Active":
+            account.accountStatus = "Inactive"
             account.dateClose = datetime.now()
+        else:
+            account.accountStatus = "Active"
+            account.dateClose = None
         db.session.commit()
         return {"message" : "Update successfully", "isSuccess" : True}
     
@@ -366,16 +365,15 @@ def logTransaction(accountNumber, transactionType, amount, date):
 @login_required
 def deposit():
     data = request.json
-    accountNumber = data.get('accountNumber', '')
-    accountStatus = data.get('accountStatus', '')
+    accountNumber = int(data.get('accountNumber', ''))
     amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
-    if account and accountStatus == "Active":
+    if account and account.accountStatus == "Active":
         account.balance += amount
         db.session.commit()
-        logTransaction(accountNumber, "deposit", amount, datetime.now())
+        logTransaction(accountNumber, "Deposit", amount, datetime.now())
 
         return {"message" : "Deposit successful", "isSuccess" : True}
     
@@ -386,12 +384,11 @@ def deposit():
 def withdraw():
     data = request.json
     accountNumber = data.get('accountNumber', '')
-    accountStatus = data.get('accountStatus', '')
     amount = float(data.get('amount', ''))
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
-    if account and accountStatus == "Active":
+    if account and account.accountStatus == "Active":
         if amount <= account.balance:
             account.balance -= amount
             db.session.commit()
@@ -399,7 +396,7 @@ def withdraw():
         else:
             return {"message" : "Withdrawal failed: Not enough funds in account", "isSuccess" : False}
 
-        logTransaction(accountNumber, "withdrawal", amount, datetime.now())
+        logTransaction(accountNumber, "Withdrawal", amount, datetime.now())
 
         return {"message" : "Withdrawal successful", "isSuccess" : True}
     
@@ -423,7 +420,7 @@ def payment():
         else:
             return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}
 
-        logTransaction(accountNumber, "payment", amount, datetime.now())
+        logTransaction(accountNumber, "Payment", amount, datetime.now())
 
         return {"message" : "Payment successful", "isSuccess" : True}
     
@@ -449,16 +446,16 @@ def transfer():
         else:
             return {"message" : "Transfer failed: Insufficient funds", "isSuccess" : False}
 
-        logTransaction(fromAccount, "transfer-", amount, datetime.now())
+        logTransaction(fromAccount, "Transfer-", amount, datetime.now())
         if toAccount:
-            logTransaction(toAccount, "transfer+", amount, datetime.now())
+            logTransaction(toAccount, "Transfer+", amount, datetime.now())
         return {"message" : "Transfer successful", "isSuccess" : True}
     
     return {"message" : "Transfer failed", "isSuccess" : False}
 
-@app.route("/api/customer/balance/<accountNumber>/histTrans", methods = ['GET'])
+@app.route("/api/customer/<accountNumber>/transactionHistory", methods = ['GET'])
 @login_required
-def getTransaction(accountNumber):
+def getAccountTransactions(accountNumber):
     if accountNumber.isdigit(): 
         accountId = int(accountNumber)
         accounts = current_user.customer.account
@@ -466,15 +463,75 @@ def getTransaction(accountNumber):
 
             if accountId == account.accountNumber:
 
-                transactions = Transactions.query.filter(Transactions.accountNumber==accountId).all()
+                transactions = Transactions.query.filter(Transactions.accountNumber==accountId).order_by(desc(Transactions.date)).all()
                 
                 res = []
                 for trans in transactions:
                     res.append({"transactionId" : trans.transactionId, "transactionType" : trans.transactionType, "amount" : trans.amount, "date" : trans.date})
                 
                 return res
-
     return {"message" : "Invalid ID", "isSuccess" : False}
+
+@app.route("/api/customer/getAccountsTransactionHistory", methods = ['GET'])
+@login_required
+def getAccountsTransactionHistory():
+    if current_user.customer:
+        accounts = current_user.customer.account
+        transactionsDict = []
+        for account in accounts:
+            transactions = Transactions.query.filter_by(accountNumber=account.accountNumber).order_by(desc(Transactions.date)).all()
+            for transaction in transactions: 
+                transactionsDict.append({
+                    "transactionId": transaction.transactionId,
+                    "transactionType": transaction.transactionType,
+                    "amount": transaction.amount,
+                    "date": transaction.date,
+                    "accountNumber": account.accountNumber
+                })
+        if transactionsDict:
+            return {"transactions": transactionsDict, "isSuccess": True}
+        else:
+            return {"message": "No transactions found for any account", "isSuccess": False}
+    return {"message": "User not authenticated or not a customer", "isSucess": False}
+        
+
+@app.route("/api/customer/getAccounts", methods=['GET'])
+@login_required
+def getAccounts():
+    if current_user.customer:
+        customerId = current_user.customer.customerId
+        accounts = current_user.customer.account
+
+        accountsDict = []
+        for account in accounts:
+            accountsDict.append({"accountNumber" : account.accountNumber, "accountType" : account.accountType, "balance" : account.balance, "accountStatus" : account.accountStatus})
+
+
+        if accounts == None:
+            return {"message" : "No accounts found", "isSuccess": False}
+        else:
+            return {"message" : "Accounts successfully retrieved", "accounts": accountsDict, "isSuccess": True}
+
+    return {"message" : "Account retrieval failed", "isSuccess" : False}
+
+@app.route("/api/customer/getActiveAccounts", methods=['GET'])
+@login_required
+def getActiveAccounts():
+    if current_user.customer:
+        accounts = current_user.customer.account
+
+        accountsDict = []
+        for account in accounts:
+            if account.accountStatus == "Active":
+                accountsDict.append({"accountNumber" : account.accountNumber, "accountType" : account.accountType, "balance" : account.balance, "accountStatus" : account.accountStatus})
+
+
+        if accounts == None:
+            return {"message" : "No active accounts found", "isSuccess": False}
+        else:
+            return {"message" : "All Active Accounts successfully retrieved", "accounts": accountsDict, "isSuccess": True}
+
+    return {"message" : "Account retrieval failed", "isSuccess" : False}
 
 
 @app.route("/api/employee/customerAccount", methods = ['POST'])
@@ -511,6 +568,34 @@ def getCustomerAccount():
     
     return {"message" : "Account is not authorized", "isSuccess" : False}
 
+
+@app.route("/api/customer/authorization", methods = ['GET'])
+@login_required
+def customerAuthorization():
+    if current_user.is_authenticated and current_user.employee:
+        return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
+    
+    return {'message' : "User is authorized to access this page", 'isSuccess' : True}
+
+@app.route("/api/employee/authorization", methods = ['GET'])
+@login_required
+def employeeAuthorization():
+    if current_user.is_authenticated and current_user.employee:
+        return {'message' : "User is authorized to access this page", 'isSuccess' : True}
+    
+
+    return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
+
+
+@app.route('/api/sessionData')
+@login_required
+def getSessionData():
+    firstname = session.get('firstname', '')
+    lastname = session.get('lastname', '')
+    customerId = session.get('customerId', '')
+    return {'firstname': firstname, 'lastname': lastname, 'customerId': customerId}
+    
+    
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return {'message' : "User is not login", 'isSuccess' : False}
