@@ -358,7 +358,6 @@ def logTransaction(accountNumber, transactionType, amount, date):
     transaction.transactionType = transactionType
     transaction.amount = amount
     transaction.date = date
-
     return transaction
     # db.session.add(transaction)
     # db.session.commit()
@@ -376,12 +375,12 @@ def deposit():
             db.session.begin_nested()
             account.balance += amount
             db.session.add(logTransaction(accountNumber, "Deposit", amount, datetime.now()))
-            db.session.commit()
-            return {"message" : "Deposit successful", "isSuccess" : True}
         except Exception as e:
             db.session.rollback()
             raise e
-    
+        else:
+            db.session.commit()
+            return {"message" : "Deposit successful", "isSuccess" : True}
     return {"message" : "Deposit failed", "isSuccess" : False}
 
 @app.route("/api/transaction/withdraw", methods = ['POST'])
@@ -399,11 +398,12 @@ def withdraw():
                 db.session.begin_nested()
                 account.balance -= amount
                 db.session.add(logTransaction(accountNumber, "Withdrawal", amount, datetime.now()))
-                db.session.commit()
-                return {"message" : "Withdrawal successful", "isSuccess" : True}
             except Exception as e:
                 db.session.rollback()
                 raise e
+            else:
+                db.session.commit()
+                return {"message" : "Withdrawal successful", "isSuccess" : True}
         else:
             return {"message" : "Withdrawal failed: Not enough funds in account", "isSuccess" : False}
     return {"message" : "Withdrawal failed", "isSuccess" : False}
@@ -413,23 +413,26 @@ def withdraw():
 def payment():
     data = request.json
     accountNumber = data.get('accountNumber', '')
-    accountStatus = data.get('accountStatus', '')
     amount = float(data.get('amount', ''))
+    recipient = data.get('recipient', '')
 
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
-    if account and accountStatus == "Active":
+    if account and account.accountStatus == "Active":
         if amount <= account.balance:
-            account.balance -= amount
-            db.session.commit()
-
+            try:
+                db.session.begin_nested()
+                account.balance -= amount
+                db.session.add(logTransaction(accountNumber, "Payment", amount, datetime.now(), recipient))
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                raise e
+            else: 
+                db.session.commit()
+                return {"message" : "Payment successful", "isSuccess" : True}
         else:
-            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}
-
-        logTransaction(accountNumber, "Payment", amount, datetime.now())
-
-        return {"message" : "Payment successful", "isSuccess" : True}
-    
+            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}    
     return {"message" : "Payment failed", "isSuccess" : False}
 
 @app.route("/api/transaction/transfer", methods = ['POST'])
@@ -439,6 +442,9 @@ def transfer():
     fromAccountNumber = int(data.get('fromAccountNumber', ''))
     toAccountNumber = int(data.get('toAccountNumber', ''))
     amount = float(data.get('amount', ''))
+
+    if fromAccountNumber == toAccountNumber:
+        return {"message": "Transfer failed: Source and target account cannot be the same"}
 
     fromAccount = Account.query.filter_by(accountNumber=fromAccountNumber).first()
     toAccount = Account.query.filter_by(accountNumber=toAccountNumber).first()
@@ -451,19 +457,18 @@ def transfer():
     
     try:
         db.session.begin_nested()
-
         fromAccount.balance -= amount
         db.session.add(logTransaction(fromAccount, "Transfer-", amount, datetime.now()))
-        if toAccount:
+        if toAccount and toAccount.accountStatus == "Active":
             toAccount.balance += amount
             db.session.add(logTransaction(toAccount, "Transfer+", amount, datetime.now()))
-
-        db.session.commit()
-        return {"message": "Transfer successful", "isSuccess": True}
-    
     except Exception as e:
         db.session.rollback()
         raise e
+    else:
+        db.session.commit()
+        return {"message": "Transfer successful", "isSuccess": True}
+
 
     # if fromAccount and fromAccount.accountStatus == "Active":
     #     if amount <= fromAccount.balance:
