@@ -22,6 +22,12 @@ import {
   Thead,
   Tbody,
   Stack,
+  HStack,
+  NumberInput,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInputField,
+  NumberInputStepper,
 } from "@chakra-ui/react";
 
 import {
@@ -36,12 +42,100 @@ import {
 } from "@chakra-ui/react";
 
 import React from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import Sidebar from "../../components/Sidebar";
 import ExternalTransferForm from "./components/ExternalTransferForm";
 
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+
+const validationSchema = Yup.object({
+  fromAccount: Yup.string().required("Required"),
+  toAccount: Yup.string().required("Required"),
+  amount: Yup.string().required("Required"),
+});
+
 export default function Page() {
   const toast = useToast();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+  const [accountsData, setAccountsData] = useState([]);
+  const [transferData, setTransferData] = useState({
+    fromAccount: "",
+    toAccount: "",
+    amount: "",
+  });
+
+  const format = (val: string) => `$` + val;
+  const parse = (val: string) => val.replace(/^\$/, "");
+
+  const handleSubmit = (values: any) => {
+    setLoading(true);
+    console.log(values);
+    makeTransferRequest(values);
+  };
+
+  const makeTransferRequest = async (values: any) => {
+    try {
+      const response = await fetch("/api/transaction/transfer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fromAccountNumber: values.fromAccount,
+          toAccountNumber: values.toAccount,
+          amount: values.amount,
+        }),
+      });
+      const data = await response.json();
+      if (data.isSuccess) {
+        setLoading(false);
+        router.push("/user");
+        toast({
+          title: data.message,
+          description: `Transfer from Account#${values.fromAccount} to Account#${values.toAccount} successful!`,
+          status: "success",
+          duration: 10000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: data.message,
+          description: `Error: Transfer from Account#${values.fromAccount} to Account#${values.toAccount} failed. Please try again`,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error making transfer", error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetch("/api/customer/getActiveAccounts", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch active accounts");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setAccountsData(data.accounts);
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+      });
+  }, []);
+
   return (
     <>
       <Box ml={{ base: 0, md: 60 }} paddingTop={0} paddingLeft={8}>
@@ -66,7 +160,7 @@ export default function Page() {
                 <TabPanels>
                   <TabPanel>
                     <FormControl>
-                      <FormLabel>Search for a recipient</FormLabel>
+                      <FormLabel>Enter a recipient</FormLabel>
                       <Input type="Recipient" />
                     </FormControl>
                   </TabPanel>
@@ -118,64 +212,214 @@ export default function Page() {
             <TabPanel>
               <Tabs variant="enclosed" colorScheme="red">
                 <TabList>
-                  <Tab>Transfer</Tab>
-                  <Tab>Add External Account</Tab>
+                  <Tab>Internal Transfer</Tab>
+                  <Tab>External Transfer</Tab>
                 </TabList>
 
                 <TabPanels>
                   <TabPanel>
-                    <Stack>
-                      <Flex>
-                        <Select
-                          placeholder="Transfer from:"
-                          padding="1"
-                          paddingTop="5"
-                        >
-                          <option value="option1">Option 1</option>
-                          <option value="option2">Option 2</option>
-                          <option value="option3">Option 3</option>
-                        </Select>
-                        <Select
-                          placeholder="Transfer to:"
-                          padding="1"
-                          paddingTop="5"
-                        >
-                          <option value="option1">Option 1</option>
-                          <option value="option2">Option 2</option>
-                          <option value="option3">Option 3</option>
-                        </Select>
-                      </Flex>
+                    <Formik
+                      initialValues={transferData}
+                      validationSchema={validationSchema}
+                      onSubmit={handleSubmit}
+                    >
+                      {({ values, errors, touched }) => (
+                        <Form>
+                          <Stack>
+                            <HStack>
+                              <FormControl isRequired id="fromAccount">
+                                <FormLabel width={"100%"}>
+                                  Transfer from:
+                                </FormLabel>
+                                <Field
+                                  as={Select}
+                                  id="fromAccount"
+                                  name="fromAccount"
+                                  width={"80%"}
+                                  placeholder="From:"
+                                >
+                                  {accountsData?.map((item: any) => (
+                                    <option
+                                      key={item.accountNumber}
+                                      value={item.accountNumber}
+                                    >
+                                      Maze Bank {item.accountType}{" "}
+                                      {item.accountNumber}
+                                    </option>
+                                  ))}
+                                </Field>
+                              </FormControl>
+                              <FormControl isRequired id="toAccount">
+                                <FormLabel width={"100%"}>
+                                  Transfer to:
+                                </FormLabel>
+                                <Field
+                                  as={Select}
+                                  id="toAccount"
+                                  name="toAccount"
+                                  width={"80%"}
+                                  placeholder="To:"
+                                >
+                                  {accountsData?.map((item: any) => (
+                                    <option
+                                      key={item.accountNumber}
+                                      value={item.accountNumber}
+                                    >
+                                      Maze Bank {item.accountType}{" "}
+                                      {item.accountNumber}
+                                    </option>
+                                  ))}
+                                </Field>
+                              </FormControl>
+                            </HStack>
 
-                      <FormControl
-                        isRequired
-                        padding="1"
-                        paddingTop="5"
-                        paddingBottom={5}
-                      >
-                        <FormLabel>Amount</FormLabel>
-                        <Input placeholder="$0.00" />
-                      </FormControl>
+                            <Field name="amount">
+                              {({ field, form }: any) => (
+                                <FormControl
+                                  isRequired
+                                  id="amount"
+                                  width={"100%"}
+                                  pt={2}
+                                  pb={4}
+                                >
+                                  <FormLabel htmlFor="amount">Amount</FormLabel>
+                                  <NumberInput
+                                    id="amount"
+                                    {...field}
+                                    onChange={(valueString) =>
+                                      form.setFieldValue(
+                                        field.name,
+                                        parse(valueString)
+                                      )
+                                    }
+                                    value={format(field.value)}
+                                    min={1}
+                                  >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                      <NumberIncrementStepper />
+                                      <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                  </NumberInput>
+                                </FormControl>
+                              )}
+                            </Field>
 
-                      <Button
-                        background="red.500"
-                        color="white"
-                        onClick={() => {
-                          toast({
-                            title: "Success",
-                            description: "Your payment has been transferred.",
-                            status: "success",
-                            duration: 3000,
-                            isClosable: true,
-                          });
-                        }}
-                      >
-                        Transfer
-                      </Button>
-                    </Stack>
+                            <Button
+                              colorScheme="red"
+                              color="white"
+                              type="submit"
+                              isLoading={loading}
+                            >
+                              Transfer
+                            </Button>
+                          </Stack>
+                        </Form>
+                      )}
+                    </Formik>
                   </TabPanel>
 
                   <TabPanel>
-                    <ExternalTransferForm />
+                    <Formik
+                      initialValues={transferData}
+                      validationSchema={validationSchema}
+                      onSubmit={handleSubmit}
+                    >
+                      {({ values, errors, touched }) => (
+                        <Form>
+                          <Stack>
+                            <HStack>
+                              <FormControl isRequired id="fromAccount">
+                                <FormLabel width={"100%"}>
+                                  Transfer from:
+                                </FormLabel>
+                                <Field
+                                  as={Select}
+                                  id="fromAccount"
+                                  name="fromAccount"
+                                  width={"80%"}
+                                  placeholder="From:"
+                                >
+                                  {accountsData?.map((item: any) => (
+                                    <option
+                                      key={item.accountNumber}
+                                      value={item.accountNumber}
+                                    >
+                                      Maze Bank {item.accountType}{" "}
+                                      {item.accountNumber}
+                                    </option>
+                                  ))}
+                                </Field>
+                              </FormControl>
+                              <Field name="toAccount">
+                                {({ field, form }: any) => (
+                                  <FormControl isRequired id="toAccount">
+                                    <FormLabel htmlFor="toAccount">
+                                      Transfer to:
+                                    </FormLabel>
+                                    <NumberInput
+                                      id="amount"
+                                      width={"80%"}
+                                      {...field}
+                                      onChange={(valueString) =>
+                                        form.setFieldValue(
+                                          field.name,
+                                          valueString
+                                        )
+                                      }
+                                      value={field.value}
+                                    >
+                                      <NumberInputField placeholder="To: AccountNumber" />
+                                    </NumberInput>
+                                  </FormControl>
+                                )}
+                              </Field>
+                            </HStack>
+
+                            <Field name="amount">
+                              {({ field, form }: any) => (
+                                <FormControl
+                                  isRequired
+                                  id="amount"
+                                  width={"100%"}
+                                  pt={2}
+                                  pb={4}
+                                >
+                                  <FormLabel htmlFor="amount">Amount</FormLabel>
+                                  <NumberInput
+                                    id="amount"
+                                    {...field}
+                                    onChange={(valueString) =>
+                                      form.setFieldValue(
+                                        field.name,
+                                        parse(valueString)
+                                      )
+                                    }
+                                    value={format(field.value)}
+                                    min={1}
+                                  >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                      <NumberIncrementStepper />
+                                      <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                  </NumberInput>
+                                </FormControl>
+                              )}
+                            </Field>
+
+                            <Button
+                              colorScheme="red"
+                              color="white"
+                              type="submit"
+                              isLoading={loading}
+                            >
+                              Transfer
+                            </Button>
+                          </Stack>
+                        </Form>
+                      )}
+                    </Formik>
                   </TabPanel>
                 </TabPanels>
               </Tabs>
