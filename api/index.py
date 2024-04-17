@@ -123,6 +123,7 @@ class Transactions(db.Model):
     transactionType = db.Column(db.String(20), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, default=datetime.now())
+    recipient = db.Column(db.String(255))
     accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
 class AutomatedTransactions(db.Model):
@@ -249,7 +250,7 @@ def customerLogin():
             session['firstname'] = user.customer.person.firstname
             session['lastname'] = user.customer.person.lastname
             session['customerId'] = user.customer.customerId
-            login_user(user, remember=True)
+            login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
     return {'message' : "Incorrect username or password", 'isSuccess' : False}
@@ -272,7 +273,7 @@ def employeeLogin():
             return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
         if user and authenticate(user.password, password):
-            login_user(user, remember=True)
+            login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
     return {'message' : "Incorrect username or password", 'isSuccess' : False}
@@ -358,8 +359,9 @@ def logTransaction(accountNumber, transactionType, amount, date):
     transaction.amount = amount
     transaction.date = date
 
-    db.session.add(transaction)
-    db.session.commit()
+    return transaction
+    # db.session.add(transaction)
+    # db.session.commit()
 
 @app.route("/api/transaction/deposit", methods = ['POST'])
 @login_required
@@ -367,15 +369,18 @@ def deposit():
     data = request.json
     accountNumber = int(data.get('accountNumber', ''))
     amount = float(data.get('amount', ''))
-
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
     if account and account.accountStatus == "Active":
-        account.balance += amount
-        db.session.commit()
-        logTransaction(accountNumber, "Deposit", amount, datetime.now())
-
-        return {"message" : "Deposit successful", "isSuccess" : True}
+        try:
+            db.session.begin_nested()
+            account.balance += amount
+            db.session.add(logTransaction(accountNumber, "Deposit", amount, datetime.now()))
+            db.session.commit()
+            return {"message" : "Deposit successful", "isSuccess" : True}
+        except Exception as e:
+            db.session.rollback()
+            raise e
     
     return {"message" : "Deposit failed", "isSuccess" : False}
 
@@ -390,16 +395,17 @@ def withdraw():
 
     if account and account.accountStatus == "Active":
         if amount <= account.balance:
-            account.balance -= amount
-            db.session.commit()
-
+            try:
+                db.session.begin_nested()
+                account.balance -= amount
+                db.session.add(logTransaction(accountNumber, "Withdrawal", amount, datetime.now()))
+                db.session.commit()
+                return {"message" : "Withdrawal successful", "isSuccess" : True}
+            except Exception as e:
+                db.session.rollback()
+                raise e
         else:
             return {"message" : "Withdrawal failed: Not enough funds in account", "isSuccess" : False}
-
-        logTransaction(accountNumber, "Withdrawal", amount, datetime.now())
-
-        return {"message" : "Withdrawal successful", "isSuccess" : True}
-    
     return {"message" : "Withdrawal failed", "isSuccess" : False}
 
 @app.route("/api/transaction/payment", methods = ['POST'])
@@ -430,28 +436,50 @@ def payment():
 @login_required
 def transfer():
     data = request.json
-    fromAccountNumber = data.get('fromAccountNumber', '')
-    toAccountNumber = data.get('toAccountNumber', '')
+    fromAccountNumber = int(data.get('fromAccountNumber', ''))
+    toAccountNumber = int(data.get('toAccountNumber', ''))
     amount = float(data.get('amount', ''))
 
     fromAccount = Account.query.filter_by(accountNumber=fromAccountNumber).first()
     toAccount = Account.query.filter_by(accountNumber=toAccountNumber).first()
 
-    if fromAccount and fromAccount.accountStatus == "Active":
-        if amount <= fromAccount.balance:
-            fromAccount.balance -= amount
-            if toAccount and toAccount.accountStatus == "Active":
-                toAccount.balance += amount
-            db.session.commit()
-        else:
-            return {"message" : "Transfer failed: Insufficient funds", "isSuccess" : False}
-
-        logTransaction(fromAccount, "Transfer-", amount, datetime.now())
-        if toAccount:
-            logTransaction(toAccount, "Transfer+", amount, datetime.now())
-        return {"message" : "Transfer successful", "isSuccess" : True}
+    if not fromAccount or fromAccount.accountStatus == "Inactive":
+        return {"message": "Transfer failed: Invalid source account"}
     
-    return {"message" : "Transfer failed", "isSuccess" : False}
+    if amount > fromAccount.balance:
+        return {"message": "Transfer failed: Insufficient funds"}
+    
+    try:
+        db.session.begin_nested()
+
+        fromAccount.balance -= amount
+        db.session.add(logTransaction(fromAccount, "Transfer-", amount, datetime.now()))
+        if toAccount:
+            toAccount.balance += amount
+            db.session.add(logTransaction(toAccount, "Transfer+", amount, datetime.now()))
+
+        db.session.commit()
+        return {"message": "Transfer successful", "isSuccess": True}
+    
+    except Exception as e:
+        db.session.rollback()
+        raise e
+
+    # if fromAccount and fromAccount.accountStatus == "Active":
+    #     if amount <= fromAccount.balance:
+    #         fromAccount.balance -= amount
+    #         if toAccount and toAccount.accountStatus == "Active":
+    #             toAccount.balance += amount
+    #         db.session.commit()
+    #     else:
+    #         return {"message" : "Transfer failed: Insufficient funds", "isSuccess" : False}
+    #     logTransaction(fromAccount, "Transfer-", amount, datetime.now())
+
+    #     if toAccount:
+    #         logTransaction(toAccount, "Transfer+", amount, datetime.now())
+    #     return {"message" : "Transfer successful", "isSuccess" : True}
+    
+    # return {"message" : "Transfer failed", "isSuccess" : False}
 
 @app.route("/api/customer/<accountNumber>/transactionHistory", methods = ['GET'])
 @login_required
