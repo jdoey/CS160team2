@@ -58,7 +58,6 @@ export default function Page() {
   };
 
   useEffect(() => {
-    console.log("rerender accountcards");
     fetch("/api/customer/getAccounts", {
       method: "GET",
       credentials: "include",
@@ -95,7 +94,7 @@ export default function Page() {
                   </TabList>
                   <TabPanels>
                     <TabPanel>
-                      <CardBody maxHeight="54vh" overflowY="auto">
+                      <CardBody maxHeight="52vh" overflowY="auto">
                         <AccountCard
                           handleReload={handleReload}
                           accounts={(accountsData as [])?.filter(
@@ -107,7 +106,7 @@ export default function Page() {
                       </CardBody>
                     </TabPanel>
                     <TabPanel>
-                      <CardBody maxHeight="54vh" overflowY="auto">
+                      <CardBody maxHeight="52vh" overflowY="auto">
                         <AccountCard
                           handleReload={handleReload}
                           accounts={(accountsData as [])?.filter(

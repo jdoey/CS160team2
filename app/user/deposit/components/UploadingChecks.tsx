@@ -240,7 +240,6 @@ export default function Multistep() {
   const [accountsData, setAccountsData] = useState([]);
 
   useEffect(() => {
-    console.log("rerender accountcards");
     fetch("/api/customer/getActiveAccounts", {
       method: "GET",
       credentials: "include",
