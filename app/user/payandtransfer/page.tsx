@@ -14,6 +14,7 @@ import {
   FormLabel,
   Input,
   useToast,
+  IconButton,
   Table,
   TableContainer,
   Tr,
@@ -28,19 +29,10 @@ import {
   NumberIncrementStepper,
   NumberInputField,
   NumberInputStepper,
+  Checkbox,
+  FormErrorMessage,
 } from "@chakra-ui/react";
-
-import {
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-  useDisclosure,
-} from "@chakra-ui/react";
-
+import { DeleteIcon } from "@chakra-ui/icons";
 import React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -57,6 +49,25 @@ const validationSchema = Yup.object({
   amount: Yup.string().required("Required"),
 });
 
+const payValidationSchema = Yup.object({
+  fromAccount: Yup.string().required("Required"),
+  recipient: Yup.string().required("Required"),
+  amount: Yup.string().required("Required"),
+});
+
+const autoPayValidationSchema = Yup.object({
+  fromAccount: Yup.string().required("Required"),
+  recipient: Yup.string().required("Required"),
+  amount: Yup.string().required("Required"),
+  frequency: Yup.string().required("Required"),
+  payDate: Yup.string()
+    .matches(
+      /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/,
+      "Pay date must be in the format MM/DD/YYYY and valid"
+    )
+    .required("Required"),
+});
+
 export default function Page() {
   const toast = useToast();
   const router = useRouter();
@@ -67,14 +78,147 @@ export default function Page() {
     toAccount: "",
     amount: "",
   });
+  const [paymentHistory, setPaymentHistory] = useState([]);
+  const [autoPayments, setAutoPayments] = useState([]);
 
   const format = (val: string) => `$` + val;
   const parse = (val: string) => val.replace(/^\$/, "");
 
   const handleSubmit = (values: any) => {
     setLoading(true);
-    console.log(values);
     makeTransferRequest(values);
+  };
+
+  const handlePaySubmit = (values: any) => {
+    setLoading(true);
+    makePaymentRequest(values);
+  };
+
+  const handleAutoPaySubmit = (values: any) => {
+    console.log(values);
+    setLoading(true);
+    makeAutoPaymentRequest(values);
+  };
+
+  const deleteAutoPaymentRequest = async (autoId: any) => {
+    try {
+      const response = await fetch("/api/transaction/deleteRecurringPayment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          autoId: autoId,
+        }),
+      });
+      const data = await response.json();
+      if (data.isSuccess) {
+        makeGetAutoPaymentsRequest();
+        setLoading(false);
+        toast({
+          title: data.message,
+          description: `Automated Payment ID:${autoId} successfully deleted!`,
+          status: "success",
+          duration: 10000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: data.message,
+          description: `Error: Automated Payment ID:${autoId} failed to delete. Please try again`,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error deleting automated payment", error);
+      setLoading(false);
+    }
+  };
+
+  const makeAutoPaymentRequest = async (values: any) => {
+    try {
+      const response = await fetch("/api/transaction/recurringPayment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountNumber: values.fromAccount,
+          amount: values.amount,
+          recipient: values.recipient,
+          transactionType: "Payment-",
+          paymentDate: values.payDate,
+          frequency: values.frequency,
+        }),
+      });
+      const data = await response.json();
+      if (data.isSuccess) {
+        setLoading(false);
+        router.push("/user");
+        toast({
+          title: data.message,
+          description: `Automated Payment from Account#${values.fromAccount} to ${values.recipient} successfully created!`,
+          status: "success",
+          duration: 10000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: data.message,
+          description: `Error: Automated Payment from Account#${values.fromAccount} to ${values.recipient} failed to setup. Please try again`,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error creating automated payment", error);
+      setLoading(false);
+    }
+  };
+
+  const makePaymentRequest = async (values: any) => {
+    try {
+      const response = await fetch("/api/transaction/payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountNumber: values.fromAccount,
+          amount: values.amount,
+          recipient: values.recipient,
+        }),
+      });
+      const data = await response.json();
+      if (data.isSuccess) {
+        setLoading(false);
+        router.push("/user");
+        toast({
+          title: data.message,
+          description: `Payment from Account#${values.fromAccount} to ${values.recipient} successful!`,
+          status: "success",
+          duration: 10000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: data.message,
+          description: `Error: Payment from Account#${values.fromAccount} to ${values.recipient} failed. Please try again`,
+          status: "error",
+          duration: 10000,
+          isClosable: true,
+        });
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error making payment", error);
+      setLoading(false);
+    }
   };
 
   const makeTransferRequest = async (values: any) => {
@@ -117,6 +261,26 @@ export default function Page() {
     }
   };
 
+  const makeGetAutoPaymentsRequest = async () => {
+    fetch("/api/customer/getAccountsAutoPaymentHistory", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch automated payments");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data.autoPayments);
+        setAutoPayments(data.autoPayments);
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+      });
+  };
+
   useEffect(() => {
     fetch("/api/customer/getActiveAccounts", {
       method: "GET",
@@ -134,6 +298,29 @@ export default function Page() {
       .catch((error) => {
         console.error("Error fetching user data:", error);
       });
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/customer/getAccountsPaymentHistory", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch payment history");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setPaymentHistory(data.payments);
+      })
+      .catch((error) => {
+        console.error("Error fetching user data:", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    makeGetAutoPaymentsRequest();
   }, []);
 
   return (
@@ -156,13 +343,97 @@ export default function Page() {
                 <TabList>
                   <Tab>Pay</Tab>
                   <Tab>Payment History</Tab>
+                  <Tab>Setup Automated Payments</Tab>
+                  <Tab>Automated Payments</Tab>
                 </TabList>
                 <TabPanels>
                   <TabPanel>
-                    <FormControl>
-                      <FormLabel>Enter a recipient</FormLabel>
-                      <Input type="Recipient" />
-                    </FormControl>
+                    <Formik
+                      initialValues={{
+                        fromAccount: "",
+                        amount: "",
+                        recipient: "",
+                      }}
+                      validationSchema={payValidationSchema}
+                      onSubmit={handlePaySubmit}
+                    >
+                      {({ values, errors, touched }) => (
+                        <Form>
+                          <Stack>
+                            <FormControl isRequired pb={2}>
+                              <FormLabel>Enter recipient name:</FormLabel>
+                              <Field
+                                as={Input}
+                                id="recipient"
+                                name="recipient"
+                              />
+                            </FormControl>
+                            <FormControl isRequired id="fromAccount">
+                              <FormLabel width={"100%"}>
+                                Source Account:
+                              </FormLabel>
+                              <Field
+                                as={Select}
+                                id="fromAccount"
+                                name="fromAccount"
+                                width={"100%"}
+                                placeholder="Source bank account:"
+                              >
+                                {accountsData?.map((item: any) => (
+                                  <option
+                                    key={item.accountNumber}
+                                    value={item.accountNumber}
+                                  >
+                                    Maze Bank {item.accountType}{" "}
+                                    {item.accountNumber}: ${item.balance}
+                                  </option>
+                                ))}
+                              </Field>
+                            </FormControl>
+
+                            <Field name="amount">
+                              {({ field, form }: any) => (
+                                <FormControl
+                                  isRequired
+                                  id="amount"
+                                  width={"100%"}
+                                  pt={2}
+                                  pb={4}
+                                >
+                                  <FormLabel htmlFor="amount">Amount</FormLabel>
+                                  <NumberInput
+                                    id="amount"
+                                    {...field}
+                                    onChange={(valueString) =>
+                                      form.setFieldValue(
+                                        field.name,
+                                        parse(valueString)
+                                      )
+                                    }
+                                    value={format(field.value)}
+                                    min={1}
+                                  >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                      <NumberIncrementStepper />
+                                      <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                  </NumberInput>
+                                </FormControl>
+                              )}
+                            </Field>
+                            <Button
+                              colorScheme="red"
+                              color="white"
+                              type="submit"
+                              isLoading={loading}
+                            >
+                              Pay
+                            </Button>
+                          </Stack>
+                        </Form>
+                      )}
+                    </Formik>
                   </TabPanel>
 
                   <TabPanel>
@@ -176,31 +447,206 @@ export default function Page() {
                             <Th isNumeric>Amount</Th>
                           </Tr>
                         </Thead>
-                        <Tbody>
+                        <Tbody maxHeight="68vh" overflowY="auto">
+                          {paymentHistory?.map((item: any) => (
+                            <Tr key={item.transactionId}>
+                              <Td>
+                                Maze Bank {item.accountType}{" "}
+                                {item.accountNumber}
+                              </Td>
+                              <Td>{item.recipient}</Td>
+                              <Td>
+                                {new Date(item.date).toLocaleString("en-US")}
+                              </Td>
+                              <Td isNumeric>
+                                $
+                                {item.amount.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </Td>
+                            </Tr>
+                          ))}
+                        </Tbody>
+                      </Table>
+                    </TableContainer>
+                  </TabPanel>
+
+                  <TabPanel>
+                    <Formik
+                      initialValues={{
+                        fromAccount: "",
+                        amount: "",
+                        recipient: "",
+                        payDate: "",
+                        frequency: "",
+                      }}
+                      validationSchema={autoPayValidationSchema}
+                      onSubmit={handleAutoPaySubmit}
+                    >
+                      {({ values, errors, touched }) => (
+                        <Form>
+                          <Stack>
+                            <FormControl isRequired pb={2}>
+                              <FormLabel>Enter recipient name:</FormLabel>
+                              <Field
+                                as={Input}
+                                id="recipient"
+                                name="recipient"
+                              />
+                            </FormControl>
+                            <FormControl isRequired id="fromAccount">
+                              <FormLabel width={"100%"}>
+                                Source Account:
+                              </FormLabel>
+                              <Field
+                                as={Select}
+                                id="fromAccount"
+                                name="fromAccount"
+                                width={"100%"}
+                                placeholder="Source bank account:"
+                              >
+                                {accountsData?.map((item: any) => (
+                                  <option
+                                    key={item.accountNumber}
+                                    value={item.accountNumber}
+                                  >
+                                    Maze Bank {item.accountType}{" "}
+                                    {item.accountNumber}: ${item.balance}
+                                  </option>
+                                ))}
+                              </Field>
+                            </FormControl>
+
+                            <Field name="amount">
+                              {({ field, form }: any) => (
+                                <FormControl
+                                  isRequired
+                                  id="amount"
+                                  width={"100%"}
+                                  pt={2}
+                                >
+                                  <FormLabel htmlFor="amount">Amount</FormLabel>
+                                  <NumberInput
+                                    id="amount"
+                                    {...field}
+                                    onChange={(valueString) =>
+                                      form.setFieldValue(
+                                        field.name,
+                                        parse(valueString)
+                                      )
+                                    }
+                                    value={format(field.value)}
+                                    min={1}
+                                  >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                      <NumberIncrementStepper />
+                                      <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                  </NumberInput>
+                                </FormControl>
+                              )}
+                            </Field>
+
+                            <FormControl isRequired pt={2}>
+                              <FormLabel>Frequency:</FormLabel>
+                              <Field
+                                as={Select}
+                                id="frequency"
+                                name="frequency"
+                                placeholder="Frequency:"
+                              >
+                                <option>Daily</option>
+                                <option>Weekly</option>
+                                <option>Monthly</option>
+                              </Field>
+                            </FormControl>
+
+                            <FormControl
+                              pt={2}
+                              pb={4}
+                              isRequired
+                              isInvalid={!!errors.payDate && !!touched.payDate}
+                            >
+                              <FormLabel htmlFor="payDate">
+                                Date of payment:
+                              </FormLabel>
+                              <Field
+                                as={Input}
+                                id="payDate"
+                                name="payDate"
+                                type="payDate"
+                                placeholder="MM/DD/YYYY"
+                              />
+                              <ErrorMessage
+                                name="payDate"
+                                component={FormErrorMessage}
+                              />
+                            </FormControl>
+
+                            <Button
+                              colorScheme="red"
+                              color="white"
+                              type="submit"
+                              isLoading={loading}
+                            >
+                              Create Automated Payment
+                            </Button>
+                          </Stack>
+                        </Form>
+                      )}
+                    </Formik>
+                  </TabPanel>
+
+                  <TabPanel>
+                    <TableContainer>
+                      <Table size="sm">
+                        <Thead>
                           <Tr>
-                            <Td>Checking Account</Td>
-                            <Td>Bank</Td>
-                            <Td>March 12, 2024</Td>
-                            <Td isNumeric>$25.46</Td>
+                            <Th>From</Th>
+                            <Th>Transaction Type</Th>
+                            <Th>Recipient</Th>
+                            <Th>Frequency</Th>
+                            <Th>Date of Payment</Th>
+                            <Th isNumeric>Amount</Th>
                           </Tr>
-                          <Tr>
-                            <Td>Savings Account</Td>
-                            <Td>External Bank Account</Td>
-                            <Td>March 8, 2024</Td>
-                            <Td isNumeric>$90.00</Td>
-                          </Tr>
-                          <Tr>
-                            <Td>Checking Account</Td>
-                            <Td>Bank</Td>
-                            <Td>February 28, 2024</Td>
-                            <Td isNumeric>$167.12</Td>
-                          </Tr>
-                          <Tr>
-                            <Td>Checking Account</Td>
-                            <Td>Bank</Td>
-                            <Td>February 19, 2024</Td>
-                            <Td isNumeric>$58.91</Td>
-                          </Tr>
+                        </Thead>
+                        <Tbody maxHeight="68vh" overflowY="auto">
+                          {autoPayments?.map((item: any) => (
+                            <Tr key={item.autoId}>
+                              <Td>
+                                Maze Bank {item.accountType}{" "}
+                                {item.accountNumber}
+                              </Td>
+                              <Td>{item.transactionType}</Td>
+                              <Td>{item.recipient}</Td>
+                              <Td>{item.frequency}</Td>
+                              <Td>
+                                {new Date(item.paymentDate).toLocaleString(
+                                  "en-US"
+                                )}
+                              </Td>
+                              <Td isNumeric>
+                                $
+                                {item.amount.toLocaleString("en-US", {
+                                  minimumFractionDigits: 2,
+                                })}
+                              </Td>
+                              <Td>
+                                <IconButton
+                                  size={"sm"}
+                                  variant="outline"
+                                  colorScheme="red"
+                                  aria-label="Delete"
+                                  onClick={() =>
+                                    deleteAutoPaymentRequest(item.autoId)
+                                  }
+                                  isLoading={loading}
+                                  icon={<DeleteIcon />}
+                                />
+                              </Td>
+                            </Tr>
+                          ))}
                         </Tbody>
                       </Table>
                     </TableContainer>
@@ -238,15 +684,18 @@ export default function Page() {
                                   width={"80%"}
                                   placeholder="From:"
                                 >
-                                  {accountsData?.map((item: any) => (
-                                    <option
-                                      key={item.accountNumber}
-                                      value={item.accountNumber}
-                                    >
-                                      Maze Bank {item.accountType}{" "}
-                                      {item.accountNumber}
-                                    </option>
-                                  ))}
+                                  {accountsData?.map((item: any) =>
+                                    item.accountNumber !==
+                                    values.fromAccount ? (
+                                      <option
+                                        key={item.accountNumber}
+                                        value={item.accountNumber}
+                                      >
+                                        Maze Bank {item.accountType}{" "}
+                                        {item.accountNumber}: ${item.balance}
+                                      </option>
+                                    ) : null
+                                  )}
                                 </Field>
                               </FormControl>
                               <FormControl isRequired id="toAccount">
@@ -266,7 +715,7 @@ export default function Page() {
                                       value={item.accountNumber}
                                     >
                                       Maze Bank {item.accountType}{" "}
-                                      {item.accountNumber}
+                                      {item.accountNumber}: ${item.balance}
                                     </option>
                                   ))}
                                 </Field>
@@ -346,7 +795,7 @@ export default function Page() {
                                       value={item.accountNumber}
                                     >
                                       Maze Bank {item.accountType}{" "}
-                                      {item.accountNumber}
+                                      {item.accountNumber}: ${item.balance}
                                     </option>
                                   ))}
                                 </Field>
@@ -369,7 +818,7 @@ export default function Page() {
                                       }
                                       value={field.value}
                                     >
-                                      <NumberInputField placeholder="To: AccountNumber" />
+                                      <NumberInputField placeholder="To: External AccountNumber" />
                                     </NumberInput>
                                   </FormControl>
                                 )}

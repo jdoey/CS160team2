@@ -66,7 +66,8 @@ const Form1 = (props: any) => {
                 >
                   {props.accountsData?.map((item: any) => (
                     <option key={item.accountNumber} value={item.accountNumber}>
-                      Maze Bank {item.accountType} {item.accountNumber}
+                      Maze Bank {item.accountType} {item.accountNumber}: $
+                      {item.balance}
                     </option>
                   ))}
                 </Field>
