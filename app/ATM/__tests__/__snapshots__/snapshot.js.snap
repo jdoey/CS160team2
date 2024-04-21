@@ -1,0 +1,176 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders ATM unchanged 1`] = `
+<div>
+  <div
+    class="css-0"
+  >
+    <div
+      class="css-8lthux"
+    >
+      <div
+        class="css-1vakep4"
+      >
+        <button
+          aria-label="Toggle Navigation"
+          class="chakra-button css-p7mkev"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="chakra-icon css-1etxpkf"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M 3 5 A 1.0001 1.0001 0 1 0 3 7 L 21 7 A 1.0001 1.0001 0 1 0 21 5 L 3 5 z M 3 11 A 1.0001 1.0001 0 1 0 3 13 L 21 13 A 1.0001 1.0001 0 1 0 21 11 L 3 11 z M 3 17 A 1.0001 1.0001 0 1 0 3 19 L 21 19 A 1.0001 1.0001 0 1 0 21 17 L 3 17 z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="css-8k9ono"
+      >
+        <a
+          class="chakra-button css-1izydtr"
+          href="/"
+        >
+          <img
+            alt="Maze Bank Logo"
+            data-nimg="1"
+            decoding="async"
+            height="40"
+            loading="lazy"
+            src="/_next/image?url=%2Fimg.jpg&w=96&q=75"
+            srcset="/_next/image?url=%2Fimg.jpg&w=48&q=75 1x, /_next/image?url=%2Fimg.jpg&w=96&q=75 2x"
+            style="color: transparent;"
+            width="40"
+          />
+          MAZE BANK
+        </a>
+        <div
+          class="css-nmdqie"
+        >
+          <div
+            class="chakra-stack css-fhxiwe"
+          >
+            <div
+              class="css-0"
+            >
+              <a
+                aria-controls="popover-content-:r2:"
+                aria-expanded="false"
+                aria-haspopup="dialog"
+                class="css-1t6f37y"
+                href="#"
+                id="popover-trigger-:r2:"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="chakra-stack css-9kmm5a"
+      >
+        <a
+          class="chakra-button css-oulk1f"
+          href="/signin"
+        >
+          Sign In
+        </a>
+        <a
+          class="chakra-button css-4qulu8"
+          href="/enroll"
+        >
+          Enroll
+        </a>
+      </div>
+    </div>
+    <div
+      class="chakra-collapse"
+      style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+    >
+      <div
+        class="chakra-stack css-1gbq759"
+      >
+        <div
+          class="chakra-stack css-1kkt86i"
+        >
+          <a
+            class="css-11dfkyq"
+            href="#"
+          >
+            <p
+              class="chakra-text css-y33gq0"
+            />
+          </a>
+          <div
+            class="chakra-collapse"
+            style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+          >
+            <div
+              class="chakra-stack css-hcix0d"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="css-1jygl37"
+  >
+    <div
+      class="chakra-stack css-y2jo52"
+    >
+      <h2
+        class="chakra-heading css-1slk4hf"
+      >
+        Atm Locations 
+        <br />
+        <span
+          class="chakra-text css-v3rhlt"
+        >
+          Partnered with chase
+        </span>
+      </h2>
+    </div>
+  </div>
+  <div>
+    <form
+      style="margin: 20px;"
+    >
+      <div
+        style="text-align: center; margin-bottom: 20px;"
+      >
+        <input
+          placeholder="Enter address or city name"
+          style="margin-right: 8px; margin-top: 8px; border: 1px solid black; padding: 10px; border-radius: 10px; width: 250px;"
+          type="text"
+          value=""
+        />
+        <button
+          style="background-color: rgb(225, 9, 10); color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-right: 8px; margin-top: 10px; margin-bottom: 10px;"
+          type="button"
+        >
+          Search
+        </button>
+        <button
+          style="background-color: rgb(0, 94, 184); color: white; padding: 10px 20px; border-radius: 20px; cursor: pointer; margin-top: 10px; margin-bottom: 10px;"
+          type="button"
+        >
+          Use My Location
+        </button>
+      </div>
+    </form>
+    <div
+      style="display: flex; justify-content: center; align-content: center; margin-bottom: 20px;"
+    >
+      <div
+        class="map-container"
+        style="height: 85vh; width: 90%; max-width: 90%;"
+      />
+    </div>
+  </div>
+</div>
+`;

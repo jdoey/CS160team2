@@ -1,0 +1,229 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`No changes in employee-signin Page 1`] = `
+<div>
+  <div
+    class="css-0"
+  >
+    <div
+      class="css-8lthux"
+    >
+      <div
+        class="css-1vakep4"
+      >
+        <button
+          aria-label="Toggle Navigation"
+          class="chakra-button css-p7mkev"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="chakra-icon css-1etxpkf"
+            focusable="false"
+            viewBox="0 0 24 24"
+          >
+            <path
+              d="M 3 5 A 1.0001 1.0001 0 1 0 3 7 L 21 7 A 1.0001 1.0001 0 1 0 21 5 L 3 5 z M 3 11 A 1.0001 1.0001 0 1 0 3 13 L 21 13 A 1.0001 1.0001 0 1 0 21 11 L 3 11 z M 3 17 A 1.0001 1.0001 0 1 0 3 19 L 21 19 A 1.0001 1.0001 0 1 0 21 17 L 3 17 z"
+              fill="currentColor"
+            />
+          </svg>
+        </button>
+      </div>
+      <div
+        class="css-8k9ono"
+      >
+        <a
+          class="chakra-button css-1izydtr"
+          href="/"
+        >
+          <img
+            alt="Maze Bank Logo"
+            data-nimg="1"
+            decoding="async"
+            height="40"
+            loading="lazy"
+            src="/_next/image?url=%2Fimg.jpg&w=96&q=75"
+            srcset="/_next/image?url=%2Fimg.jpg&w=48&q=75 1x, /_next/image?url=%2Fimg.jpg&w=96&q=75 2x"
+            style="color: transparent;"
+            width="40"
+          />
+          MAZE BANK
+        </a>
+        <div
+          class="css-nmdqie"
+        >
+          <div
+            class="chakra-stack css-fhxiwe"
+          >
+            <div
+              class="css-0"
+            >
+              <a
+                aria-controls="popover-content-:r2:"
+                aria-expanded="false"
+                aria-haspopup="dialog"
+                class="css-1t6f37y"
+                href="/ATM"
+                id="popover-trigger-:r2:"
+              >
+                ATM Locations
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="chakra-stack css-9kmm5a"
+      >
+        <a
+          class="chakra-button css-oulk1f"
+          href="#"
+        >
+          Sign In
+        </a>
+        <a
+          class="chakra-button css-4qulu8"
+          href="/enroll"
+        >
+          Enroll
+        </a>
+      </div>
+    </div>
+    <div
+      class="chakra-collapse"
+      style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+    >
+      <div
+        class="chakra-stack css-1gbq759"
+      >
+        <div
+          class="chakra-stack css-1kkt86i"
+        >
+          <a
+            class="css-11dfkyq"
+            href="/ATM"
+          >
+            <p
+              class="chakra-text css-y33gq0"
+            >
+              ATM Locations
+            </p>
+          </a>
+          <div
+            class="chakra-collapse"
+            style="overflow: hidden; display: none; opacity: 0; height: 0px;"
+          >
+            <div
+              class="chakra-stack css-hcix0d"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <form
+    action="#"
+  >
+    <div
+      class="css-ex4e3z"
+    >
+      <div
+        class="chakra-stack css-1d3bi11"
+      >
+        <div
+          class="chakra-stack css-tl3ftk"
+        />
+        <div
+          class="css-l5lt5w"
+        >
+          <div
+            class="chakra-stack css-1gnc3qn"
+          >
+            <div
+              class="chakra-stack css-zntnw6"
+            >
+              <h2
+                class="chakra-heading css-0"
+              >
+                Sign in to your profile
+              </h2>
+              <p
+                class="chakra-text css-1r7spse"
+              >
+                to manage your accounts
+              </p>
+            </div>
+            <div
+              class="chakra-form-control css-0"
+              role="group"
+            >
+              <label
+                class="chakra-form__label css-uvho5g"
+                for="username"
+                id="username-label"
+              >
+                Username
+              </label>
+              <input
+                class="chakra-input css-0"
+                id="username"
+                name="username"
+                type="username"
+                value=""
+              />
+            </div>
+            <div
+              class="chakra-form-control css-0"
+              role="group"
+            >
+              <label
+                class="chakra-form__label css-uvho5g"
+                for="password"
+                id="password-label"
+              >
+                Password
+              </label>
+              <input
+                class="chakra-input css-0"
+                id="password"
+                name="password"
+                type="password"
+                value=""
+              />
+            </div>
+            <div
+              class="chakra-stack css-bco1gb"
+            >
+              <div
+                class="chakra-stack css-1ujp649"
+              >
+                <p
+                  class="chakra-text css-p03q1r"
+                >
+                  Forgot password?
+                </p>
+              </div>
+              <div
+                class="chakra-stack css-3a3hw0"
+              >
+                <button
+                  class="chakra-button css-1usdvwt"
+                  type="submit"
+                >
+                  Sign in
+                </button>
+                <a
+                  class="chakra-button css-3r839v"
+                  href="/enroll"
+                >
+                  Enroll
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+`;

@@ -11,7 +11,7 @@ const config: Config = {
   coverageProvider: 'v8',
   testEnvironment: 'jsdom',
   // Add more setup options before each test is run
-   //setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
    testMatch: [
        "**/__tests__/**/*.[jt]s?(x)",
        "**/?(*.)+(spec|test).[tj]s?(x)"
@@ -86,16 +86,16 @@ const config: Config = {
   // ],
 
   // An array of file extensions your modules use
-  // moduleFileExtensions: [
-  //   "js",
-  //   "mjs",
-  //   "cjs",
-  //   "jsx",
-  //   "ts",
-  //   "tsx",
-  //   "json",
-  //   "node"
-  // ],
+   moduleFileExtensions: [
+     "js",
+     "mjs",
+     "cjs",
+     "jsx",
+     "ts",
+     "tsx",
+     "json",
+     "node"
+   ],
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
