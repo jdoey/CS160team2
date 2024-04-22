@@ -518,7 +518,7 @@ def recurringPayment():
 
     db.session.add(autoTransaction)
     db.session.commit()
-    scheduleTransactions()
+    # scheduleTransactions()
     return {'message' : "Automated payment created successfully!", 'isSuccess' : True}
 
 
@@ -530,7 +530,7 @@ def deleteRecurringPayment():
     recurring_payment = AutomatedTransactions.query.get(autoId)
     db.session.delete(recurring_payment)
     db.session.commit()
-    scheduleTransactions()
+    # scheduleTransactions()
     return {'message' : "Automated payment successfully deleted!", 'isSuccess' : True}
 
 
