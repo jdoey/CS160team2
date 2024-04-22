@@ -27,7 +27,6 @@ export default function LoginCard() {
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
-    console.log(values);
     try {
       const response = await fetch("/api/employee/login", {
         method: "POST",
