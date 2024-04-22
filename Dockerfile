@@ -1,7 +1,8 @@
-FROM node:18
+FROM node:18-slim
 
 # Install Python and Pip3
 RUN apt-get update && apt-get install -y \
+    ca-certificates \
     python3 \
     python3-pip \
     python3-venv
