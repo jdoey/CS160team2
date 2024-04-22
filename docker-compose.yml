@@ -8,6 +8,8 @@ services:
     container_name: cs160team2
     ports:
       - "3000:3000"
+      - "5328:5328"
+      - "4000:4000"
     volumes:
       - .:/app
       - /app/node_modules
