@@ -16,6 +16,7 @@ interface TransactionProps {
   transactionType: string;
   amount: number;
   date: string;
+  recipient: string;
 }
 
 interface TransactionsArray {
@@ -48,12 +49,23 @@ export default function TransactionHistory({
                         textOverflow={"ellipsis"}
                         width={"100%"}
                       >
-                        {(
-                          item.transactionType +
-                          " " +
-                          " ON " +
-                          new Date(item.date).toLocaleDateString()
-                        ).toUpperCase() +
+                        {item.transactionType.startsWith("Payment")
+                          ? item.transactionType === "Payment-"
+                            ? (
+                                item.transactionType +
+                                " TO " +
+                                item.recipient
+                              ).toUpperCase()
+                            : (
+                                item.transactionType +
+                                " FROM " +
+                                item.recipient
+                              ).toUpperCase()
+                          : item.transactionType.toUpperCase()}
+                        {" ON " +
+                          new Date(item.date)
+                            .toLocaleDateString()
+                            .toUpperCase() +
                           " " +
                           item.transactionId.toString().slice(3)}
                       </Text>
@@ -86,12 +98,12 @@ export default function TransactionHistory({
                             width={"100%"}
                             color={
                               item.transactionType === "Deposit" ||
-                              item.transactionType === "Transfer+"
+                              item.transactionType.slice(-1) === "+"
                                 ? "green"
                                 : "black"
                             }
                           >
-                            {item.transactionType == "Transfer+" ||
+                            {item.transactionType.slice(-1) === "+" ||
                             item.transactionType == "Deposit"
                               ? "+" +
                                 "$" +
@@ -109,13 +121,16 @@ export default function TransactionHistory({
                     </AccordionButton>
                   </h2>
                   <AccordionPanel pb={4}>
-                    <Text>
-                      Transaction ID: {item.transactionId} <br></br>
-                      Transaction Type: {item.transactionType}
-                      <br></br>
-                      Transaction Date: {item.date}
-                      <br></br>
-                    </Text>
+                    <Text>ID: {item.transactionId} </Text>
+                    <Text>Type: {item.transactionType}</Text>
+                    {item.transactionType.startsWith("Payment") ? (
+                      item.transactionType.slice(-1) === "-" ? (
+                        <Text>Recipient: {item.recipient}</Text>
+                      ) : (
+                        <Text>Source: {item.recipient}</Text>
+                      )
+                    ) : null}
+                    <Text>Date: {new Date(item.date).toLocaleString()}</Text>
                   </AccordionPanel>
                 </>
               )}

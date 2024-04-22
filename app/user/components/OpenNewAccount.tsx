@@ -58,7 +58,7 @@ export default function OpenNewAccount({ handleReload }: Props) {
 
   const makeDepositRequest = async (accountProps: any) => {
     try {
-      const response = await fetch("api/transaction/deposit", {
+      const response = await fetch("/api/transaction/deposit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

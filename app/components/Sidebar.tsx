@@ -63,7 +63,7 @@ interface SidebarProps extends BoxProps {
 
 const LinkItems: Array<LinkItemProps> = [
   { name: "Home", icon: CiBank, pagelink: "/user" },
-  { name: "Pay/Transfer", icon: CiDollar, pagelink: "/user/payandtransfer" },
+  { name: "Pay & Transfer", icon: CiDollar, pagelink: "/user/payandtransfer" },
   { name: "Deposit", icon: CiMoneyCheck1, pagelink: "/user/deposit" },
   { name: "ATM Locations", icon: CiMap, pagelink: "/user/atm-locations" },
   { name: "Settings", icon: CiSettings, pagelink: "/user" },
@@ -151,7 +151,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const makeGetSessionDataRequest = async () => {
     try {
-      const response = await fetch("/api/sessionData");
+      const response = await fetch("/api/customerSessionData");
       const data = await response.json();
       setSessionData(data);
     } catch (error) {
