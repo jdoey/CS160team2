@@ -7,8 +7,6 @@ from flask_bcrypt import Bcrypt
 from datetime import datetime
 from sqlalchemy import desc
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore 
-
 
 load_dotenv()
 
@@ -148,50 +146,50 @@ class Employee(db.Model):
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
 
 
-scheduler = BackgroundScheduler()
+# scheduler = BackgroundScheduler()
 
-def executeTransaction(autoId, accountNumber, recipient, amount):
-    account = Account.query.filter_by(accountNumber=accountNumber).first()
-    targetUser = User.query.filter_by(username=recipient).first()
-    autoTransaction = AutomatedTransactions.query.filter_by(autoId=autoId).first()
+# def executeTransaction(autoId, accountNumber, recipient, amount):
+#     account = Account.query.filter_by(accountNumber=accountNumber).first()
+#     targetUser = User.query.filter_by(username=recipient).first()
+#     autoTransaction = AutomatedTransactions.query.filter_by(autoId=autoId).first()
 
-    if account and account.accountStatus == "Active":
-        if amount <= account.balance:
-            try:
-                db.session.begin_nested()
-                account.balance -= amount
-                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
-                if targetUser:
-                    targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
-                    if targetAccount:
-                        targetAccount.balance += amount
-                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
-                if autoTransaction:
-                    if autoTransaction.frequency == 'Daily':
-                        autoTransaction.paymentDate += datetime.timedelta(days=1)
-                    elif autoTransaction.frequency == "Weekly":
-                        autoTransaction.paymentDate += datetime.timedelta(days=7)
-                    elif autoTransaction.frequency == "Monthly":
-                        autoTransaction.paymentDate += datetime.teimedelta(days=30)
+#     if account and account.accountStatus == "Active":
+#         if amount <= account.balance:
+#             try:
+#                 db.session.begin_nested()
+#                 account.balance -= amount
+#                 db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
+#                 if targetUser:
+#                     targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
+#                     if targetAccount:
+#                         targetAccount.balance += amount
+#                         db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
+#                 if autoTransaction:
+#                     if autoTransaction.frequency == 'Daily':
+#                         autoTransaction.paymentDate += datetime.timedelta(days=1)
+#                     elif autoTransaction.frequency == "Weekly":
+#                         autoTransaction.paymentDate += datetime.timedelta(days=7)
+#                     elif autoTransaction.frequency == "Monthly":
+#                         autoTransaction.paymentDate += datetime.teimedelta(days=30)
 
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                raise e
-            else: 
-                db.session.commit()
-                return {"message" : "Payment successful", "isSuccess" : True}
-        else:
-            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}    
-    return {"message" : "Payment failed", "isSuccess" : False}
+#                 db.session.commit()
+#             except Exception as e:
+#                 db.session.rollback()
+#                 raise e
+#             else: 
+#                 db.session.commit()
+#                 return {"message" : "Payment successful", "isSuccess" : True}
+#         else:
+#             return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}    
+#     return {"message" : "Payment failed", "isSuccess" : False}
 
-def scheduleTransactions():
-    autoTransactions = AutomatedTransactions.query.all()
-    for autoTransaction in autoTransactions:
-        scheduler.add_job(
-            executeTransaction, 'date', run_date=autoTransaction.paymentDate, args=[autoTransaction.autoId, autoTransaction.accountNumber, autoTransaction.recipient, autoTransaction.amount]
-        )
-        print("added job")
+# def scheduleTransactions():
+#     autoTransactions = AutomatedTransactions.query.all()
+#     for autoTransaction in autoTransactions:
+#         scheduler.add_job(
+#             executeTransaction, 'date', run_date=autoTransaction.paymentDate, args=[autoTransaction.autoId, autoTransaction.accountNumber, autoTransaction.recipient, autoTransaction.amount]
+#         )
+#         print("added job")
 
 @app.route("/api/python")
 def hello_world():
@@ -798,6 +796,6 @@ def unauthorized_callback():
 
 
 if __name__ == '__main__':
-    scheduler.start()
-    scheduleTransactions()
+    # scheduler.start()
+    # scheduleTransactions()
     app.run()
