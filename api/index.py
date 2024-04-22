@@ -6,6 +6,8 @@ from flask_login import LoginManager, login_user, logout_user, login_required, c
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 from sqlalchemy import desc
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore 
 
 
 load_dotenv()
@@ -123,6 +125,7 @@ class Transactions(db.Model):
     transactionType = db.Column(db.String(20), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime, default=datetime.now())
+    recipient = db.Column(db.String(255))
     accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
 class AutomatedTransactions(db.Model):
@@ -133,6 +136,7 @@ class AutomatedTransactions(db.Model):
         amount = db.Column(db.Integer, nullable=False)
         paymentDate = db.Column(db.DateTime, default=datetime.now())
         frequency = db.Column(db.String(20), nullable=False)
+        recipient = db.Column(db.String(255))
         accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
 class Employee(db.Model):
@@ -142,6 +146,52 @@ class Employee(db.Model):
     position = db.Column(db.String(20), nullable=False)
     userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
+
+
+scheduler = BackgroundScheduler()
+
+def executeTransaction(autoId, accountNumber, recipient, amount):
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+    targetUser = User.query.filter_by(username=recipient).first()
+    autoTransaction = AutomatedTransactions.query.filter_by(autoId=autoId).first()
+
+    if account and account.accountStatus == "Active":
+        if amount <= account.balance:
+            try:
+                db.session.begin_nested()
+                account.balance -= amount
+                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
+                if targetUser:
+                    targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
+                    if targetAccount:
+                        targetAccount.balance += amount
+                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
+                if autoTransaction:
+                    if autoTransaction.frequency == 'Daily':
+                        autoTransaction.paymentDate += datetime.timedelta(days=1)
+                    elif autoTransaction.frequency == "Weekly":
+                        autoTransaction.paymentDate += datetime.timedelta(days=7)
+                    elif autoTransaction.frequency == "Monthly":
+                        autoTransaction.paymentDate += datetime.teimedelta(days=30)
+
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                raise e
+            else: 
+                db.session.commit()
+                return {"message" : "Payment successful", "isSuccess" : True}
+        else:
+            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}    
+    return {"message" : "Payment failed", "isSuccess" : False}
+
+def scheduleTransactions():
+    autoTransactions = AutomatedTransactions.query.all()
+    for autoTransaction in autoTransactions:
+        scheduler.add_job(
+            executeTransaction, 'date', run_date=autoTransaction.paymentDate, args=[autoTransaction.autoId, autoTransaction.accountNumber, autoTransaction.recipient, autoTransaction.amount]
+        )
+        print("added job")
 
 @app.route("/api/python")
 def hello_world():
@@ -249,7 +299,7 @@ def customerLogin():
             session['firstname'] = user.customer.person.firstname
             session['lastname'] = user.customer.person.lastname
             session['customerId'] = user.customer.customerId
-            login_user(user, remember=True)
+            login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
     return {'message' : "Incorrect username or password", 'isSuccess' : False}
@@ -272,7 +322,7 @@ def employeeLogin():
             return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
         if user and authenticate(user.password, password):
-            login_user(user, remember=True)
+            login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
     return {'message' : "Incorrect username or password", 'isSuccess' : False}
@@ -351,15 +401,16 @@ def updateAccount():
 
 #-----------TRANSACTION SERVICE------------------------------------
 
-def logTransaction(accountNumber, transactionType, amount, date):
+def logTransaction(accountNumber, transactionType, amount, date, recipient=None):
     transaction = Transactions()
     transaction.accountNumber = accountNumber
     transaction.transactionType = transactionType
     transaction.amount = amount
     transaction.date = date
-
-    db.session.add(transaction)
-    db.session.commit()
+    transaction.recipient = recipient
+    return transaction
+    # db.session.add(transaction)
+    # db.session.commit()
 
 @app.route("/api/transaction/deposit", methods = ['POST'])
 @login_required
@@ -367,16 +418,19 @@ def deposit():
     data = request.json
     accountNumber = int(data.get('accountNumber', ''))
     amount = float(data.get('amount', ''))
-
     account = Account.query.filter_by(accountNumber=accountNumber).first()
 
     if account and account.accountStatus == "Active":
-        account.balance += amount
-        db.session.commit()
-        logTransaction(accountNumber, "Deposit", amount, datetime.now())
-
-        return {"message" : "Deposit successful", "isSuccess" : True}
-    
+        try:
+            db.session.begin_nested()
+            account.balance += amount
+            db.session.add(logTransaction(accountNumber, "Deposit", amount, datetime.now()))
+        except Exception as e:
+            db.session.rollback()
+            raise e
+        else:
+            db.session.commit()
+            return {"message" : "Deposit successful", "isSuccess" : True}
     return {"message" : "Deposit failed", "isSuccess" : False}
 
 @app.route("/api/transaction/withdraw", methods = ['POST'])
@@ -390,68 +444,126 @@ def withdraw():
 
     if account and account.accountStatus == "Active":
         if amount <= account.balance:
-            account.balance -= amount
-            db.session.commit()
-
+            try:
+                db.session.begin_nested()
+                account.balance -= amount
+                db.session.add(logTransaction(accountNumber, "Withdrawal", amount, datetime.now()))
+            except Exception as e:
+                db.session.rollback()
+                raise e
+            else:
+                db.session.commit()
+                return {"message" : "Withdrawal successful", "isSuccess" : True}
         else:
             return {"message" : "Withdrawal failed: Not enough funds in account", "isSuccess" : False}
-
-        logTransaction(accountNumber, "Withdrawal", amount, datetime.now())
-
-        return {"message" : "Withdrawal successful", "isSuccess" : True}
-    
     return {"message" : "Withdrawal failed", "isSuccess" : False}
+
+def processPayment(accountNumber, amount, recipient):
+    account = Account.query.filter_by(accountNumber=accountNumber).first()
+    targetUser = User.query.filter_by(username=recipient).first()
+
+    if account and account.accountStatus == "Active":
+        if amount <= account.balance:
+            try:
+                db.session.begin_nested()
+                account.balance -= amount
+                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
+                if targetUser:
+                    targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
+                    if targetAccount:
+                        targetAccount.balance += amount
+                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
+                db.session.commit()
+            except Exception as e:
+                db.session.rollback()
+                raise e
+            else: 
+                db.session.commit()
+                return {"message" : "Payment successful", "isSuccess" : True}
+        else:
+            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}    
+    return {"message" : "Payment failed", "isSuccess" : False}
 
 @app.route("/api/transaction/payment", methods = ['POST'])
 @login_required
 def payment():
     data = request.json
-    accountNumber = data.get('accountNumber', '')
-    accountStatus = data.get('accountStatus', '')
+    accountNumber = int(data.get('accountNumber', ''))
     amount = float(data.get('amount', ''))
+    recipient = data.get('recipient', '')
+    return processPayment(accountNumber, amount, recipient)
 
-    account = Account.query.filter_by(accountNumber=accountNumber).first()
 
-    if account and accountStatus == "Active":
-        if amount <= account.balance:
-            account.balance -= amount
-            db.session.commit()
+@app.route("/api/transaction/recurringPayment", methods = ['POST'])
+@login_required
+def recurringPayment():
+    data = request.json
+    accountNumber = int(data.get('accountNumber', ''))
+    amount = float(data.get('amount', ''))
+    recipient = data.get('recipient', '')
+    paymentDate = data.get('paymentDate', '')
+    transactionType = data.get('transactionType', '')
+    frequency = data.get('frequency', '')
 
-        else:
-            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}
+    autoTransaction = AutomatedTransactions()
+    autoTransaction.accountNumber = accountNumber
+    autoTransaction.amount = amount
+    autoTransaction.recipient = recipient
+    autoTransaction.paymentDate = datetime.strptime(paymentDate, '%m/%d/%Y')
+    autoTransaction.transactionType = transactionType
+    autoTransaction.frequency = frequency
 
-        logTransaction(accountNumber, "Payment", amount, datetime.now())
+    db.session.add(autoTransaction)
+    db.session.commit()
+    scheduleTransactions()
+    return {'message' : "Automated payment created successfully!", 'isSuccess' : True}
 
-        return {"message" : "Payment successful", "isSuccess" : True}
-    
-    return {"message" : "Payment failed", "isSuccess" : False}
+
+@app.route("/api/transaction/deleteRecurringPayment", methods = ['POST'])
+@login_required
+def deleteRecurringPayment():
+    data = request.json
+    autoId = int(data.get('autoId', ''))
+    recurring_payment = AutomatedTransactions.query.get(autoId)
+    db.session.delete(recurring_payment)
+    db.session.commit()
+    scheduleTransactions()
+    return {'message' : "Automated payment successfully deleted!", 'isSuccess' : True}
+
 
 @app.route("/api/transaction/transfer", methods = ['POST'])
 @login_required
 def transfer():
     data = request.json
-    fromAccountNumber = data.get('fromAccountNumber', '')
-    toAccountNumber = data.get('toAccountNumber', '')
+    fromAccountNumber = int(data.get('fromAccountNumber', ''))
+    toAccountNumber = int(data.get('toAccountNumber', ''))
     amount = float(data.get('amount', ''))
+
+    if fromAccountNumber == toAccountNumber:
+        return {"message": "Transfer failed: Source and target account cannot be the same"}
 
     fromAccount = Account.query.filter_by(accountNumber=fromAccountNumber).first()
     toAccount = Account.query.filter_by(accountNumber=toAccountNumber).first()
 
-    if fromAccount and fromAccount.accountStatus == "Active":
-        if amount <= fromAccount.balance:
-            fromAccount.balance -= amount
-            if toAccount and toAccount.accountStatus == "Active":
-                toAccount.balance += amount
-            db.session.commit()
-        else:
-            return {"message" : "Transfer failed: Insufficient funds", "isSuccess" : False}
-
-        logTransaction(fromAccount, "Transfer-", amount, datetime.now())
-        if toAccount:
-            logTransaction(toAccount, "Transfer+", amount, datetime.now())
-        return {"message" : "Transfer successful", "isSuccess" : True}
+    if not fromAccount or fromAccount.accountStatus == "Inactive":
+        return {"message": "Transfer failed: Invalid source account"}
     
-    return {"message" : "Transfer failed", "isSuccess" : False}
+    if amount > fromAccount.balance:
+        return {"message": "Transfer failed: Insufficient funds"}
+    
+    try:
+        db.session.begin_nested()
+        fromAccount.balance -= amount
+        db.session.add(logTransaction(fromAccount, "Transfer-", amount, datetime.now()))
+        if toAccount and toAccount.accountStatus == "Active":
+            toAccount.balance += amount
+            db.session.add(logTransaction(toAccount, "Transfer+", amount, datetime.now()))
+    except Exception as e:
+        db.session.rollback()
+        raise e
+    else:
+        db.session.commit()
+        return {"message": "Transfer successful", "isSuccess": True}
 
 @app.route("/api/customer/<accountNumber>/transactionHistory", methods = ['GET'])
 @login_required
@@ -475,44 +587,114 @@ def getAccountTransactions(accountNumber):
 @app.route("/api/customer/getAccountsTransactionHistory", methods = ['GET'])
 @login_required
 def getAccountsTransactionHistory():
-    if current_user.customer:
-        accounts = current_user.customer.account
-        transactionsDict = []
-        for account in accounts:
-            transactions = Transactions.query.filter_by(accountNumber=account.accountNumber).order_by(desc(Transactions.date)).all()
-            for transaction in transactions: 
-                transactionsDict.append({
-                    "transactionId": transaction.transactionId,
-                    "transactionType": transaction.transactionType,
-                    "amount": transaction.amount,
-                    "date": transaction.date,
-                    "accountNumber": account.accountNumber
-                })
-        if transactionsDict:
-            return {"transactions": transactionsDict, "isSuccess": True}
-        else:
-            return {"message": "No transactions found for any account", "isSuccess": False}
-    return {"message": "User not authenticated or not a customer", "isSucess": False}
-        
+    if not current_user.customer:
+        return {"message": "User not authenticated or not a customer", "isSuccess": False}
+
+    accounts = current_user.customer.account
+    account_numbers = [account.accountNumber for account in accounts]
+    transactions = Transactions.query.filter(Transactions.accountNumber.in_(account_numbers)).order_by(desc(Transactions.date)).all()
+
+    if transactions:
+        transactionsDict = [{
+            "transactionId": transaction.transactionId,
+            "transactionType": transaction.transactionType,
+            "amount": transaction.amount,
+            "date": transaction.date,
+            "recipient": transaction.recipient,
+            "accountNumber": transaction.accountNumber
+        } for transaction in transactions]
+        return {"transactions": transactionsDict, "isSuccess": True}
+    else:
+        return {"message": "No transactions found for any account", "isSuccess": False}
+
+@app.route("/api/customer/getAccountsPaymentHistory", methods=['GET'])
+@login_required
+def getAccountsPaymentHistory():
+    if not current_user.customer:
+        return {"message": "User not authenticated or not a customer", "isSuccess": False}
+
+    # accounts = current_user.customer.account
+    # account_numbers = [account.accountNumber for account in accounts]
+    # transactions = Transactions.query.filter(Transactions.accountNumber.in_(account_numbers), Transactions.transactionType.like("Payment-%")).order_by(desc(Transactions.date)).all()
+
+    # if transactions:
+    #     paymentsDict = [{
+    #         "transactionId": transaction.transactionId,
+    #         "transactionType": transaction.transactionType,
+    #         "amount": transaction.amount,
+    #         "date": transaction.date,
+    #         "recipient": transaction.recipient,
+    #         "accountNumber": transaction.accountNumber
+    #     } for transaction in transactions]
+    #     return {"payments": paymentsDict, "isSuccess": True}
+    # else:
+    #     return {"message": "No payment transactions found for any account", "isSuccess": False}
+    
+    accounts = current_user.customer.account
+    paymentsDict = []
+
+    for account in accounts:
+        transactions = Transactions.query.filter_by(accountNumber=account.accountNumber, transactionType="Payment-").order_by(desc(Transactions.date)).all()
+        for transaction in transactions:
+            paymentsDict.append({
+                "transactionId": transaction.transactionId,
+                "transactionType": transaction.transactionType,
+                "amount": transaction.amount,
+                "date": transaction.date,
+                "recipient": transaction.recipient,
+                "accountNumber": transaction.accountNumber,
+                "accountType": account.accountType
+            })
+    if paymentsDict:
+        return {"payments": paymentsDict, "isSuccess": True}
+    return {"message": "No payment transactions found for any account", "isSuccess": False}         
+
+
+@app.route("/api/customer/getAccountsAutoPaymentHistory", methods=['GET'])
+@login_required
+def getAccountsAutoPaymentHistory():
+    if not current_user.customer:
+        return {"message": "User not authenticated or not a customer", "isSuccess": False}
+    
+    accounts = current_user.customer.account
+    autoPaymentsDict = []
+    for account in accounts:
+        autoTransactions = AutomatedTransactions.query.filter_by(accountNumber=account.accountNumber).all()
+        for autoTransaction in autoTransactions:
+            autoPaymentsDict.append({
+                "autoId": autoTransaction.autoId,
+                "transactionType": autoTransaction.transactionType,
+                "amount": autoTransaction.amount,
+                "paymentDate": autoTransaction.paymentDate,
+                "recipient": autoTransaction.recipient,
+                "frequency": autoTransaction.frequency, 
+                "accountNumber": autoTransaction.accountNumber,
+                "accountType": account.accountType
+            })
+    if autoPaymentsDict:
+        return {"autoPayments": autoPaymentsDict, "isSuccess": True}
+    return {"message": "No automated payment transactions found for any account", "isSuccess": False}         
 
 @app.route("/api/customer/getAccounts", methods=['GET'])
 @login_required
 def getAccounts():
-    if current_user.customer:
-        customerId = current_user.customer.customerId
-        accounts = current_user.customer.account
+    if not current_user.customer:
+        return {"message": "Account retrieval failed", "isSuccess": False}
 
-        accountsDict = []
-        for account in accounts:
-            accountsDict.append({"accountNumber" : account.accountNumber, "accountType" : account.accountType, "balance" : account.balance, "accountStatus" : account.accountStatus})
+    accounts = current_user.customer.account
 
+    if not accounts:
+        return {"message": "No accounts found", "isSuccess": False}
 
-        if accounts == None:
-            return {"message" : "No accounts found", "isSuccess": False}
-        else:
-            return {"message" : "Accounts successfully retrieved", "accounts": accountsDict, "isSuccess": True}
+    accountsDict = [{
+        "accountNumber": account.accountNumber,
+        "accountType": account.accountType,
+        "balance": account.balance,
+        "accountStatus": account.accountStatus
+    } for account in accounts]
 
-    return {"message" : "Account retrieval failed", "isSuccess" : False}
+    return {"message": "Accounts successfully retrieved", "accounts": accountsDict, "isSuccess": True}
+
 
 @app.route("/api/customer/getActiveAccounts", methods=['GET'])
 @login_required
@@ -602,4 +784,6 @@ def unauthorized_callback():
 
 
 if __name__ == '__main__':
+    scheduler.start()
+    scheduleTransactions()
     app.run()

@@ -66,7 +66,8 @@ const Form1 = (props: any) => {
                 >
                   {props.accountsData?.map((item: any) => (
                     <option key={item.accountNumber} value={item.accountNumber}>
-                      Maze Bank {item.accountType} {item.accountNumber}
+                      Maze Bank {item.accountType} {item.accountNumber}: $
+                      {item.balance}
                     </option>
                   ))}
                 </Field>
@@ -240,7 +241,6 @@ export default function Multistep() {
   const [accountsData, setAccountsData] = useState([]);
 
   useEffect(() => {
-    console.log("rerender accountcards");
     fetch("/api/customer/getActiveAccounts", {
       method: "GET",
       credentials: "include",
