@@ -298,7 +298,7 @@ def customerLogin():
         if user and authenticate(user.password, password):
             session['firstname'] = user.customer.person.firstname
             session['lastname'] = user.customer.person.lastname
-            session['customerId'] = user.customer.customerId
+            session['user_type'] = 'customer'
             login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
@@ -321,7 +321,12 @@ def employeeLogin():
         if user and user.employee == None:
             return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
-        if user and authenticate(user.password, password):
+        if user.password == password:
+            session['firstname'] = user.employee.person.firstname
+            session['lastname'] = user.employee.person.lastname
+            session['employeeid'] = user.employee.employeeId
+            session['position'] = user.employee.position
+            session['user_type'] = 'employee'
             login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
@@ -746,7 +751,7 @@ def getCustomerAccount():
 
 
             
-        return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
+        return {"accountNumber": account.accountNumber, "accountType": account.accountType, "dob": person.dob, "balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict, "isSuccess": True}
     
     return {"message" : "Account is not authorized", "isSuccess" : False}
 
@@ -769,13 +774,22 @@ def employeeAuthorization():
     return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
 
 
-@app.route('/api/sessionData')
+@app.route('/api/customerSessionData')
 @login_required
-def getSessionData():
+def getCustomerSessionData():
     firstname = session.get('firstname', '')
     lastname = session.get('lastname', '')
     customerId = session.get('customerId', '')
     return {'firstname': firstname, 'lastname': lastname, 'customerId': customerId}
+
+@app.route('/api/employeeSessionData')
+@login_required
+def getEmployeeSessionData():
+    firstname = session.get('firstname', '')
+    lastname = session.get('lastname', '')
+    employeeId = session.get('employeeId', '')
+    position = session.get('position', '')
+    return {'firstname': firstname, 'lastname': lastname, 'employeeId': employeeId, 'position': position}
     
     
 @login_manager.unauthorized_handler
