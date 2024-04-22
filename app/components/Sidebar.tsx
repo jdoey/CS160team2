@@ -151,7 +151,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const makeGetSessionDataRequest = async () => {
     try {
-      const response = await fetch("/api/sessionData");
+      const response = await fetch("/api/customerSessionData");
       const data = await response.json();
       setSessionData(data);
     } catch (error) {
