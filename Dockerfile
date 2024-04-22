@@ -10,16 +10,17 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy package.json and lock files
-COPY package*.json pnpm-lock.yaml ./
+# COPY package*.json pnpm-lock.yaml ./
+COPY . .
 
 # Install dependencies using PNPM
 RUN npm install -g pnpm && pnpm install
 
 # Copy the Next.js app directory
-COPY app ./app
+# COPY app ./app
 
 # Copy requirements.txt from the root directory
-COPY requirements.txt .
+# COPY requirements.txt .
 
 # Create a virtual environment in the root directory
 RUN python3 -m venv /venv
@@ -31,7 +32,7 @@ ENV PATH="/venv/bin:$PATH"
 RUN pip install -r requirements.txt
 
 # Copy .env.local file
-COPY .env.local .
+# COPY .env.local .
 
 # Expose ports used by Next.js and Flask
 EXPOSE 3000 5328
