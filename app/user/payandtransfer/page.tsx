@@ -456,7 +456,14 @@ export default function Page() {
                               </Td>
                               <Td>{item.recipient}</Td>
                               <Td>
-                                {new Date(item.date).toLocaleString("en-US")}
+                                {new Date(item.date).toLocaleString("en-US", {
+                                  month: "long",
+                                  day: "numeric",
+                                  year: "numeric",
+                                  hour: "numeric",
+                                  minute: "numeric",
+                                  hour12: true,
+                                })}
                               </Td>
                               <Td isNumeric>
                                 $

@@ -4,7 +4,7 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_bcrypt import Bcrypt
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import desc
 # from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -105,7 +105,7 @@ class Account(db.Model):
     accountNumber = db.Column(db.Integer, primary_key=True)
     accountType = db.Column(db.String(20), nullable=False)
     balance = db.Column(db.Float, default=0.0, nullable=False)
-    dateOpen = db.Column(db.DateTime, default=datetime.utcnow)
+    dateOpen = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     dateClose = db.Column(db.DateTime)
     accountStatus = db.Column(db.String(20), default="Active",nullable=False)
     customerId = db.Column(db.Integer, db.ForeignKey('customer.customerId'))
@@ -122,7 +122,7 @@ class Transactions(db.Model):
     transactionId = db.Column(db.Integer, primary_key=True)
     transactionType = db.Column(db.String(20), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.now())
+    date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     recipient = db.Column(db.String(255))
     accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
@@ -132,7 +132,7 @@ class AutomatedTransactions(db.Model):
         autoId = db.Column(db.Integer, primary_key=True)
         transactionType = db.Column(db.String(20), nullable=False)
         amount = db.Column(db.Integer, nullable=False)
-        paymentDate = db.Column(db.DateTime, default=datetime.now())
+        paymentDate = db.Column(db.DateTime, default=datetime.now(timezone.utc))
         frequency = db.Column(db.String(20), nullable=False)
         recipient = db.Column(db.String(255))
         accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
@@ -393,7 +393,7 @@ def updateAccount():
     if account:
         if account.accountStatus == "Active":
             account.accountStatus = "Inactive"
-            account.dateClose = datetime.now()
+            account.dateClose = datetime.now(timezone.utc)
         else:
             account.accountStatus = "Active"
             account.dateClose = None
@@ -427,7 +427,7 @@ def deposit():
         try:
             db.session.begin_nested()
             account.balance += amount
-            db.session.add(logTransaction(accountNumber, "Deposit", amount, datetime.now()))
+            db.session.add(logTransaction(accountNumber, "Deposit", amount, datetime.now(timezone.utc)))
         except Exception as e:
             db.session.rollback()
             raise e
@@ -450,7 +450,7 @@ def withdraw():
             try:
                 db.session.begin_nested()
                 account.balance -= amount
-                db.session.add(logTransaction(accountNumber, "Withdrawal", amount, datetime.now()))
+                db.session.add(logTransaction(accountNumber, "Withdrawal", amount, datetime.now(timezone.utc)))
             except Exception as e:
                 db.session.rollback()
                 raise e
@@ -470,12 +470,12 @@ def processPayment(accountNumber, amount, recipient):
             try:
                 db.session.begin_nested()
                 account.balance -= amount
-                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
+                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(timezone.utc), recipient))
                 if targetUser:
                     targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
                     if targetAccount:
                         targetAccount.balance += amount
-                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
+                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(timezone.utc), current_user.username))
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
@@ -557,10 +557,10 @@ def transfer():
     try:
         db.session.begin_nested()
         fromAccount.balance -= amount
-        db.session.add(logTransaction(fromAccount, "Transfer-", amount, datetime.now()))
+        db.session.add(logTransaction(fromAccount, "Transfer-", amount, datetime.now(timezone.utc)))
         if toAccount and toAccount.accountStatus == "Active":
             toAccount.balance += amount
-            db.session.add(logTransaction(toAccount, "Transfer+", amount, datetime.now()))
+            db.session.add(logTransaction(toAccount, "Transfer+", amount, datetime.now(timezone.utc)))
     except Exception as e:
         db.session.rollback()
         raise e
@@ -728,7 +728,7 @@ def getCustomerAccount():
         account = Account.query.filter_by(accountNumber=accountNumber).first()
         if account == None:
             return {"message" : "Account can not be found", "isSuccess" : False}
-        transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
+        transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).order_by(desc(Transactions.date)).all()
         customer = Customer.query.get(account.customerId)
         person = Person.query.get(customer.personId)
         address = person.address

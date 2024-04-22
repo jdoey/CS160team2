@@ -156,8 +156,9 @@ export default function Page() {
                         Name: {accountData?.name}
                         <br></br>
                         Address: {accountData?.address.streetNum}{" "}
-                        {accountData.address?.street},{" "}
-                        {accountData?.address.city} {accountData?.address.state}{" "}
+                        {accountData.address?.street}{" "}
+                        {accountData?.address.city},{" "}
+                        {accountData?.address.state}{" "}
                         {accountData?.address.zipcode}
                         <br></br>
                         Date of Birth:{" "}
@@ -200,13 +201,20 @@ export default function Page() {
                                       <Td>
                                         {item.transactionType.toUpperCase()}
                                         {" ON "}
-                                        {new Date(
-                                          item.date
-                                        ).toLocaleDateString()}{" "}
+                                        {new Date(item.date)
+                                          .toLocaleDateString("en-US", {
+                                            month: "long",
+                                            day: "numeric",
+                                            year: "numeric",
+                                            hour: "numeric",
+                                            minute: "numeric",
+                                            hour12: true,
+                                          })
+                                          .toUpperCase()}{" "}
                                         {item.transactionId}
                                       </Td>
                                       <Td isNumeric>
-                                        $1
+                                        $
                                         {item.amount.toLocaleString("en-US", {
                                           minimumFractionDigits: 2,
                                         })}
