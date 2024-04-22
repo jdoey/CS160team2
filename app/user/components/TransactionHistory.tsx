@@ -64,7 +64,14 @@ export default function TransactionHistory({
                           : item.transactionType.toUpperCase()}
                         {" ON " +
                           new Date(item.date)
-                            .toLocaleDateString()
+                            .toLocaleString("en-US", {
+                              month: "long",
+                              day: "numeric",
+                              year: "numeric",
+                              hour: "numeric",
+                              minute: "numeric",
+                              hour12: true,
+                            })
                             .toUpperCase() +
                           " " +
                           item.transactionId.toString().slice(3)}
@@ -130,7 +137,17 @@ export default function TransactionHistory({
                         <Text>Source: {item.recipient}</Text>
                       )
                     ) : null}
-                    <Text>Date: {new Date(item.date).toLocaleString()}</Text>
+                    <Text>
+                      Date:{" "}
+                      {new Date(item.date).toLocaleString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                        hour12: true,
+                      })}
+                    </Text>
                   </AccordionPanel>
                 </>
               )}

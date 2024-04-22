@@ -16,16 +16,16 @@ export default function UserLayout({
   useEffect(() => {
     const fetchUserAuth = async () => {
       try {
-        const response = await fetch("/api/employee/authorization", {
+        const response = await fetch("/api/customer/authorization", {
           method: "GET",
           credentials: "include",
         });
         const data = await response.json();
         if (data.isSuccess) {
+          setAuth(true);
+        } else {
           setAuth(false);
           router.push("/employee");
-        } else {
-          setAuth(true);
         }
       } catch (error) {
         console.error("Error fetching user auth: ", error);
