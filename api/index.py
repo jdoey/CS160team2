@@ -4,11 +4,9 @@ import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_bcrypt import Bcrypt
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import desc
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore 
-
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv()
 
@@ -107,7 +105,7 @@ class Account(db.Model):
     accountNumber = db.Column(db.Integer, primary_key=True)
     accountType = db.Column(db.String(20), nullable=False)
     balance = db.Column(db.Float, default=0.0, nullable=False)
-    dateOpen = db.Column(db.DateTime, default=datetime.utcnow)
+    dateOpen = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     dateClose = db.Column(db.DateTime)
     accountStatus = db.Column(db.String(20), default="Active",nullable=False)
     customerId = db.Column(db.Integer, db.ForeignKey('customer.customerId'))
@@ -124,7 +122,7 @@ class Transactions(db.Model):
     transactionId = db.Column(db.Integer, primary_key=True)
     transactionType = db.Column(db.String(20), nullable=False)
     amount = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime, default=datetime.now())
+    date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     recipient = db.Column(db.String(255))
     accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
 
@@ -134,7 +132,7 @@ class AutomatedTransactions(db.Model):
         autoId = db.Column(db.Integer, primary_key=True)
         transactionType = db.Column(db.String(20), nullable=False)
         amount = db.Column(db.Integer, nullable=False)
-        paymentDate = db.Column(db.DateTime, default=datetime.now())
+        paymentDate = db.Column(db.DateTime, default=datetime.now(timezone.utc))
         frequency = db.Column(db.String(20), nullable=False)
         recipient = db.Column(db.String(255))
         accountNumber = db.Column(db.Integer, db.ForeignKey('account.accountNumber'))
@@ -148,50 +146,50 @@ class Employee(db.Model):
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
 
 
-scheduler = BackgroundScheduler()
+# scheduler = BackgroundScheduler()
 
-def executeTransaction(autoId, accountNumber, recipient, amount):
-    account = Account.query.filter_by(accountNumber=accountNumber).first()
-    targetUser = User.query.filter_by(username=recipient).first()
-    autoTransaction = AutomatedTransactions.query.filter_by(autoId=autoId).first()
+# def executeTransaction(autoId, accountNumber, recipient, amount):
+#     account = Account.query.filter_by(accountNumber=accountNumber).first()
+#     targetUser = User.query.filter_by(username=recipient).first()
+#     autoTransaction = AutomatedTransactions.query.filter_by(autoId=autoId).first()
 
-    if account and account.accountStatus == "Active":
-        if amount <= account.balance:
-            try:
-                db.session.begin_nested()
-                account.balance -= amount
-                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
-                if targetUser:
-                    targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
-                    if targetAccount:
-                        targetAccount.balance += amount
-                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
-                if autoTransaction:
-                    if autoTransaction.frequency == 'Daily':
-                        autoTransaction.paymentDate += datetime.timedelta(days=1)
-                    elif autoTransaction.frequency == "Weekly":
-                        autoTransaction.paymentDate += datetime.timedelta(days=7)
-                    elif autoTransaction.frequency == "Monthly":
-                        autoTransaction.paymentDate += datetime.teimedelta(days=30)
+#     if account and account.accountStatus == "Active":
+#         if amount <= account.balance:
+#             try:
+#                 db.session.begin_nested()
+#                 account.balance -= amount
+#                 db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
+#                 if targetUser:
+#                     targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
+#                     if targetAccount:
+#                         targetAccount.balance += amount
+#                         db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
+#                 if autoTransaction:
+#                     if autoTransaction.frequency == 'Daily':
+#                         autoTransaction.paymentDate += datetime.timedelta(days=1)
+#                     elif autoTransaction.frequency == "Weekly":
+#                         autoTransaction.paymentDate += datetime.timedelta(days=7)
+#                     elif autoTransaction.frequency == "Monthly":
+#                         autoTransaction.paymentDate += datetime.teimedelta(days=30)
 
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                raise e
-            else: 
-                db.session.commit()
-                return {"message" : "Payment successful", "isSuccess" : True}
-        else:
-            return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}    
-    return {"message" : "Payment failed", "isSuccess" : False}
+#                 db.session.commit()
+#             except Exception as e:
+#                 db.session.rollback()
+#                 raise e
+#             else: 
+#                 db.session.commit()
+#                 return {"message" : "Payment successful", "isSuccess" : True}
+#         else:
+#             return {"message" : "Payment failed: Insufficient funds", "isSuccess" : False}    
+#     return {"message" : "Payment failed", "isSuccess" : False}
 
-def scheduleTransactions():
-    autoTransactions = AutomatedTransactions.query.all()
-    for autoTransaction in autoTransactions:
-        scheduler.add_job(
-            executeTransaction, 'date', run_date=autoTransaction.paymentDate, args=[autoTransaction.autoId, autoTransaction.accountNumber, autoTransaction.recipient, autoTransaction.amount]
-        )
-        print("added job")
+# def scheduleTransactions():
+#     autoTransactions = AutomatedTransactions.query.all()
+#     for autoTransaction in autoTransactions:
+#         scheduler.add_job(
+#             executeTransaction, 'date', run_date=autoTransaction.paymentDate, args=[autoTransaction.autoId, autoTransaction.accountNumber, autoTransaction.recipient, autoTransaction.amount]
+#         )
+#         print("added job")
 
 @app.route("/api/python")
 def hello_world():
@@ -298,7 +296,7 @@ def customerLogin():
         if user and authenticate(user.password, password):
             session['firstname'] = user.customer.person.firstname
             session['lastname'] = user.customer.person.lastname
-            session['customerId'] = user.customer.customerId
+            session['user_type'] = 'customer'
             login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
@@ -321,7 +319,12 @@ def employeeLogin():
         if user and user.employee == None:
             return {'message' : "This account is not authorized to login here", 'isSuccess' : False}
 
-        if user and authenticate(user.password, password):
+        if user.password == password:
+            session['firstname'] = user.employee.person.firstname
+            session['lastname'] = user.employee.person.lastname
+            session['employeeid'] = user.employee.employeeId
+            session['position'] = user.employee.position
+            session['user_type'] = 'employee'
             login_user(user)
             return {'message' : "Login successful", 'isSuccess' : True}
    
@@ -390,7 +393,7 @@ def updateAccount():
     if account:
         if account.accountStatus == "Active":
             account.accountStatus = "Inactive"
-            account.dateClose = datetime.now()
+            account.dateClose = datetime.now(timezone.utc)
         else:
             account.accountStatus = "Active"
             account.dateClose = None
@@ -424,7 +427,7 @@ def deposit():
         try:
             db.session.begin_nested()
             account.balance += amount
-            db.session.add(logTransaction(accountNumber, "Deposit", amount, datetime.now()))
+            db.session.add(logTransaction(accountNumber, "Deposit", amount, datetime.now(timezone.utc)))
         except Exception as e:
             db.session.rollback()
             raise e
@@ -447,7 +450,7 @@ def withdraw():
             try:
                 db.session.begin_nested()
                 account.balance -= amount
-                db.session.add(logTransaction(accountNumber, "Withdrawal", amount, datetime.now()))
+                db.session.add(logTransaction(accountNumber, "Withdrawal", amount, datetime.now(timezone.utc)))
             except Exception as e:
                 db.session.rollback()
                 raise e
@@ -467,12 +470,12 @@ def processPayment(accountNumber, amount, recipient):
             try:
                 db.session.begin_nested()
                 account.balance -= amount
-                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(), recipient))
+                db.session.add(logTransaction(accountNumber, "Payment-", amount, datetime.now(timezone.utc), recipient))
                 if targetUser:
                     targetAccount = next((account for account in targetUser.customer.account if account.accountStatus == "Active"), None)
                     if targetAccount:
                         targetAccount.balance += amount
-                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(), current_user.username))
+                        db.session.add(logTransaction(targetAccount.accountNumber, "Payment+", amount, datetime.now(timezone.utc), current_user.username))
                 db.session.commit()
             except Exception as e:
                 db.session.rollback()
@@ -515,7 +518,7 @@ def recurringPayment():
 
     db.session.add(autoTransaction)
     db.session.commit()
-    scheduleTransactions()
+    # scheduleTransactions()
     return {'message' : "Automated payment created successfully!", 'isSuccess' : True}
 
 
@@ -527,7 +530,7 @@ def deleteRecurringPayment():
     recurring_payment = AutomatedTransactions.query.get(autoId)
     db.session.delete(recurring_payment)
     db.session.commit()
-    scheduleTransactions()
+    # scheduleTransactions()
     return {'message' : "Automated payment successfully deleted!", 'isSuccess' : True}
 
 
@@ -554,10 +557,10 @@ def transfer():
     try:
         db.session.begin_nested()
         fromAccount.balance -= amount
-        db.session.add(logTransaction(fromAccount, "Transfer-", amount, datetime.now()))
+        db.session.add(logTransaction(fromAccount, "Transfer-", amount, datetime.now(timezone.utc)))
         if toAccount and toAccount.accountStatus == "Active":
             toAccount.balance += amount
-            db.session.add(logTransaction(toAccount, "Transfer+", amount, datetime.now()))
+            db.session.add(logTransaction(toAccount, "Transfer+", amount, datetime.now(timezone.utc)))
     except Exception as e:
         db.session.rollback()
         raise e
@@ -725,7 +728,7 @@ def getCustomerAccount():
         account = Account.query.filter_by(accountNumber=accountNumber).first()
         if account == None:
             return {"message" : "Account can not be found", "isSuccess" : False}
-        transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).all()
+        transactions = Transactions.query.filter(Transactions.accountNumber==account.accountNumber).order_by(desc(Transactions.date)).all()
         customer = Customer.query.get(account.customerId)
         person = Person.query.get(customer.personId)
         address = person.address
@@ -746,7 +749,7 @@ def getCustomerAccount():
 
 
             
-        return {"balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict}
+        return {"accountNumber": account.accountNumber, "accountType": account.accountType, "dob": person.dob, "balance" : account.balance, "address" : addr, "name": f"{person.firstname} {person.lastname}", "transactions" : transDict, "isSuccess": True}
     
     return {"message" : "Account is not authorized", "isSuccess" : False}
 
@@ -769,13 +772,22 @@ def employeeAuthorization():
     return {'message' : "User is not authorized to access this page", 'isSuccess' : False}
 
 
-@app.route('/api/sessionData')
+@app.route('/api/customerSessionData')
 @login_required
-def getSessionData():
+def getCustomerSessionData():
     firstname = session.get('firstname', '')
     lastname = session.get('lastname', '')
     customerId = session.get('customerId', '')
     return {'firstname': firstname, 'lastname': lastname, 'customerId': customerId}
+
+@app.route('/api/employeeSessionData')
+@login_required
+def getEmployeeSessionData():
+    firstname = session.get('firstname', '')
+    lastname = session.get('lastname', '')
+    employeeId = session.get('employeeId', '')
+    position = session.get('position', '')
+    return {'firstname': firstname, 'lastname': lastname, 'employeeId': employeeId, 'position': position}
     
     
 @login_manager.unauthorized_handler
@@ -784,6 +796,6 @@ def unauthorized_callback():
 
 
 if __name__ == '__main__':
-    scheduler.start()
-    scheduleTransactions()
+    # scheduler.start()
+    # scheduleTransactions()
     app.run()

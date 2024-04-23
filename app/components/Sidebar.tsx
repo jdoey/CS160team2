@@ -151,7 +151,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const makeGetSessionDataRequest = async () => {
     try {
-      const response = await fetch("/api/sessionData");
+      const response = await fetch("/api/customerSessionData");
       const data = await response.json();
       setSessionData(data);
     } catch (error) {
@@ -161,7 +161,7 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
 
   const handleSignOut = async () => {
     try {
-      const response = await fetch("api/customer/logout", {
+      const response = await fetch("/api/customer/logout", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
