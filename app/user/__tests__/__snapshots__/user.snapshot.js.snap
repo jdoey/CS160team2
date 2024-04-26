@@ -1,0 +1,147 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders user unchanged 1`] = `
+<div>
+  <div
+    class="css-58sysj"
+  >
+    <div
+      class="css-7jgxhb"
+    >
+      <div
+        class="css-ki1zfs"
+      >
+        <div
+          class="chakra-stack css-8g8ihq"
+        >
+          <div
+            class="chakra-card css-okahlt"
+          >
+            <div
+              class="chakra-card__header css-0"
+            >
+              <h2
+                class="chakra-heading css-0"
+              >
+                Bank Accounts
+              </h2>
+            </div>
+            <div
+              class="chakra-tabs css-79elbk"
+            >
+              <div
+                aria-orientation="horizontal"
+                class="chakra-tabs__tablist css-k008qs"
+                role="tablist"
+              >
+                <button
+                  aria-controls="tabs-:r0:--tabpanel-0"
+                  aria-disabled="false"
+                  aria-selected="true"
+                  class="chakra-tabs__tab css-5wl5ud"
+                  data-index="0"
+                  id="tabs-:r0:--tab-0"
+                  role="tab"
+                  tabindex="0"
+                  type="button"
+                >
+                  Active
+                </button>
+                <button
+                  aria-controls="tabs-:r0:--tabpanel-1"
+                  aria-disabled="false"
+                  aria-selected="false"
+                  class="chakra-tabs__tab css-5wl5ud"
+                  data-index="1"
+                  id="tabs-:r0:--tab-1"
+                  role="tab"
+                  tabindex="-1"
+                  type="button"
+                >
+                  Inactive
+                </button>
+              </div>
+              <div
+                class="chakra-tabs__tab-panels css-8atqhb"
+              >
+                <div
+                  aria-labelledby="tabs-:r0:--tab-0"
+                  class="chakra-tabs__tab-panel css-sjt5nk"
+                  id="tabs-:r0:--tabpanel-0"
+                  role="tabpanel"
+                  tabindex="0"
+                >
+                  <div
+                    class="chakra-card__body css-1y65c9x"
+                  >
+                    <div
+                      class="chakra-stack css-j7qwjs"
+                    >
+                      <div
+                        class="chakra-card css-1qjaef4"
+                      >
+                        <div
+                          class="chakra-card__body css-0"
+                        >
+                          <h2
+                            class="chakra-heading css-1lejymi"
+                          >
+                            NO ACCOUNTS FOUND
+                          </h2>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  aria-labelledby="tabs-:r0:--tab-1"
+                  class="chakra-tabs__tab-panel css-sjt5nk"
+                  hidden=""
+                  id="tabs-:r0:--tabpanel-1"
+                  role="tabpanel"
+                  tabindex="0"
+                >
+                  <div
+                    class="chakra-card__body css-1y65c9x"
+                  >
+                    <div
+                      class="chakra-stack css-j7qwjs"
+                    >
+                      <div
+                        class="chakra-card css-1qjaef4"
+                      >
+                        <div
+                          class="chakra-card__body css-0"
+                        >
+                          <h2
+                            class="chakra-heading css-1lejymi"
+                          >
+                            NO ACCOUNTS FOUND
+                          </h2>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="chakra-card__footer css-k008qs"
+            >
+              <button
+                class="chakra-button css-uxt1e8"
+                type="button"
+              >
+                Open New Account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p
+        class="chakra-text css-0"
+      />
+    </div>
+  </div>
+</div>
+`;

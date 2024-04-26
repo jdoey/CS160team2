@@ -1,0 +1,208 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`No changes in enroll Page 1`] = `
+<div>
+  <div
+    class="css-0"
+  >
+    <div
+      class="css-129s07"
+    >
+      <div
+        class="css-gmuwbf"
+      >
+        <a
+          class="chakra-button css-1izydtr"
+          href="/"
+        >
+          <img
+            alt="Maze Bank Logo"
+            data-nimg="1"
+            decoding="async"
+            height="50"
+            loading="lazy"
+            src="/_next/image?url=%2Fimg.jpg&w=128&q=75"
+            srcset="/_next/image?url=%2Fimg.jpg&w=64&q=75 1x, /_next/image?url=%2Fimg.jpg&w=128&q=75 2x"
+            style="color: transparent;"
+            width="50"
+          />
+          MAZE BANK
+        </a>
+      </div>
+    </div>
+  </div>
+  <div
+    class="css-1kz5lyu"
+  >
+    <div
+      class="css-14jfm6m"
+    >
+      <div
+        class="css-996zzf"
+      >
+        <div
+          aria-valuemax="100"
+          aria-valuemin="0"
+          aria-valuenow="33.33"
+          class="css-9vhztx"
+          role="progressbar"
+          style="width: 33.33%;"
+        />
+      </div>
+      <h2
+        class="chakra-heading css-vsd9oz"
+      >
+        Let's set up your online access
+      </h2>
+      <form
+        action="#"
+      >
+        <div
+          class="chakra-form-control css-1yqqr9g"
+          role="group"
+        >
+          <label
+            class="chakra-form__label css-1cx1vlw"
+            for="email"
+            id="field-:r1:-label"
+          >
+            Email address
+            <span
+              aria-hidden="true"
+              class="chakra-form__required-indicator css-0"
+              role="presentation"
+            >
+              *
+            </span>
+          </label>
+          <input
+            aria-required="true"
+            class="chakra-input css-0"
+            id="email"
+            name="email"
+            placeholder="maze@mazebank.com"
+            required=""
+            type="email"
+            value="email@email.com"
+          />
+        </div>
+        <div
+          class="chakra-form-control css-1fk457c"
+          role="group"
+        >
+          <label
+            class="chakra-form__label css-125ohax"
+            for="username"
+            id="field-:r2:-label"
+          >
+            Username
+            <span
+              aria-hidden="true"
+              class="chakra-form__required-indicator css-0"
+              role="presentation"
+            >
+              *
+            </span>
+          </label>
+          <input
+            aria-required="true"
+            class="chakra-input css-0"
+            id="username"
+            name="username"
+            placeholder="Enter username"
+            required=""
+            type="username"
+            value=""
+          />
+        </div>
+        <div
+          class="chakra-form-control css-0"
+          role="group"
+        >
+          <label
+            class="chakra-form__label css-125ohax"
+            for="password"
+            id="field-:r3:-label"
+          >
+            Password
+            <span
+              aria-hidden="true"
+              class="chakra-form__required-indicator css-0"
+              role="presentation"
+            >
+              *
+            </span>
+          </label>
+          <div
+            class="chakra-input__group css-bx0blc"
+            data-group="true"
+          >
+            <input
+              aria-required="true"
+              class="chakra-input css-1n0hj84"
+              id="password"
+              name="password"
+              placeholder="Enter password"
+              required=""
+              type="password"
+              value="123456"
+            />
+            <div
+              class="chakra-input__right-element css-vcnsx7"
+            >
+              <button
+                class="chakra-button css-4xx2wk"
+                type="button"
+              >
+                <svg
+                  class="chakra-icon css-onkibi"
+                  focusable="false"
+                  viewBox="0 0 24 24"
+                >
+                  <g
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M23.2,10.549a20.954,20.954,0,0,0-4.3-3.6l4-3.995a1,1,0,1,0-1.414-1.414l-.018.018a.737.737,0,0,1-.173.291l-19.5,19.5c-.008.007-.018.009-.026.017a1,1,0,0,0,1.631,1.088l4.146-4.146a11.26,11.26,0,0,0,4.31.939h.3c4.256,0,8.489-2.984,11.051-5.8A2.171,2.171,0,0,0,23.2,10.549ZM16.313,13.27a4.581,4.581,0,0,1-3,3.028,4.3,4.3,0,0,1-3.1-.19.253.253,0,0,1-.068-.407l5.56-5.559a.252.252,0,0,1,.407.067A4.3,4.3,0,0,1,16.313,13.27Z"
+                    />
+                    <path
+                      d="M7.615,13.4a.244.244,0,0,0,.061-.24A4.315,4.315,0,0,1,7.5,12,4.5,4.5,0,0,1,12,7.5a4.276,4.276,0,0,1,1.16.173.244.244,0,0,0,.24-.062l1.941-1.942a.254.254,0,0,0-.1-.421A10.413,10.413,0,0,0,12,4.75C7.7,4.692,3.4,7.7.813,10.549a2.15,2.15,0,0,0-.007,2.9,21.209,21.209,0,0,0,3.438,3.03.256.256,0,0,0,.326-.029Z"
+                    />
+                  </g>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div
+          class="chakra-button__group css-1e1nkor"
+          data-orientation="horizontal"
+          role="group"
+        >
+          <div
+            class="css-1ufrzn0"
+          >
+            <div
+              class="css-k008qs"
+            >
+              <button
+                class="chakra-button css-r2x13h"
+                disabled=""
+                type="button"
+              >
+                Back
+              </button>
+              <button
+                class="chakra-button css-17a38ax"
+                type="submit"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+`;

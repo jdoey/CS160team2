@@ -1,0 +1,545 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders user/payandtransfer renders correctly 1`] = `
+<div>
+  <div
+    class="css-p8qw0"
+  >
+    <div
+      class="chakra-tabs css-79elbk"
+    >
+      <div
+        aria-orientation="horizontal"
+        class="chakra-tabs__tablist css-k008qs"
+        role="tablist"
+      >
+        <button
+          aria-controls="tabs-:r0:--tabpanel-0"
+          aria-disabled="false"
+          aria-selected="true"
+          class="chakra-tabs__tab css-5wl5ud"
+          data-index="0"
+          id="tabs-:r0:--tab-0"
+          role="tab"
+          tabindex="0"
+          type="button"
+        >
+          Payments
+        </button>
+        <button
+          aria-controls="tabs-:r0:--tabpanel-1"
+          aria-disabled="false"
+          aria-selected="false"
+          class="chakra-tabs__tab css-5wl5ud"
+          data-index="1"
+          id="tabs-:r0:--tab-1"
+          role="tab"
+          tabindex="-1"
+          type="button"
+        >
+          Transfer Money
+        </button>
+      </div>
+      <div
+        class="chakra-tabs__tab-indicator css-10zejme"
+        style="position: absolute; transition-property: left, right, top, bottom, height, width; transition-duration: 0ms; transition-timing-function: cubic-bezier(0, 0, 0.2, 1); left: 0px; width: 0px;"
+      />
+      <div
+        class="chakra-tabs__tab-panels css-8atqhb"
+      >
+        <div
+          aria-labelledby="tabs-:r0:--tab-0"
+          class="chakra-tabs__tab-panel css-sjt5nk"
+          id="tabs-:r0:--tabpanel-0"
+          role="tabpanel"
+          tabindex="0"
+        >
+          <div
+            class="chakra-tabs css-79elbk"
+          >
+            <div
+              aria-orientation="horizontal"
+              class="chakra-tabs__tablist css-k008qs"
+              role="tablist"
+            >
+              <button
+                aria-controls="tabs-:r1:--tabpanel-0"
+                aria-disabled="false"
+                aria-selected="true"
+                class="chakra-tabs__tab css-5wl5ud"
+                data-index="0"
+                id="tabs-:r1:--tab-0"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                Pay
+              </button>
+              <button
+                aria-controls="tabs-:r1:--tabpanel-1"
+                aria-disabled="false"
+                aria-selected="false"
+                class="chakra-tabs__tab css-5wl5ud"
+                data-index="1"
+                id="tabs-:r1:--tab-1"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                Payment History
+              </button>
+            </div>
+            <div
+              class="chakra-tabs__tab-panels css-8atqhb"
+            >
+              <div
+                aria-labelledby="tabs-:r1:--tab-0"
+                class="chakra-tabs__tab-panel css-sjt5nk"
+                id="tabs-:r1:--tabpanel-0"
+                role="tabpanel"
+                tabindex="0"
+              >
+                <div
+                  class="chakra-form-control css-0"
+                  role="group"
+                >
+                  <label
+                    class="chakra-form__label css-uvho5g"
+                    for="field-:r2:"
+                    id="field-:r2:-label"
+                  >
+                    Search for a recipient
+                  </label>
+                  <input
+                    class="chakra-input css-0"
+                    id="field-:r2:"
+                    type="Recipient"
+                  />
+                </div>
+              </div>
+              <div
+                aria-labelledby="tabs-:r1:--tab-1"
+                class="chakra-tabs__tab-panel css-sjt5nk"
+                hidden=""
+                id="tabs-:r1:--tabpanel-1"
+                role="tabpanel"
+                tabindex="0"
+              >
+                <div
+                  class="chakra-table__container css-zipzvv"
+                >
+                  <table
+                    class="chakra-table css-0"
+                  >
+                    <thead
+                      class="css-0"
+                    >
+                      <tr
+                        class="css-0"
+                      >
+                        <th
+                          class="css-0"
+                        >
+                          From
+                        </th>
+                        <th
+                          class="css-0"
+                        >
+                          Recipient
+                        </th>
+                        <th
+                          class="css-0"
+                        >
+                          Date
+                        </th>
+                        <th
+                          class="css-0"
+                          data-is-numeric="true"
+                        >
+                          Amount
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody
+                      class="css-0"
+                    >
+                      <tr
+                        class="css-0"
+                      >
+                        <td
+                          class="css-0"
+                        >
+                          Checking Account
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          Bank
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          March 12, 2024
+                        </td>
+                        <td
+                          class="css-0"
+                          data-is-numeric="true"
+                        >
+                          $25.46
+                        </td>
+                      </tr>
+                      <tr
+                        class="css-0"
+                      >
+                        <td
+                          class="css-0"
+                        >
+                          Savings Account
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          External Bank Account
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          March 8, 2024
+                        </td>
+                        <td
+                          class="css-0"
+                          data-is-numeric="true"
+                        >
+                          $90.00
+                        </td>
+                      </tr>
+                      <tr
+                        class="css-0"
+                      >
+                        <td
+                          class="css-0"
+                        >
+                          Checking Account
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          Bank
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          February 28, 2024
+                        </td>
+                        <td
+                          class="css-0"
+                          data-is-numeric="true"
+                        >
+                          $167.12
+                        </td>
+                      </tr>
+                      <tr
+                        class="css-0"
+                      >
+                        <td
+                          class="css-0"
+                        >
+                          Checking Account
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          Bank
+                        </td>
+                        <td
+                          class="css-0"
+                        >
+                          February 19, 2024
+                        </td>
+                        <td
+                          class="css-0"
+                          data-is-numeric="true"
+                        >
+                          $58.91
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          aria-labelledby="tabs-:r0:--tab-1"
+          class="chakra-tabs__tab-panel css-sjt5nk"
+          hidden=""
+          id="tabs-:r0:--tabpanel-1"
+          role="tabpanel"
+          tabindex="0"
+        >
+          <div
+            class="chakra-tabs css-79elbk"
+          >
+            <div
+              aria-orientation="horizontal"
+              class="chakra-tabs__tablist css-k008qs"
+              role="tablist"
+            >
+              <button
+                aria-controls="tabs-:r3:--tabpanel-0"
+                aria-disabled="false"
+                aria-selected="true"
+                class="chakra-tabs__tab css-5wl5ud"
+                data-index="0"
+                id="tabs-:r3:--tab-0"
+                role="tab"
+                tabindex="0"
+                type="button"
+              >
+                Transfer
+              </button>
+              <button
+                aria-controls="tabs-:r3:--tabpanel-1"
+                aria-disabled="false"
+                aria-selected="false"
+                class="chakra-tabs__tab css-5wl5ud"
+                data-index="1"
+                id="tabs-:r3:--tab-1"
+                role="tab"
+                tabindex="-1"
+                type="button"
+              >
+                Add External Account
+              </button>
+            </div>
+            <div
+              class="chakra-tabs__tab-panels css-8atqhb"
+            >
+              <div
+                aria-labelledby="tabs-:r3:--tab-0"
+                class="chakra-tabs__tab-panel css-sjt5nk"
+                id="tabs-:r3:--tabpanel-0"
+                role="tabpanel"
+                tabindex="0"
+              >
+                <div
+                  class="chakra-stack css-8g8ihq"
+                >
+                  <div
+                    class="css-k008qs"
+                  >
+                    <div
+                      class="chakra-select__wrapper css-13g2qmf"
+                    >
+                      <select
+                        class="chakra-select css-1ik61og"
+                      >
+                        <option
+                          value=""
+                        >
+                          Transfer from:
+                        </option>
+                        <option
+                          value="option1"
+                        >
+                          Option 1
+                        </option>
+                        <option
+                          value="option2"
+                        >
+                          Option 2
+                        </option>
+                        <option
+                          value="option3"
+                        >
+                          Option 3
+                        </option>
+                      </select>
+                      <div
+                        class="chakra-select__icon-wrapper css-162mkon"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="chakra-select__icon"
+                          focusable="false"
+                          role="presentation"
+                          style="width: 1em; height: 1em; color: currentColor;"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                    <div
+                      class="chakra-select__wrapper css-13g2qmf"
+                    >
+                      <select
+                        class="chakra-select css-1ik61og"
+                      >
+                        <option
+                          value=""
+                        >
+                          Transfer to:
+                        </option>
+                        <option
+                          value="option1"
+                        >
+                          Option 1
+                        </option>
+                        <option
+                          value="option2"
+                        >
+                          Option 2
+                        </option>
+                        <option
+                          value="option3"
+                        >
+                          Option 3
+                        </option>
+                      </select>
+                      <div
+                        class="chakra-select__icon-wrapper css-162mkon"
+                      >
+                        <svg
+                          aria-hidden="true"
+                          class="chakra-select__icon"
+                          focusable="false"
+                          role="presentation"
+                          style="width: 1em; height: 1em; color: currentColor;"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="chakra-form-control css-jywb8v"
+                    role="group"
+                  >
+                    <label
+                      class="chakra-form__label css-uvho5g"
+                      for="field-:r4:"
+                      id="field-:r4:-label"
+                    >
+                      Amount
+                      <span
+                        aria-hidden="true"
+                        class="chakra-form__required-indicator css-0"
+                        role="presentation"
+                      >
+                        *
+                      </span>
+                    </label>
+                    <input
+                      aria-required="true"
+                      class="chakra-input css-0"
+                      id="field-:r4:"
+                      placeholder="$0.00"
+                      required=""
+                    />
+                  </div>
+                  <button
+                    class="chakra-button css-16jhx0q"
+                    type="button"
+                  >
+                    Transfer
+                  </button>
+                </div>
+              </div>
+              <div
+                aria-labelledby="tabs-:r3:--tab-1"
+                class="chakra-tabs__tab-panel css-sjt5nk"
+                hidden=""
+                id="tabs-:r3:--tabpanel-1"
+                role="tabpanel"
+                tabindex="0"
+              >
+                <form
+                  class="css-omnk1d"
+                >
+                  <div
+                    class="css-996zzf"
+                  >
+                    <div
+                      aria-valuemax="100"
+                      aria-valuemin="0"
+                      aria-valuenow="33.33"
+                      class="css-9vhztx"
+                      role="progressbar"
+                      style="width: 33.33%;"
+                    />
+                  </div>
+                  <h2
+                    class="chakra-heading css-b64fcs"
+                  >
+                    Adding an External Account
+                  </h2>
+                  <div
+                    class="chakra-form-control css-0"
+                    role="group"
+                  >
+                    <label
+                      class="chakra-form__label css-uvho5g"
+                      for="field-:r5:"
+                      id="field-:r5:-label"
+                    >
+                      Choose Financial Institution
+                    </label>
+                    <input
+                      aria-describedby="field-:r5:-helptext"
+                      class="chakra-input css-0"
+                      id="field-:r5:"
+                      type="bank"
+                    />
+                    <div
+                      class="chakra-form__helper-text css-0"
+                      id="field-:r5:-helptext"
+                    >
+                      Sign into the financial institution you would like to link to your MazeBank Account.
+                    </div>
+                  </div>
+                  <div
+                    class="chakra-button__group css-1e1nkor"
+                    data-orientation="horizontal"
+                    role="group"
+                  >
+                    <div
+                      class="css-1ufrzn0"
+                    >
+                      <div
+                        class="css-k008qs"
+                      >
+                        <button
+                          class="chakra-button css-r2x13h"
+                          disabled=""
+                          type="button"
+                        >
+                          Back
+                        </button>
+                        <button
+                          class="chakra-button css-17a38ax"
+                          type="button"
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

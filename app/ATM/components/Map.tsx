@@ -2,10 +2,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
-//add search by location with geolocation
-//add background image of chase atm
-//add "partnered with chase bank" text
-
 
 function Map() {
     const [address, setCity] = useState('');
