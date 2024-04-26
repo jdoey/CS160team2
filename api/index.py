@@ -512,7 +512,7 @@ def recurringPayment():
     autoTransaction.accountNumber = accountNumber
     autoTransaction.amount = amount
     autoTransaction.recipient = recipient
-    autoTransaction.paymentDate = datetime.strptime(paymentDate, '%m/%d/%Y')
+    autoTransaction.paymentDate = datetime.strptime(paymentDate, '%m/%d/%Y').astimezone(timezone.utc)
     autoTransaction.transactionType = transactionType
     autoTransaction.frequency = frequency
 

@@ -1,0 +1,186 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders user/deposit renders correctly 1`] = `
+<div>
+  <div
+    class="css-58sysj"
+  >
+    <div
+      class="css-1xfdara"
+    >
+      <div
+        class="css-1ud44x3"
+      >
+        <h2
+          class="chakra-heading css-fvji5"
+        >
+          Deposit a check
+        </h2>
+        <form
+          action="#"
+        >
+          <div
+            class="chakra-form-control css-vtn2l4"
+            role="group"
+          >
+            <label
+              class="chakra-form__label css-uvho5g"
+              for="accountNumber"
+              id="accountNumber-label"
+            >
+              Deposit to
+              <span
+                aria-hidden="true"
+                class="chakra-form__required-indicator css-0"
+                role="presentation"
+              >
+                *
+              </span>
+            </label>
+            <div
+              class="chakra-select__wrapper css-6cijrj"
+            >
+              <select
+                aria-required="true"
+                class="chakra-select css-sda2r5"
+                id="accountNumber"
+                name="accountNumber"
+                required=""
+              >
+                <option
+                  value=""
+                >
+                  Select an account to deposit to
+                </option>
+              </select>
+              <div
+                class="chakra-select__icon-wrapper css-162mkon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="chakra-select__icon"
+                  focusable="false"
+                  role="presentation"
+                  style="width: 1em; height: 1em; color: currentColor;"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            class="chakra-form-control css-8atqhb"
+            role="group"
+          >
+            <label
+              class="chakra-form__label css-uvho5g"
+              for="deposit"
+              id="deposit-label"
+            >
+              Amount
+              <span
+                aria-hidden="true"
+                class="chakra-form__required-indicator css-0"
+                role="presentation"
+              >
+                *
+              </span>
+            </label>
+            <div
+              class="chakra-numberinput css-e69dqy"
+              value="$"
+            >
+              <input
+                aria-readonly="false"
+                aria-required="true"
+                aria-valuemax="9007199254740991"
+                aria-valuemin="1"
+                aria-valuetext="$"
+                autocomplete="off"
+                autocorrect="off"
+                class="chakra-numberinput__field css-8atqhb"
+                id="deposit"
+                inputmode="decimal"
+                name="deposit"
+                pattern="[0-9]*(.[0-9]+)?"
+                required=""
+                role="spinbutton"
+                type="text"
+                value="$"
+              />
+              <div
+                aria-hidden="true"
+                class="css-1j80trz"
+              >
+                <div
+                  class="css-8bep6f"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <svg
+                    class="chakra-icon css-onkibi"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M12.8,5.4c-0.377-0.504-1.223-0.504-1.6,0l-9,12c-0.228,0.303-0.264,0.708-0.095,1.047 C2.275,18.786,2.621,19,3,19h18c0.379,0,0.725-0.214,0.895-0.553c0.169-0.339,0.133-0.744-0.095-1.047L12.8,5.4z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+                <div
+                  class="css-8bep6f"
+                  role="button"
+                  tabindex="-1"
+                >
+                  <svg
+                    class="chakra-icon css-onkibi"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M21,5H3C2.621,5,2.275,5.214,2.105,5.553C1.937,5.892,1.973,6.297,2.2,6.6l9,12 c0.188,0.252,0.485,0.4,0.8,0.4s0.611-0.148,0.8-0.4l9-12c0.228-0.303,0.264-0.708,0.095-1.047C21.725,5.214,21.379,5,21,5z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="chakra-button__group css-hxn5ng"
+            data-orientation="horizontal"
+            role="group"
+          >
+            <div
+              class="css-gg4vpm"
+            >
+              <div
+                class="css-k008qs"
+              >
+                <button
+                  class="chakra-button css-r2x13h"
+                  disabled=""
+                  type="button"
+                >
+                  Back
+                </button>
+                <button
+                  class="chakra-button css-17a38ax"
+                  type="submit"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+`;
