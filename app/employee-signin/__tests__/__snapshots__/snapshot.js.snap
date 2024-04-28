@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`No changes in employee-signin Page 1`] = `
+<div>
+  <div
+    class="css-0"
+  >
+    <div
+      class="css-129s07"
+    >
+      <div
+        class="css-gmuwbf"
+      >
+        <a
+          class="chakra-button css-1izydtr"
+          href="/"
+        >
+          <img
+            alt="Maze Bank Logo"
+            data-nimg="1"
+            decoding="async"
+            height="50"
+            loading="lazy"
+            src="/_next/image?url=%2Fimg.jpg&w=128&q=75"
+            srcset="/_next/image?url=%2Fimg.jpg&w=64&q=75 1x, /_next/image?url=%2Fimg.jpg&w=128&q=75 2x"
+            style="color: transparent;"
+            width="50"
+          />
+          MAZE BANK
+        </a>
+      </div>
+    </div>
+  </div>
+  <form
+    action="#"
+  >
+    <div
+      class="css-ex4e3z"
+    >
+      <div
+        class="chakra-stack css-k7l03r"
+      >
+        <div
+          class="chakra-stack css-tl3ftk"
+        />
+        <div
+          class="css-l5lt5w"
+        >
+          <div
+            class="chakra-stack css-1gnc3qn"
+          >
+            <div
+              class="chakra-stack css-zntnw6"
+            >
+              <h2
+                class="chakra-heading css-0"
+              >
+                Employee Portal Sign-in
+              </h2>
+              <p
+                class="chakra-text css-1r7spse"
+              >
+                for employees of Maze Bank only
+              </p>
+            </div>
+            <div
+              class="chakra-form-control css-0"
+              role="group"
+            >
+              <label
+                class="chakra-form__label css-uvho5g"
+                for="username"
+                id="username-label"
+              >
+                Username
+              </label>
+              <input
+                class="chakra-input css-0"
+                id="username"
+                name="username"
+                type="username"
+                value=""
+              />
+            </div>
+            <div
+              class="chakra-form-control css-0"
+              role="group"
+            >
+              <label
+                class="chakra-form__label css-uvho5g"
+                for="password"
+                id="password-label"
+              >
+                Password
+              </label>
+              <input
+                class="chakra-input css-0"
+                id="password"
+                name="password"
+                type="password"
+                value=""
+              />
+            </div>
+            <div
+              class="chakra-stack css-bco1gb"
+            >
+              <div
+                class="chakra-stack css-1ujp649"
+              >
+                <p
+                  class="chakra-text css-p03q1r"
+                >
+                  Forgot password?
+                </p>
+              </div>
+              <div
+                class="chakra-stack css-3a3hw0"
+              >
+                <button
+                  class="chakra-button css-1usdvwt"
+                  type="submit"
+                >
+                  Sign in
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+`;

@@ -13,11 +13,10 @@ export default function AtmLoc() {
       <>
       <Flex
         w={'full'}
-        h={'65vh'} 
+        h={'45vh'} 
         backgroundSize={'cover'}
         backgroundRepeat={'no-repeat'}
         backgroundPosition={'center'}
-        backgroundImage={'url(https://www.hustlermoneyblog.com/wp-content/uploads/2019/05/Chase-ATMs.jpg)'}
         >
         <Stack
           as={Box}
