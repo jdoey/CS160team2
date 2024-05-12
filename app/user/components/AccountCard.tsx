@@ -57,7 +57,7 @@ export default function AccountCard({
     <Stack divider={<StackDivider />} spacing="4">
       {!accounts ? (
         <Center pb={5} width={["100%", "30vw"]}>
-          <Spinner color="red.500" size="lg" />
+          <Text fontWeight={800}>NO ACCOUNTS FOUND</Text>
         </Center>
       ) : accounts.length > 0 ? (
         accounts?.map((item: AccountProps) => (
