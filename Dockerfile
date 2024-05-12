@@ -31,6 +31,7 @@ ENV PATH="/venv/bin:$PATH"
 
 # Install Flask dependencies in the virtual environment
 RUN pip install -r requirements.txt
+# RUN python3 -m pip install PyMySQL[rsa]
 
 # Copy .env.local file
 # COPY .env.local .
@@ -38,4 +39,5 @@ RUN pip install -r requirements.txt
 # Expose ports used by Next.js and Flask
 EXPOSE 3000 5328
 
+# CMD npm run dev
 CMD npm run dev

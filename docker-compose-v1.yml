@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+
+  mysqldb:
+    container_name: mysqldb
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      - cs160_network
+    healthcheck:
+        test: ["CMD", "mysql", "-uroot", "-ppassword", "-e", "show databases;"]
+        interval: 10s
+        timeout: 30s
+        retries: 5
+
+  bankapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cs160team2
+    ports:
+      - "3000:3000"
+    networks:
+      - cs160_network
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+
+
+networks:
+  cs160_network:
+    driver: bridge
