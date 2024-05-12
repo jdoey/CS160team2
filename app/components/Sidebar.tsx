@@ -66,7 +66,6 @@ const LinkItems: Array<LinkItemProps> = [
   { name: "Pay & Transfer", icon: CiDollar, pagelink: "/user/payandtransfer" },
   { name: "Deposit", icon: CiMoneyCheck1, pagelink: "/user/deposit" },
   { name: "ATM Locations", icon: CiMap, pagelink: "/user/atm-locations" },
-  { name: "Settings", icon: CiSettings, pagelink: "/user" },
 ];
 
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => {
@@ -240,12 +239,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
       </Heading> */}
 
       <HStack spacing={{ base: "0", md: "6" }}>
-        <IconButton
-          size="lg"
-          variant="ghost"
-          aria-label="open menu"
-          icon={<FiBell />}
-        />
         <Flex alignItems={"center"}>
           <Menu>
             <MenuButton
@@ -281,7 +274,6 @@ const MobileNav = ({ onOpen, ...rest }: MobileProps) => {
               borderColor={useColorModeValue("gray.200", "gray.700")}
             >
               <MenuItem>Profile</MenuItem>
-              <MenuItem>Settings</MenuItem>
               <MenuDivider />
               <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
             </MenuList>
