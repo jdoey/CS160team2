@@ -10,6 +10,6 @@ services:
       - "3000:3000"
       - "5328:5328"
       - "4000:4000"
-    volumes:
-      - .:/app
-      - /app/node_modules
+    # volumes:
+    #   - .:/app
+    #   - /app/node_modules
