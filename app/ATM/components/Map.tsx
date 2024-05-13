@@ -9,7 +9,7 @@ function Map() {
     const [infoWindow, setInfoWindow] = useState<google.maps.InfoWindow | null>(null);
     const mapRef = React.useRef<HTMLDivElement>(null); 
     const [markers, setMarkers] = useState<google.maps.Marker[]>([]);  
-
+    
     useEffect(() => {
         const initMap = async () => {
             const loader = new Loader({
@@ -63,13 +63,18 @@ function Map() {
                         radius: 10000,
                         query: 'Chase ATM',
                     }, (results, status) => {
-                        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                        if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                            alert("No results found.");
+                        } else if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
                             results.forEach(createMarker);
+                        } else {
+                            alert("Error occurred during the search.");
                         }
                     });
                 },
                 (error: GeolocationPositionError) => {
                     console.error("Error getting user location:", error);
+                    alert("Error getting location.");
                 }
             );
         } else {
@@ -95,12 +100,18 @@ function Map() {
                     radius: 10000,
                     query: 'Chase ATM',
                 }, (results, status) => {
-                    if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+                    if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+                        alert("No results found.");
+                    } else if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
                         results.forEach(createMarker);
+                    } else {
+                        alert("Error occurred during the search.");
                     }
-                });
-            }
-        });
+                    });
+                } else {
+                    alert("Address not found.");
+                }
+            });
     };
     
     const createMarker = (place: google.maps.places.PlaceResult) => {
@@ -130,7 +141,7 @@ function Map() {
 
     return (
         <div>
-            <form style={{ margin: "20px" }}>
+            <form style={{ margin: "20px" }} onSubmit= {(e) => e.preventDefault()}>
                 <div style={{ textAlign: "center", marginBottom: '20px' }}>
                     <input 
                         style={{ marginRight: '8px',marginTop: '8px', border: '1px solid black', padding: '10px', borderRadius: '10px', width: '250px' }}
