@@ -159,8 +159,9 @@ class Employee(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
 
-with app.app_context():
-    db.create_all()
+if os.environ.get("TIDB_HOST") == None:
+    with app.app_context():
+        db.create_all()
 
 # scheduler = BackgroundScheduler()
 
