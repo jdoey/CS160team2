@@ -39,7 +39,6 @@ export default function LoginCard() {
       const data = await response.json();
       console.log(data.message);
       if (data.isSuccess == true) {
-        setLoading(false);
         router.push("/user");
       } else {
         setLoading(false);

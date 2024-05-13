@@ -25,7 +25,10 @@ import {
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 
 const form1ValidationSchema = Yup.object({
-  email: Yup.string().email("Invalid email").required("Required"),
+  email: Yup.string()
+    .email("Invalid email")
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email")
+    .required("Required"),
   username: Yup.string()
     .min(6, "Too Short: Must be 6 to 20 characters")
     .max(20, "Too Long: Must be 6 to 20 characters")
@@ -44,15 +47,34 @@ const form2ValidationSchema = Yup.object({
       /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/(19|20)\d{2}$/,
       "Date of birth must be in the format MM/DD/YYYY"
     )
+    .test("dob-valid", "Invalid date of birth", function (value) {
+      if (value) {
+        const dobParts = value.split("/");
+        const dob = new Date(`${dobParts[2]}-${dobParts[0]}-${dobParts[1]}`);
+        return dob <= new Date();
+      }
+      return true;
+    })
     .required("Required"),
 });
 
 const form3ValidationSchema = Yup.object({
-  country: Yup.string().required("Required"),
-  street: Yup.string().required("Required"),
-  city: Yup.string().required("Required"),
-  state: Yup.string().required("Required"),
-  zip: Yup.string().required("Required"),
+  country: Yup.string()
+    .matches(/^[^'"]*$/, "Invalid character(s)")
+    .required("Required"),
+  street: Yup.string()
+    .matches(/^[^'"]*$/, "Invalid character(s)")
+    .required("Required"),
+  city: Yup.string()
+    .matches(/^[^'"]*$/, "Invalid character(s)")
+    .required("Required"),
+  state: Yup.string()
+    .matches(/^[^'"]*$/, "Invalid character(s)")
+    .required("Required"),
+  zip: Yup.string()
+    .matches(/^[0-9]+$/, "Must be numeric")
+    .min(5, "Must be at least 5 digits")
+    .required("Required"),
 });
 
 const Form1 = (props: any) => {

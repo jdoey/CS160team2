@@ -371,7 +371,7 @@ def createAccount():
 
     data = request.json
     accountType = data.get('accountType')
-    amount = int(data.get('initialDeposit'))
+    amount = float(data.get('initialDeposit'))
 
     newAccount = Account()
     newAccount.accountType = accountType
