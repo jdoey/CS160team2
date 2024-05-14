@@ -13,10 +13,12 @@ export default function AtmLoc() {
       <>
       <Flex
         w={'full'}
-        h={'45vh'} 
+        h={'20vh'} 
         backgroundSize={'cover'}
         backgroundRepeat={'no-repeat'}
         backgroundPosition={'center'}
+        alignItems={'center'} 
+        justifyContent={'center'}
         >
         <Stack
           as={Box}
@@ -29,7 +31,7 @@ export default function AtmLoc() {
             fontWeight={600}
             color={'#E1090A'}
             fontSize={{ base: '2xl', sm: '4xl', md: '6xl' }}
-            lineHeight={'90%'}>
+            lineHeight={'100%'}>
             Atm Locations <br />
             <Text as={'span'} color={'#E1090A'} fontSize={{base: '2xs', sm: 'sm', md: 'xl'}}>
               Partnered with chase
