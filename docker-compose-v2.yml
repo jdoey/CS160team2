@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+
+  mysqldb:
+    container_name: mysqldb
+    image: mysql:latest
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      - cs160_network
+    healthcheck:
+        test: ["CMD", "mysql", "-uroot", "-ppassword", "-e", "show databases;"]
+        interval: 10s
+        timeout: 30s
+        retries: 5
+
+  bankapp:
+    container_name: cs160team2
+    image: dinhdanhnguyen/acomapp_sample:v_2
+    ports:
+      - "3000:3000"
+    environment:
+      TIDB_HOST: gateway01.us-west-2.prod.aws.tidbcloud.com
+      TIDB_PORT: 4000
+      TIDB_USER: 2YrnwR6sRgNbDA9.root
+      TIDB_PASSWORD: bfU9vy8zYqVU5srH
+      TIDB_DATABASE: prod
+
+          networks:
+      - cs160_network
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+
+
+networks:
+  cs160_network:
+    driver: bridge
