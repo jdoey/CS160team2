@@ -18,17 +18,10 @@ services:
 
   bankapp:
     container_name: cs160team2
-    image: dinhdanhnguyen/acomapp_sample:v_2
+    image: dinhdanhnguyen/cs160_proj:v_1.1
     ports:
       - "3000:3000"
-    environment:
-      TIDB_HOST: gateway01.us-west-2.prod.aws.tidbcloud.com
-      TIDB_PORT: 4000
-      TIDB_USER: 2YrnwR6sRgNbDA9.root
-      TIDB_PASSWORD: bfU9vy8zYqVU5srH
-      TIDB_DATABASE: prod
-
-          networks:
+    networks:
       - cs160_network
     depends_on:
       mysqldb:
