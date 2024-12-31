@@ -22,17 +22,21 @@ db_database = os.environ.get("TIDB_DATABASE")
 #ssl_ca = os.environ.get("SSL_CA")
 
 
+if os.environ.get("Docker_Run") != "true":
+    db_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
+else:
+    db_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}"
 
-# engine = create_engine("mysql+pymysql://root:password@mysql:3306")
+
+# engine = create_engine(db_url)
 # with engine.connect() as conn:
 #     # conn.execute("commit")
 #     # Do not substitute user-supplied database names here.
-#     conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {NEW_DB_NAME}"))
+#     conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {db_database}"))
 
-if os.environ.get("TIDB_HOST"):
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://root:password@mysqldb:3306/mydb"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+
 
 # Configuring database URI
 # app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
@@ -159,7 +163,7 @@ class Employee(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
 
-if os.environ.get("TIDB_HOST") == None:
+if os.environ.get("Docker_Run") == "true":
     with app.app_context():
         db.create_all()
 

@@ -25,6 +25,13 @@ services:
       - "3000:3000"
     networks:
       - cs160_network
+    environment:
+      TIDB_HOST: mysqldb
+      TIDB_PORT: "3306"
+      TIDB_USER: root
+      TIDB_PASSWORD: password
+      TIDB_DATABASE: mydb
+      Docker_Run: "true"
     depends_on:
       mysqldb:
         condition: service_healthy
