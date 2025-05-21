@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from flask_bcrypt import Bcrypt
 from datetime import datetime, timezone
-from sqlalchemy import desc
+from sqlalchemy import desc, create_engine, text
 # from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv()
@@ -21,10 +21,28 @@ db_password = os.environ.get("TIDB_PASSWORD")
 db_database = os.environ.get("TIDB_DATABASE")
 #ssl_ca = os.environ.get("SSL_CA")
 
+
+if os.environ.get("Docker_Run") != "true":
+    db_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
+else:
+    db_url = f"mysql+pymysql://{db_user}:{db_password}@{db_host}:{db_port}/{db_database}"
+
+
+# engine = create_engine(db_url)
+# with engine.connect() as conn:
+#     # conn.execute("commit")
+#     # Do not substitute user-supplied database names here.
+#     conn.execute(text(f"CREATE DATABASE IF NOT EXISTS {db_database}"))
+
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+
+
 # Configuring database URI
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
+# app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca=/etc/ssl/ca-bundle.pem&ssl_verify_cert=true&ssl_verify_identity=true"
 # app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_database}?ssl_ca={ssl_ca}"
- 
+
+
 # Disable modification tracking
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -75,12 +93,12 @@ class Address(db.Model):
     __tablename__ = "address"
 
     addressId = db.Column(db.Integer, primary_key=True)
-    streetNum = db.Column(db.String, nullable=False)
+    streetNum = db.Column(db.String(20), nullable=False)
     street = db.Column(db.String(50), nullable=False)
     city = db.Column(db.String(200), nullable=False)
     state = db.Column(db.String(200), nullable=False)
     country = db.Column(db.String(200), nullable=False)
-    zipcode = db.Column(db.String, nullable=False)
+    zipcode = db.Column(db.String(20), nullable=False)
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
 
     def __str__(self):
@@ -145,6 +163,9 @@ class Employee(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('user.userId'))
     personId = db.Column(db.Integer, db.ForeignKey('person.personId'), unique=True)
 
+if os.environ.get("Docker_Run") == "true":
+    with app.app_context():
+        db.create_all()
 
 # scheduler = BackgroundScheduler()
 
@@ -354,7 +375,7 @@ def createAccount():
 
     data = request.json
     accountType = data.get('accountType')
-    amount = int(data.get('initialDeposit'))
+    amount = float(data.get('initialDeposit'))
 
     newAccount = Account()
     newAccount.accountType = accountType

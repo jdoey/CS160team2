@@ -11,12 +11,14 @@ import {
   FormControl,
   Stack,
   Select,
+  Input,
   FormLabel,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -26,11 +28,21 @@ import { useToast } from "@chakra-ui/react";
 
 const form1ValidationSchema = Yup.object({
   accountNumber: Yup.string().required("Required"),
-  deposit: Yup.string().required("Required"),
+  deposit: Yup.string()
+    .test(
+      "min-value",
+      "Deposit amount must be at least $0.01",
+      function (value) {
+        if (!value) return false;
+        const amount = parseFloat(value);
+        return amount >= 0.01;
+      }
+    )
+    .required("Required"),
 });
 
 const Form1 = (props: any) => {
-  const format = (val: string) => `$` + val;
+  const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");
 
   const handleSubmit = (values: any) => {
@@ -74,16 +86,21 @@ const Form1 = (props: any) => {
               </FormControl>
               <Field name="deposit">
                 {({ field, form }: any) => (
-                  <FormControl isRequired id="deposit" width={"100%"}>
+                  <FormControl
+                    isRequired
+                    id="deposit"
+                    isInvalid={!!errors.deposit && !!touched.deposit}
+                    width={"100%"}
+                  >
                     <FormLabel htmlFor="deposit">Amount</FormLabel>
                     <NumberInput
                       id="deposit"
+                      precision={2}
                       {...field}
                       onChange={(valueString) =>
                         form.setFieldValue(field.name, parse(valueString))
                       }
                       value={format(field.value)}
-                      min={1}
                     >
                       <NumberInputField />
                       <NumberInputStepper>
@@ -91,6 +108,7 @@ const Form1 = (props: any) => {
                         <NumberDecrementStepper />
                       </NumberInputStepper>
                     </NumberInput>
+                    <ErrorMessage name="deposit" component={FormErrorMessage} />
                   </FormControl>
                 )}
               </Field>
@@ -181,19 +199,25 @@ const Form2 = (props: any) => {
         </Heading>
         <Box flexDirection={"row"}>
           <Box>
-            <FormControl pb={"40px"}>
+            <FormControl pb={"40px"} isRequired>
               <FormLabel>Front of check:</FormLabel>
-              <form action="action_page.php">
-                <input type="file" id="checkPhoto" name="checkPhotoName" />
-              </form>
+              <Input
+                type="file"
+                id="checkPhoto"
+                name="checkPhotoName"
+                required
+              />
             </FormControl>
           </Box>
           <Box>
-            <FormControl>
+            <FormControl isRequired>
               <FormLabel>Back of check:</FormLabel>
-              <form action="action_page.php">
-                <input type="file" id="checkPhoto" name="checkPhotoName" />
-              </form>
+              <Input
+                type="file"
+                id="checkPhoto"
+                name="checkPhotoName"
+                required
+              />
             </FormControl>
           </Box>
         </Box>

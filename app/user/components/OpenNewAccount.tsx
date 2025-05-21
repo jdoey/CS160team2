@@ -21,6 +21,7 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
+  FormErrorMessage,
   useToast,
 } from "@chakra-ui/react";
 
@@ -32,7 +33,18 @@ import AccountTypeRadio from "./AccountTypeRadio";
 
 const validationSchema = Yup.object({
   accountType: Yup.string().required("Required"),
-  initialDeposit: Yup.string().required("Required"),
+  initialDeposit: Yup.string()
+    // .matches(/^\d+(\.\d{2})?$/, "Invalid format")
+    .test(
+      "min-value",
+      "Deposit amount must be at least $200.00",
+      function (value) {
+        if (!value) return false;
+        const amount = parseFloat(value);
+        return amount >= 200;
+      }
+    )
+    .required("Required"),
 });
 
 interface Props {
@@ -44,7 +56,7 @@ export default function OpenNewAccount({ handleReload }: Props) {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
 
-  const format = (val: string) => `$` + val;
+  const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");
 
   const [data, setData] = useState({
@@ -168,18 +180,25 @@ export default function OpenNewAccount({ handleReload }: Props) {
                   </Field>
                   <Field name="initialDeposit">
                     {({ field, form }: any) => (
-                      <FormControl isRequired id="initialDeposit" pt={10}>
+                      <FormControl
+                        isRequired
+                        isInvalid={
+                          !!errors.initialDeposit && !!touched.initialDeposit
+                        }
+                        id="initialDeposit"
+                        pt={10}
+                      >
                         <FormLabel htmlFor="initialDeposit">
                           Initial Deposit (Minimum: $200)
                         </FormLabel>
                         <NumberInput
                           id="initialDeposit"
+                          precision={2}
                           {...field}
                           onChange={(valueString) =>
                             form.setFieldValue(field.name, parse(valueString))
                           }
                           value={format(field.value)}
-                          min={200}
                         >
                           <NumberInputField />
                           <NumberInputStepper>
@@ -187,6 +206,10 @@ export default function OpenNewAccount({ handleReload }: Props) {
                             <NumberDecrementStepper />
                           </NumberInputStepper>
                         </NumberInput>
+                        <ErrorMessage
+                          name="initialDeposit"
+                          component={FormErrorMessage}
+                        />
                       </FormControl>
                     )}
                   </Field>

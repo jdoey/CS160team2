@@ -46,25 +46,52 @@ import * as Yup from "yup";
 const validationSchema = Yup.object({
   fromAccount: Yup.string().required("Required"),
   toAccount: Yup.string().required("Required"),
-  amount: Yup.string().required("Required"),
+  amount: Yup.string()
+    .test("min-value", "Minimum $0.50", function (value) {
+      if (!value) return false;
+      const amount = parseFloat(value);
+      return amount >= 0.5;
+    })
+    .required("Required"),
 });
 
 const payValidationSchema = Yup.object({
   fromAccount: Yup.string().required("Required"),
   recipient: Yup.string().required("Required"),
-  amount: Yup.string().required("Required"),
+  amount: Yup.string()
+    .test("min-value", "Minimum $0.50", function (value) {
+      if (!value) return false;
+      const amount = parseFloat(value);
+      return amount >= 0.5;
+    })
+    .required("Required"),
 });
 
 const autoPayValidationSchema = Yup.object({
   fromAccount: Yup.string().required("Required"),
   recipient: Yup.string().required("Required"),
-  amount: Yup.string().required("Required"),
+  amount: Yup.string()
+    .test("min-value", "Minimum $0.50", function (value) {
+      if (!value) return false;
+      const amount = parseFloat(value);
+      return amount >= 0.5;
+    })
+    .required("Required"),
   frequency: Yup.string().required("Required"),
   payDate: Yup.string()
     .matches(
       /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/,
       "Pay date must be in the format MM/DD/YYYY and valid"
     )
+    .test("valid-date", "Invalid payment date", function (value) {
+      if (value) {
+        const dateParts = value.split("/");
+        const paymentDate = new Date(
+          `${dateParts[2]}-${dateParts[0]}-${dateParts[1]}`
+        );
+        return paymentDate >= new Date();
+      }
+    })
     .required("Required"),
 });
 
@@ -81,7 +108,7 @@ export default function Page() {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [autoPayments, setAutoPayments] = useState([]);
 
-  const format = (val: string) => `$` + val;
+  const format = (val: string) => val;
   const parse = (val: string) => val.replace(/^\$/, "");
 
   const handleSubmit = (values: any) => {
@@ -395,6 +422,9 @@ export default function Page() {
                               {({ field, form }: any) => (
                                 <FormControl
                                   isRequired
+                                  isInvalid={
+                                    !!errors.amount && !!touched.amount
+                                  }
                                   id="amount"
                                   width={"100%"}
                                   pt={2}
@@ -403,6 +433,7 @@ export default function Page() {
                                   <FormLabel htmlFor="amount">Amount</FormLabel>
                                   <NumberInput
                                     id="amount"
+                                    precision={2}
                                     {...field}
                                     onChange={(valueString) =>
                                       form.setFieldValue(
@@ -411,7 +442,6 @@ export default function Page() {
                                       )
                                     }
                                     value={format(field.value)}
-                                    min={1}
                                   >
                                     <NumberInputField />
                                     <NumberInputStepper>
@@ -419,6 +449,10 @@ export default function Page() {
                                       <NumberDecrementStepper />
                                     </NumberInputStepper>
                                   </NumberInput>
+                                  <ErrorMessage
+                                    name="amount"
+                                    component={FormErrorMessage}
+                                  />
                                 </FormControl>
                               )}
                             </Field>
@@ -528,6 +562,9 @@ export default function Page() {
                               {({ field, form }: any) => (
                                 <FormControl
                                   isRequired
+                                  isInvalid={
+                                    !!errors.amount && !!touched.amount
+                                  }
                                   id="amount"
                                   width={"100%"}
                                   pt={2}
@@ -535,6 +572,7 @@ export default function Page() {
                                   <FormLabel htmlFor="amount">Amount</FormLabel>
                                   <NumberInput
                                     id="amount"
+                                    precision={2}
                                     {...field}
                                     onChange={(valueString) =>
                                       form.setFieldValue(
@@ -543,7 +581,6 @@ export default function Page() {
                                       )
                                     }
                                     value={format(field.value)}
-                                    min={1}
                                   >
                                     <NumberInputField />
                                     <NumberInputStepper>
@@ -551,6 +588,10 @@ export default function Page() {
                                       <NumberDecrementStepper />
                                     </NumberInputStepper>
                                   </NumberInput>
+                                  <ErrorMessage
+                                    name="amount"
+                                    component={FormErrorMessage}
+                                  />
                                 </FormControl>
                               )}
                             </Field>
@@ -733,6 +774,9 @@ export default function Page() {
                               {({ field, form }: any) => (
                                 <FormControl
                                   isRequired
+                                  isInvalid={
+                                    !!errors.amount && !!touched.amount
+                                  }
                                   id="amount"
                                   width={"100%"}
                                   pt={2}
@@ -741,6 +785,7 @@ export default function Page() {
                                   <FormLabel htmlFor="amount">Amount</FormLabel>
                                   <NumberInput
                                     id="amount"
+                                    precision={2}
                                     {...field}
                                     onChange={(valueString) =>
                                       form.setFieldValue(
@@ -749,7 +794,6 @@ export default function Page() {
                                       )
                                     }
                                     value={format(field.value)}
-                                    min={1}
                                   >
                                     <NumberInputField />
                                     <NumberInputStepper>
@@ -757,6 +801,10 @@ export default function Page() {
                                       <NumberDecrementStepper />
                                     </NumberInputStepper>
                                   </NumberInput>
+                                  <ErrorMessage
+                                    name="amount"
+                                    component={FormErrorMessage}
+                                  />
                                 </FormControl>
                               )}
                             </Field>
@@ -836,6 +884,9 @@ export default function Page() {
                               {({ field, form }: any) => (
                                 <FormControl
                                   isRequired
+                                  isInvalid={
+                                    !!errors.amount && !!touched.amount
+                                  }
                                   id="amount"
                                   width={"100%"}
                                   pt={2}
@@ -844,6 +895,7 @@ export default function Page() {
                                   <FormLabel htmlFor="amount">Amount</FormLabel>
                                   <NumberInput
                                     id="amount"
+                                    precision={2}
                                     {...field}
                                     onChange={(valueString) =>
                                       form.setFieldValue(
@@ -852,7 +904,6 @@ export default function Page() {
                                       )
                                     }
                                     value={format(field.value)}
-                                    min={1}
                                   >
                                     <NumberInputField />
                                     <NumberInputStepper>
@@ -860,6 +911,10 @@ export default function Page() {
                                       <NumberDecrementStepper />
                                     </NumberInputStepper>
                                   </NumberInput>
+                                  <ErrorMessage
+                                    name="amount"
+                                    component={FormErrorMessage}
+                                  />
                                 </FormControl>
                               )}
                             </Field>
